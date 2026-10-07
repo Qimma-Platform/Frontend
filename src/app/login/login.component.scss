@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.lang-btn, button.lang-btn {
+  width: auto !important;
+  max-width: fit-content !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+}
+
+header, .top-bar, .lang-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,0 +1,247 @@
+<div class="min-h-screen flex font-sans bg-[#F4F7FE] relative" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+
+    <!-- زرار تغيير اللغة ثابت في أعلى اليمين دائماً بشكل شيك وصغير -->
+    <div class="absolute top-6 ltr:right-6 rtl:left-6 z-50">
+        <button (click)="toggleLanguage()" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 shadow-sm border border-slate-200 rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-pointer">
+            {{ content[currentLang].langSwitch }} 🌐
+        </button>
+    </div>
+
+    <!-- رسالة التنبيه (Toast) -->
+    <div *ngIf="notification.message"
+        class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-xl text-white font-bold transition-all duration-500 flex items-center gap-3 animate-fade-in"
+        [ngClass]="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'">
+        <span>{{ notification.message }}</span>
+    </div>
+
+    <!-- القسم الأيسر: الجرافيك والتعريف بالمنصة -->
+    <div class="hidden lg:flex w-5/12 bg-[#130E35] text-white flex-col justify-between p-12 relative overflow-hidden">
+        <div
+            class="absolute -top-20 -right-20 w-96 h-96 bg-indigo-600 rounded-full mix-blend-screen filter blur-[100px] opacity-30">
+        </div>
+        <div
+            class="absolute -bottom-20 -left-20 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20">
+        </div>
+
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-16">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-blue-400 to-purple-500 rounded-lg flex items-center justify-center font-bold text-xl">
+                    F</div>
+                <span class="text-2xl font-bold tracking-wide">Fluency First</span>
+            </div>
+
+            <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-6">
+                {{ content[currentLang].leftTitle }}
+            </h1>
+            <p class="text-indigo-200 text-lg mb-12 max-w-md leading-relaxed">
+                {{ content[currentLang].leftDesc }}
+            </p>
+
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-indigo-300">✈️
+                    </div>
+                    <span class="text-indigo-100 font-medium">{{ content[currentLang].feat1 }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-indigo-300">📊
+                    </div>
+                    <span class="text-indigo-100 font-medium">{{ content[currentLang].feat2 }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-indigo-300">🤝
+                    </div>
+                    <span class="text-indigo-100 font-medium">{{ content[currentLang].feat3 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- القسم الأيمن: الفورم (تسجيل دخول / حساب جديد) -->
+    <div class="w-full lg:w-7/12 flex items-center justify-center p-6 relative">
+
+        <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
+
+            <div class="flex bg-[#F9FAFB] p-1 rounded-xl mb-10 border border-gray-100" *ngIf="currentMode !== 'forgot'">
+                <button (click)="currentMode = 'login'"
+                    [ngClass]="currentMode === 'login' ? 'bg-white shadow-sm text-gray-900 border border-gray-200' : 'text-gray-500 hover:text-gray-700'"
+                    class="w-1/2 py-2.5 rounded-lg text-sm font-bold transition-all">
+                    {{ content[currentLang].loginTab }}
+                </button>
+                <button (click)="currentMode = 'signup'"
+                    [ngClass]="currentMode === 'signup' ? 'bg-white shadow-sm text-gray-900 border border-gray-200' : 'text-gray-500 hover:text-gray-700'"
+                    class="w-1/2 py-2.5 rounded-lg text-sm font-bold transition-all">
+                    {{ content[currentLang].signupTab }}
+                </button>
+            </div>
+
+            <!-- نموذج تسجيل الدخول -->
+            <form *ngIf="currentMode === 'login'" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()"
+                class="animate-fade-in">
+                <h2 class="text-3xl font-extrabold text-[#111827] mb-2">{{ content[currentLang].loginTitle }}</h2>
+                <p class="text-gray-500 text-sm mb-8">{{ content[currentLang].loginDesc }}</p>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2">{{ content[currentLang].emailLabel
+                            }}</label>
+                        <div class="relative">
+                            <span
+                                class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                            <input type="email" formControlName="email"
+                                class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3.5 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-left dir-ltr"
+                                [placeholder]="content[currentLang].emailPlaceholder">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2">{{
+                            content[currentLang].passwordLabel }}</label>
+                        <div class="relative">
+                            <span
+                                class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                            <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                                class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3.5 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-left dir-ltr"
+                                [placeholder]="content[currentLang].passwordPlaceholder">
+                            <button type="button" (click)="togglePasswordVisibility()"
+                                class="absolute top-1/2 -translate-y-1/2 rtl:left-4 ltr:right-4 text-gray-400 hover:text-indigo-600 focus:outline-none">
+                                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center cursor-pointer gap-2">
+                            <input type="checkbox" formControlName="rememberMe"
+                                class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
+                            <span class="text-sm text-gray-600">{{ content[currentLang].rememberMe }}</span>
+                        </label>
+                        <a href="javascript:void(0)" (click)="currentMode = 'forgot'"
+                            class="text-sm font-semibold text-[#4F46E5] hover:text-[#3730A3]">{{
+                            content[currentLang].forgotPassLink }}</a>
+                    </div>
+
+                    <button type="submit" [disabled]="loginForm.invalid"
+                        class="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed mt-4">
+                        {{ content[currentLang].loginBtn }}
+                    </button>
+                </div>
+
+                <p class="text-center text-sm text-gray-500 mt-8">
+                    {{ content[currentLang].noAccount }} <a href="javascript:void(0)" (click)="currentMode = 'signup'"
+                        class="text-[#4F46E5] font-bold hover:underline">{{ content[currentLang].signupTab }}</a>
+                </p>
+            </form>
+
+            <!-- نموذج إنشاء حساب -->
+            <form *ngIf="currentMode === 'signup'" [formGroup]="signupForm" (ngSubmit)="onSignupSubmit()"
+                class="animate-fade-in">
+                <h2 class="text-3xl font-extrabold text-[#111827] mb-2">{{ content[currentLang].signupTitle }}</h2>
+                <p class="text-gray-500 text-sm mb-8">{{ content[currentLang].signupDesc }}</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1.5">{{ content[currentLang].nameLabel
+                            }}</label>
+                        <div class="relative">
+                            <span
+                                class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                            <input type="text" formControlName="username"
+                                class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                                [placeholder]="content[currentLang].namePlaceholder">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1.5">{{ content[currentLang].emailLabel
+                            }}</label>
+                        <div class="relative">
+                            <span
+                                class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                            <input type="email" formControlName="email"
+                                class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-left dir-ltr"
+                                [placeholder]="content[currentLang].emailPlaceholder">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1.5">{{
+                            content[currentLang].passwordLabel }}</label>
+                        <div class="relative">
+                            <span
+                                class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                            <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                                class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-left dir-ltr"
+                                [placeholder]="content[currentLang].passwordPlaceholder">
+                            <button type="button" (click)="togglePasswordVisibility()"
+                                class="absolute top-1/2 -translate-y-1/2 rtl:left-4 ltr:right-4 text-gray-400 hover:text-indigo-600 focus:outline-none">
+                                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1.5">{{
+                            content[currentLang].accountTypeLabel }}</label>
+                        <select formControlName="role"
+                            class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer">
+                            <option [value]="0">{{ content[currentLang].studentOpt }}</option>
+                            <option [value]="1">{{ content[currentLang].teacherOpt }}</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" [disabled]="signupForm.invalid"
+                        class="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+                        {{ content[currentLang].signupBtn }}
+                    </button>
+                </div>
+
+                <p class="text-center text-sm text-gray-500 mt-6">
+                    {{ content[currentLang].haveAccount }} <a href="javascript:void(0)" (click)="currentMode = 'login'"
+                        class="text-[#4F46E5] font-bold hover:underline">{{ content[currentLang].loginTab }}</a>
+                </p>
+            </form>
+
+            <!-- نموذج استعادة كلمة المرور -->
+            <form *ngIf="currentMode === 'forgot'" [formGroup]="forgotForm" (ngSubmit)="onForgotSubmit()"
+                class="animate-fade-in text-center">
+                <div class="w-20 h-20 bg-[#F4F7FE] rounded-full flex items-center justify-center mx-auto mb-6"><span
+                        class="text-3xl"></span></div>
+                <h2 class="text-3xl font-extrabold text-[#111827] mb-2">{{ content[currentLang].forgotTitle }}</h2>
+                <p class="text-gray-500 text-sm mb-8">{{ content[currentLang].forgotDesc }}</p>
+
+                <div class="text-start mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">{{ content[currentLang].emailLabel
+                        }}</label>
+                    <div class="relative">
+                        <span class="absolute top-1/2 -translate-y-1/2 rtl:right-4 ltr:left-4 text-gray-400"></span>
+                        <input type="email" formControlName="email"
+                            class="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl px-4 py-3.5 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-left dir-ltr"
+                            [placeholder]="content[currentLang].emailPlaceholder">
+                    </div>
+                </div>
+
+                <button type="submit" [disabled]="forgotForm.invalid"
+                    class="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold py-3.5 rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    {{ content[currentLang].sendLinkBtn }}
+                </button>
+
+                <div class="mt-8 text-center">
+                    <a href="javascript:void(0)" (click)="currentMode = 'login'" 
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-[#4F46E5] transition-colors">
+                    
+                    <ng-container *ngIf="currentLang === 'en'">
+                        <span>←</span> Back to Login
+                    </ng-container>
+
+                    <ng-container *ngIf="currentLang === 'ar'">
+                        العودة لتسجيل الدخول <span>→</span>
+                    </ng-container>
+                    
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
