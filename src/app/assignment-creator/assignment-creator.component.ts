@@ -50,6 +50,12 @@ import { AssignmentService } from '../services/assignment.service';
       <main class="flex-1 max-w-4xl w-full mx-auto p-6 space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-6">
 
+          <div *ngIf="errorMessage" class="bg-rose-50 border-2 border-rose-300 text-rose-700 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 animate-fade-in shadow-md">
+            <span class="text-xl">⚠️</span>
+            <span class="flex-1">{{ errorMessage }}</span>
+            <button type="button" (click)="errorMessage = ''" class="text-rose-400 hover:text-rose-600 font-black">✕</button>
+          </div>
+
           <!-- Assignment Title -->
           <div>
             <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].assignmentTitle }}</label>
@@ -59,7 +65,7 @@ import { AssignmentService } from '../services/assignment.service';
           <!-- Due Date -->
           <div>
             <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].dueDate }}</label>
-            <input type="datetime-local" [(ngModel)]="assignmentData.dueDate" [min]="minDate" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm dir-ltr text-left">
+            <input type="datetime-local" [(ngModel)]="assignmentData.dueDate" [min]="minDate" (click)="$any($event.target).showPicker?.()" (keydown)="preventDateKeyboardTyping($event)" (input)="validateDueDate($event)" (change)="validateDueDate($event)" style="accent-color: #4f46e5 !important;" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm dir-ltr text-left accent-indigo-600">
           </div>
 
           <!-- Questions -->
@@ -88,7 +94,7 @@ import { AssignmentService } from '../services/assignment.service';
             <div *ngIf="q.type === 'mcq'" class="space-y-2">
               <label class="text-xs font-bold text-slate-500">{{ t[lang].options }}</label>
               <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
-                <input type="radio" [name]="'correct_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-indigo-600">
+                <input type="radio" [name]="'correct_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" style="accent-color: #4f46e5 !important;" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
                 <input type="text" [(ngModel)]="q.options[oIdx]" [name]="'q_' + qIdx + '_opt_' + oIdx" [placeholder]="t[lang].optionPlaceholder + ' ' + (oIdx + 1)" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none">
               </div>
             </div>
@@ -110,7 +116,7 @@ import { AssignmentService } from '../services/assignment.service';
             <button (click)="goBack()" class="flex-1 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl text-base transition">
               {{ t[lang].cancel }}
             </button>
-            <button (click)="saveAssignment()" [disabled]="isSaving" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-2xl text-base shadow-md transition">
+            <button (click)="saveAssignment()" [disabled]="isSaving" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold rounded-xl text-base shadow-md transition">
               {{ isSaving ? t[lang].saving : t[lang].save }}
             </button>
           </div>
@@ -130,6 +136,7 @@ export class AssignmentCreatorComponent implements OnInit {
   isSaving = false;
   showDeleteModal = false;
   minDate = '';
+  errorMessage = '';
 
   assignmentData: any = {
     title: '',
@@ -187,12 +194,32 @@ export class AssignmentCreatorComponent implements OnInit {
     private assignmentService: AssignmentService
   ) {}
 
+  getLocalDateTimeString(d: Date = new Date()): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  preventDateKeyboardTyping(event: KeyboardEvent) {
+    if (['Tab', 'Escape', 'Enter'].includes(event.key)) {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  validateDueDate(event?: any) {
+    const nowStr = this.getLocalDateTimeString();
+    this.minDate = nowStr;
+    if (this.assignmentData.dueDate && this.assignmentData.dueDate < nowStr) {
+      this.assignmentData.dueDate = nowStr;
+      this.errorMessage = this.lang === 'ar' ? 'لا يمكن اختيار تاريخ أو وقت في الماضي.' : 'Cannot select a date or time in the past.';
+      this.showMsg(this.errorMessage, 'error');
+    }
+  }
+
   ngOnInit() {
     this.langService.currentLang$.subscribe(l => this.lang = l);
 
-    const today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    this.minDate = today.toISOString().slice(0, 16);
+    this.minDate = this.getLocalDateTimeString();
     this.assignmentData.dueDate = this.minDate;
 
     this.route.params.subscribe(params => {
@@ -254,24 +281,53 @@ export class AssignmentCreatorComponent implements OnInit {
   }
 
   saveAssignment() {
+    this.errorMessage = '';
+
     // Validation
     if (!this.assignmentData.title || !this.assignmentData.title.trim()) {
-      this.showMsg(this.t[this.lang].validationError, 'error');
+      this.errorMessage = this.lang === 'ar' ? 'يرجى إدخال عنوان الواجب.' : 'Please enter the assignment title.';
+      this.showMsg(this.errorMessage, 'error');
+      return;
+    }
+    if (this.assignmentData.title.startsWith(' ')) {
+      this.errorMessage = this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الواجب بمسافة فارغة.' : 'Assignment title cannot start with a space.';
+      this.showMsg(this.errorMessage, 'error');
       return;
     }
     if (!this.assignmentData.dueDate) {
-      this.showMsg(this.t[this.lang].validationError, 'error');
+      this.errorMessage = this.lang === 'ar' ? 'يرجى تحديد موعد وتاريخ التسليم.' : 'Please select the assignment due date & time.';
+      this.showMsg(this.errorMessage, 'error');
       return;
     }
-    for (let q of this.assignmentData.questions) {
+    const nowStr = this.getLocalDateTimeString();
+    if (this.assignmentData.dueDate < nowStr) {
+      this.errorMessage = this.lang === 'ar' ? 'لا يمكن تحديد موعد تسليم في الماضي.' : 'Assignment due date cannot be in the past.';
+      this.showMsg(this.errorMessage, 'error');
+      return;
+    }
+    for (let i = 0; i < this.assignmentData.questions.length; i++) {
+      const q = this.assignmentData.questions[i];
       if (!q.text || !q.text.trim()) {
-        this.showMsg(this.t[this.lang].validationError, 'error');
+        this.errorMessage = this.lang === 'ar' ? `يرجى إدخال نص السؤال #${i + 1}.` : `Please enter text for question #${i + 1}.`;
+        this.showMsg(this.errorMessage, 'error');
+        return;
+      }
+      if (q.text.startsWith(' ')) {
+        this.errorMessage = this.lang === 'ar' ? `لا يمكن أن يبدأ نص السؤال #${i + 1} بمسافة فارغة.` : `Question #${i + 1} text cannot start with a space.`;
+        this.showMsg(this.errorMessage, 'error');
         return;
       }
       if (q.type === 'mcq') {
-        for (let opt of q.options) {
+        for (let j = 0; j < q.options.length; j++) {
+          const opt = q.options[j];
           if (!opt || !opt.trim()) {
-            this.showMsg(this.t[this.lang].validationError, 'error');
+            this.errorMessage = this.lang === 'ar' ? `يرجى ملء جميع خيارات السؤال #${i + 1}.` : `Please fill out all options for question #${i + 1}.`;
+            this.showMsg(this.errorMessage, 'error');
+            return;
+          }
+          if (opt.startsWith(' ')) {
+            this.errorMessage = this.lang === 'ar' ? `لا يمكن أن يبدأ خيار الإجابة في السؤال #${i + 1} بمسافة فارغة.` : `Option text in question #${i + 1} cannot start with a space.`;
+            this.showMsg(this.errorMessage, 'error');
             return;
           }
         }
@@ -280,10 +336,13 @@ export class AssignmentCreatorComponent implements OnInit {
 
     this.isSaving = true;
 
+    const rawDue = this.assignmentData.dueDate;
+    const formattedDue = rawDue.includes('T') ? (rawDue.length === 16 ? rawDue + ':00' : rawDue) : rawDue;
+
     const payload = {
-      title: this.assignmentData.title,
+      title: this.assignmentData.title.trim(),
       description: 'Lesson Assignment',
-      dueDate: new Date(this.assignmentData.dueDate).toISOString(),
+      dueDate: formattedDue,
       totalScore: this.assignmentData.questions.length * 10,
       courseId: this.courseId,
       lessonId: this.lessonId,
@@ -302,9 +361,10 @@ export class AssignmentCreatorComponent implements OnInit {
         this.showMsg(this.t[this.lang].successMsg, 'success');
         setTimeout(() => this.goBack(), 1500);
       },
-      error: () => {
+      error: (err: any) => {
         this.isSaving = false;
-        this.showMsg(this.t[this.lang].serverError, 'error');
+        this.errorMessage = err?.error?.message || this.t[this.lang].serverError;
+        this.showMsg(this.errorMessage, 'error');
       }
     });
   }

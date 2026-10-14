@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
@@ -79,7 +79,7 @@ import { LanguageService } from '../services/language.service';
               <label class="text-xs font-bold text-slate-500">{{ t[lang].options }}</label>
               <!-- ضفنا trackBy للاختيارات، ده اللي بيحل الباج! -->
               <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
-                <input type="radio" [name]="'correct_option_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-indigo-600">
+                <input type="radio" [name]="'correct_option_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" style="accent-color: #4f46e5 !important;" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
                 
                 <!-- الأنجولار دلوقتي بيقدر يفرق بين حقول الإدخال دي -->
                 <input type="text" [(ngModel)]="q.options[oIdx]" [name]="'q_' + qIdx + '_opt_' + oIdx" [placeholder]="t[lang].optionPlaceholder + ' ' + (oIdx + 1)" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none">
@@ -98,7 +98,7 @@ import { LanguageService } from '../services/language.service';
             <button (click)="cancelQuiz()" class="flex-1 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl text-base transition">
                {{ t[lang].cancelQuiz }}
             </button>
-            <button (click)="saveQuiz()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-base shadow-md transition">
+            <button (click)="saveQuiz()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-base shadow-md transition">
                {{ t[lang].saveQuiz }}
             </button>
           </div>
@@ -147,7 +147,8 @@ export class QuizCreatorComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private langService: LanguageService
+    private langService: LanguageService,
+    private location: Location
   ) {}
 
   ngOnInit() {
@@ -210,7 +211,7 @@ export class QuizCreatorComponent implements OnInit {
   }
 
   cancelQuiz() {
-    this.router.navigate(['/teacher-dashboard']);
+    this.location.back();
   }
 
   openDeleteModal() {
@@ -252,9 +253,17 @@ export class QuizCreatorComponent implements OnInit {
         this.showMessage(this.t[this.lang].validationError, 'error');
         return;
       }
+      if (q.text.startsWith(' ')) {
+        this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ نص السؤال بمسافة فارغة.' : 'Question text cannot start with a space.', 'error');
+        return;
+      }
       for (let opt of q.options) {
         if (!opt.trim()) {
           this.showMessage(this.t[this.lang].validationError, 'error');
+          return;
+        }
+        if (opt.startsWith(' ')) {
+          this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ خيار الإجابة بمسافة فارغة.' : 'Option text cannot start with a space.', 'error');
           return;
         }
       }
@@ -272,13 +281,13 @@ export class QuizCreatorComponent implements OnInit {
       next: () => {
         this.showMessage(this.t[this.lang].successMsg, 'success');
         this.clearAllStudentAttemptsForThisLesson();
-        setTimeout(() => this.router.navigate(['/teacher-dashboard']), 1500);
+        setTimeout(() => this.location.back(), 1500);
       },
       error: () => this.showMessage(this.t[this.lang].serverError, 'error')
     });
   }
 
   goBack() {
-    this.router.navigate(['/teacher-dashboard']);
+    this.location.back();
   }
 }

@@ -13,12 +13,14 @@ import { SettingsComponent } from './settings/settings.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { CourseLandingComponent } from './course-landing/course-landing.component';
 import { AssignmentSolverComponent } from './assignment-solver/assignment-solver.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: StudentDashboardComponent, canActivate: [authGuard] },
   { path: 'teacher-dashboard', component: TeacherDashboardComponent, canActivate: [authGuard] },
+  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [authGuard] },
   { path: 'courses', component: CourseCatalogComponent, canActivate: [authGuard] },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'course/:id', component: CourseDetailsComponent, canActivate: [authGuard] },

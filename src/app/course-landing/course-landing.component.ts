@@ -140,6 +140,22 @@ export class CourseLandingComponent implements OnInit {
   }
 
   loadCourseData() {
+    const token = localStorage.getItem('token');
+    const headers = token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : undefined;
+
+    if (token) {
+      this.http.get<any[]>('http://localhost:5162/api/course/my-courses', { headers }).subscribe({
+        next: (myCourses) => {
+          if (myCourses && myCourses.some(mc => mc.id === this.courseId)) {
+            // Already enrolled - skip landing/subscription flow
+            this.router.navigate(['/learn', this.courseId], { replaceUrl: true });
+            return;
+          }
+        },
+        error: () => {}
+      });
+    }
+
     this.courseService.getAllCourses().subscribe({
       next: (courses: any[]) => {
         this.course = courses.find(c => c.id === this.courseId);
@@ -159,7 +175,7 @@ export class CourseLandingComponent implements OnInit {
       this.http.post(`http://localhost:5162/api/course/enroll/${this.courseId}`, {}, { headers }).subscribe({
         next: () => {
           this.showMessage(this.t[this.lang].successMsg, 'success');
-          setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+          setTimeout(() => this.router.navigate(['/dashboard'], { replaceUrl: true }), 1500);
         },
         error: () => {
           this.isEnrolling = false;
@@ -174,7 +190,7 @@ export class CourseLandingComponent implements OnInit {
         next: (response) => {
           const checkoutUrl = response.checkoutUrl || response.CheckoutUrl;
           if (checkoutUrl) {
-            window.location.href = checkoutUrl;
+            window.location.replace(checkoutUrl);
           } else {
             this.isEnrolling = false;
             this.showMessage(this.t[this.lang].errorMsg, 'error');
@@ -193,7 +209,7 @@ export class CourseLandingComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard'], { replaceUrl: true });
   }
 
   showMessage(msg: string, type: 'success' | 'error' | 'warning') {

@@ -303,7 +303,11 @@ export class CoursePlayerComponent implements OnInit {
           });
 
           this.isLoading = false;
-          if (this.lessons.length > 0) {
+          const targetLessonId = this.route.snapshot.queryParams['lessonId'];
+          const targetLesson = targetLessonId ? this.lessons.find(l => l.id == targetLessonId) : null;
+          if (targetLesson) {
+            this.selectLesson(targetLesson);
+          } else if (this.lessons.length > 0) {
             this.selectLesson(this.lessons[0]);
           }
         });
@@ -453,7 +457,7 @@ export class CoursePlayerComponent implements OnInit {
   openQuiz(event: Event) {
     event.stopPropagation();
     if (this.currentLesson) {
-      this.router.navigate(['/quiz-solver', this.currentLesson.id]);
+      this.router.navigate(['/quiz-solver', this.currentLesson.id], { replaceUrl: true });
     }
   }
 

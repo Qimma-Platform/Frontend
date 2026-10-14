@@ -180,15 +180,39 @@ import { Router, ActivatedRoute } from '@angular/router';
                      </button>
                   </div>
                   <!-- PASSWORD STRENGTH METER -->
-                  <div class="mt-2 flex gap-1">
-                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="passwordStrength.length ? 'bg-emerald-500' : 'bg-slate-200'"></div>
-                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="passwordStrength.case ? 'bg-emerald-500' : 'bg-slate-200'"></div>
-                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="passwordStrength.number ? 'bg-emerald-500' : 'bg-slate-200'"></div>
-                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="passwordStrength.special ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+                  <div class="mt-2 flex gap-1.5">
+                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="reqLength ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="reqCase ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="reqNumber ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+                     <div class="h-1.5 flex-1 rounded-full transition-colors duration-300" [ngClass]="reqSpecial ? 'bg-emerald-500' : 'bg-slate-200'"></div>
                   </div>
-                  <p class="text-[10px] text-slate-500 mt-1.5 font-semibold leading-relaxed">
-                    {{ currentLang === 'ar' ? 'يجب أن تحتوي على 8 أحرف، حروف كبيرة وصغيرة، رقم، ورمز خاص (&#64;#$%&*).' : 'Must contain 8 chars, uppercase & lowercase, a number, and a special character (&#64;#$%&*).' }}
-                  </p>
+                  <!-- SEQUENTIAL REQUIREMENTS CHECKLIST -->
+                  <div class="grid grid-cols-2 gap-2 mt-2.5 text-[11px]">
+                    <div class="flex items-center gap-1.5 transition-colors duration-200" [ngClass]="reqLength ? 'text-emerald-600 font-bold' : 'text-slate-400'">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      <span>{{ currentLang === 'ar' ? '8 أحرف على الأقل' : '8+ Characters' }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-200" [ngClass]="reqCase ? 'text-emerald-600 font-bold' : 'text-slate-400'">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      <span>{{ currentLang === 'ar' ? 'حروف كبيرة وصغيرة' : 'Upper & Lowercase' }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-200" [ngClass]="reqNumber ? 'text-emerald-600 font-bold' : 'text-slate-400'">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      <span>{{ currentLang === 'ar' ? 'رقم واحد على الأقل' : 'At least one number' }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 transition-colors duration-200" [ngClass]="reqSpecial ? 'text-emerald-600 font-bold' : 'text-slate-400'">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      <span>{{ currentLang === 'ar' ? 'رمز خاص (@#$%&*)' : 'Special (@#$%&*)' }}</span>
+                    </div>
+                  </div>
                </div>
 
                <button type="submit" [disabled]="signupForm.invalid || !isPasswordStrong || (signupForm.get('role')?.value === 2 && !signupForm.get('adminSecretKey')?.value) || isSigningUp" class="w-full py-4 bg-[#130E35] hover:bg-slate-800 text-white font-bold rounded-xl transition shadow-lg disabled:opacity-50 mt-4 flex items-center justify-center gap-2">
@@ -264,9 +288,13 @@ export class LoginComponent implements OnInit {
 
   pendingEmail: string = '';
 
-  passwordStrength = { length: false, case: false, number: false, special: false };
+  reqLength = false;
+  reqCase = false;
+  reqNumber = false;
+  reqSpecial = false;
+
   get isPasswordStrong(): boolean {
-    return Object.values(this.passwordStrength).every(Boolean);
+    return this.reqLength && this.reqCase && this.reqNumber && this.reqSpecial;
   }
 
   private apiUrl = 'http://localhost:5162/api/auth'; 
@@ -337,6 +365,9 @@ export class LoginComponent implements OnInit {
 
     // 2. Track URL Parameters for Back button sync
     this.route.queryParams.subscribe(params => {
+      if (params['reset'] === 'success') {
+        this.showToast(this.currentLang === 'ar' ? 'تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.' : 'Password reset successfully! You can now log in.', 'success');
+      }
       const mode = params['mode'];
       if (mode === 'signup' || mode === 'forgot' || mode === 'otp') {
         this.currentMode = mode;
@@ -355,7 +386,10 @@ export class LoginComponent implements OnInit {
       
       this.signupForm.markAsUntouched();
       this.signupForm.markAsPristine();
-      this.passwordStrength = { length: false, case: false, number: false, special: false };
+      this.reqLength = false;
+      this.reqCase = false;
+      this.reqNumber = false;
+      this.reqSpecial = false;
     });
   }
 
@@ -372,11 +406,17 @@ export class LoginComponent implements OnInit {
   }
 
   onPasswordInput(event: any) {
-    const p = event.target.value;
-    this.passwordStrength.length = p.length >= 8;
-    this.passwordStrength.case = /[a-z]/.test(p) && /[A-Z]/.test(p);
-    this.passwordStrength.number = /[0-9]/.test(p);
-    this.passwordStrength.special = /[@#$%&*]/.test(p);
+    const p = event.target.value || '';
+    const lengthMet = p.length >= 8;
+    const caseMet = /[a-z]/.test(p) && /[A-Z]/.test(p);
+    const numberMet = /[0-9]/.test(p);
+    const specialMet = /[@#$%&*]/.test(p);
+
+    // Sequential logic: Each requirement turns green as soon as it is met, starting from the beginning
+    this.reqLength = lengthMet;
+    this.reqCase = this.reqLength && caseMet;
+    this.reqNumber = this.reqCase && numberMet;
+    this.reqSpecial = this.reqNumber && specialMet;
   }
 
   showToast(message: string, type: 'success' | 'error' | 'warning') {
@@ -476,7 +516,9 @@ export class LoginComponent implements OnInit {
         this.isLoggingIn = false;
         const roleCheck = String(userRole).toLowerCase();
         // Uses replaceUrl: true to ERASE the login page from the browser's back history stack!
-        if (roleCheck === '1' || roleCheck === 'teacher') {
+        if (roleCheck === '2' || roleCheck === 'admin') {
+          this.router.navigate(['/admin-dashboard'], { replaceUrl: true });
+        } else if (roleCheck === '1' || roleCheck === 'teacher' || roleCheck === 'instructor') {
           this.router.navigate(['/teacher-dashboard'], { replaceUrl: true });
         } else {
           this.router.navigate(['/dashboard'], { replaceUrl: true });

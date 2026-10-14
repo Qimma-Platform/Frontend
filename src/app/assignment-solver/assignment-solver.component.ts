@@ -23,7 +23,12 @@ import { LanguageService } from '../services/language.service';
             </button>
             <div>
               <h1 class="text-xl font-extrabold">{{ assignment?.title || t[lang].loading }}</h1>
-              <p class="text-indigo-300 text-xs">{{ assignment?.courseTitle }}</p>
+              <div class="flex items-center gap-3 mt-1 flex-wrap">
+                <p class="text-indigo-300 text-xs">{{ assignment?.courseTitle }}</p>
+                <span *ngIf="assignment?.dueDate" class="text-xs px-2.5 py-0.5 rounded-full font-bold" [ngClass]="isExpired ? 'bg-rose-500/30 text-rose-200 border border-rose-400/40' : 'bg-white/10 text-slate-200'">
+                  ⏰ {{ lang === 'ar' ? 'موعد التسليم:' : 'Due:' }} {{ assignment.dueDate | date:'d MMM y - h:mm a' }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -35,30 +40,36 @@ import { LanguageService } from '../services/language.service';
         </div>
 
         <div *ngIf="!isLoading && assignment" class="space-y-6 animate-fade-in pb-20">
+          <div *ngIf="isExpired" class="bg-rose-50 border-2 border-rose-200 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
+            <span class="text-3xl block">⛔</span>
+            <h3 class="text-lg font-bold text-rose-800">{{ lang === 'ar' ? 'انتهت مهلة تسليم هذا الواجب' : 'This assignment deadline has passed' }}</h3>
+            <p class="text-sm text-rose-600 font-medium">{{ lang === 'ar' ? 'لا يمكن استقبال إجابات جديدة بعد انتهاء الوقت المحدد.' : 'Submissions are no longer accepted after the deadline.' }}</p>
+          </div>
+
           <div *ngFor="let q of assignment.questions; let i = index" class="bg-white p-6 lg:p-8 rounded-3xl shadow-sm border border-slate-200">
             <h3 class="font-bold text-slate-800 text-lg mb-4 leading-relaxed">
                <span class="text-indigo-600">{{ lang === 'ar' ? 'س' : 'Q' }}{{ i + 1 }}:</span> {{ q.questionText }}
             </h3>
             
             <div *ngIf="q.type === 'mcq'" class="space-y-3">
-               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50 transition" [ngClass]="{'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300': answers[q.id] === optIdx.toString()}">
-                 <input type="radio" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50 transition" [ngClass]="{'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300': answers[q.id] === optIdx.toString(), 'opacity-60 cursor-not-allowed': isExpired}">
+                 <input type="radio" [disabled]="isExpired" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                  <span class="ml-3 rtl:mr-3 rtl:ml-0 font-medium text-slate-700 text-sm">{{ option }}</span>
                </label>
             </div>
 
             <div *ngIf="q.type !== 'mcq'" class="mt-4">
-               <textarea [(ngModel)]="answers[q.id]" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
+               <textarea [(ngModel)]="answers[q.id]" [disabled]="isExpired" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
             </div>
           </div>
 
           <div class="flex justify-end pt-4">
-             <button (click)="submitAssignment()" [disabled]="isSubmitting" class="flex items-center justify-center gap-2 px-10 py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-200 disabled:opacity-50">
+             <button (click)="submitAssignment()" [disabled]="isSubmitting || isExpired" class="flex items-center justify-center gap-2 px-10 py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-200 disabled:opacity-50">
                <svg *ngIf="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                </svg>
-               {{ isSubmitting ? t[lang].submitting : t[lang].submitBtn }}
+               {{ isSubmitting ? t[lang].submitting : (isExpired ? (lang === 'ar' ? 'انتهت المهلة' : 'Deadline Passed') : t[lang].submitBtn) }}
              </button>
           </div>
         </div>
@@ -71,6 +82,7 @@ export class AssignmentSolverComponent implements OnInit {
   assignment: any = null;
   isLoading = true;
   isSubmitting = false;
+  isExpired = false;
   answers: { [questionId: number]: string } = {};
   
   message = '';
@@ -104,6 +116,12 @@ export class AssignmentSolverComponent implements OnInit {
     this.http.get<any>(`http://localhost:5162/api/assignments/${this.assignmentId}`, { headers }).subscribe({
       next: (data) => {
         this.assignment = data;
+        if (data?.dueDate) {
+          const dueTime = new Date(data.dueDate).getTime();
+          if (dueTime < Date.now()) {
+            this.isExpired = true;
+          }
+        }
         this.isLoading = false;
       },
       error: () => {
@@ -120,6 +138,11 @@ export class AssignmentSolverComponent implements OnInit {
   }
 
   submitAssignment() {
+    if (this.isExpired) {
+      this.showMessage(this.lang === 'ar' ? 'انتهت مهلة هذا الواجب ولا يمكن تسليمه.' : 'Deadline passed. Submissions closed.', 'error');
+      return;
+    }
+
     if (Object.keys(this.answers).length < (this.assignment?.questions?.length || 0)) {
       this.showMessage(this.t[this.lang].missingAnswers, 'error');
       return;
@@ -160,6 +183,6 @@ export class AssignmentSolverComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard'], { queryParams: { tab: 'assignments' }, replaceUrl: true });
   }
 }

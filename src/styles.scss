@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+::selection {
+  background-color: #4f46e5;
+  color: #ffffff;
+}
+
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: #4f46e5 !important;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(30%) sepia(85%) saturate(2250%) hue-rotate(235deg) brightness(88%) contrast(98%);
+}
