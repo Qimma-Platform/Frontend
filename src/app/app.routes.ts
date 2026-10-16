@@ -14,10 +14,15 @@ import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { CourseLandingComponent } from './course-landing/course-landing.component';
 import { AssignmentSolverComponent } from './assignment-solver/assignment-solver.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { LandingPageComponent } from './landing-page/landing-page.component';
+import { AdminLoginComponent } from './admin-portal/admin-login.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', component: LandingPageComponent },
+  { path: 'home', component: LandingPageComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'admin-portal/login', component: AdminLoginComponent },
+  { path: 'admin-portal', redirectTo: 'admin-portal/login', pathMatch: 'full' },
   { path: 'dashboard', component: StudentDashboardComponent, canActivate: [authGuard] },
   { path: 'teacher-dashboard', component: TeacherDashboardComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [authGuard] },

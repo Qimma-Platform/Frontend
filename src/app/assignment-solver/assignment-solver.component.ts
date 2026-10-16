@@ -10,12 +10,12 @@ import { LanguageService } from '../services/language.service';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
-    <div class="bg-slate-50 min-h-screen flex flex-col font-sans" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
-      <div *ngIf="message" [ngClass]="{'bg-emerald-50 text-emerald-700': messageType === 'success', 'bg-rose-50 text-rose-700': messageType === 'error'}" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-xl shadow-lg border text-sm font-bold flex items-center gap-3 animate-fade-in transition-all">
+    <div class="bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+      <div *ngIf="message" [ngClass]="{'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800': messageType === 'success', 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800': messageType === 'error'}" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-xl shadow-lg border text-sm font-bold flex items-center gap-3 animate-fade-in transition-all">
         {{ message }}
       </div>
 
-      <header class="bg-[#130E35] text-white py-4 px-6 shadow-md shrink-0">
+      <header class="bg-[#130E35] dark:bg-slate-900 border-b border-indigo-900/50 dark:border-slate-800 text-white py-4 px-6 shadow-md shrink-0">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
           <div class="flex items-center gap-4">
             <button (click)="goBack()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
@@ -24,7 +24,7 @@ import { LanguageService } from '../services/language.service';
             <div>
               <h1 class="text-xl font-extrabold">{{ assignment?.title || t[lang].loading }}</h1>
               <div class="flex items-center gap-3 mt-1 flex-wrap">
-                <p class="text-indigo-300 text-xs">{{ assignment?.courseTitle }}</p>
+                <p class="text-indigo-300 dark:text-indigo-400 text-xs">{{ assignment?.courseTitle }}</p>
                 <span *ngIf="assignment?.dueDate" class="text-xs px-2.5 py-0.5 rounded-full font-bold" [ngClass]="isExpired ? 'bg-rose-500/30 text-rose-200 border border-rose-400/40' : 'bg-white/10 text-slate-200'">
                   ⏰ {{ lang === 'ar' ? 'موعد التسليم:' : 'Due:' }} {{ assignment.dueDate | date:'d MMM y - h:mm a' }}
                 </span>
@@ -36,35 +36,35 @@ import { LanguageService } from '../services/language.service';
 
       <main class="flex-1 max-w-4xl w-full mx-auto p-6 lg:p-8">
         <div *ngIf="isLoading" class="space-y-4 animate-pulse">
-          <div *ngFor="let i of [1,2,3]" class="h-32 bg-slate-200 rounded-3xl"></div>
+          <div *ngFor="let i of [1,2,3]" class="h-32 bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
         </div>
 
         <div *ngIf="!isLoading && assignment" class="space-y-6 animate-fade-in pb-20">
-          <div *ngIf="isExpired" class="bg-rose-50 border-2 border-rose-200 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
+          <div *ngIf="isExpired" class="bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-200 dark:border-rose-900/60 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
             <span class="text-3xl block">⛔</span>
-            <h3 class="text-lg font-bold text-rose-800">{{ lang === 'ar' ? 'انتهت مهلة تسليم هذا الواجب' : 'This assignment deadline has passed' }}</h3>
-            <p class="text-sm text-rose-600 font-medium">{{ lang === 'ar' ? 'لا يمكن استقبال إجابات جديدة بعد انتهاء الوقت المحدد.' : 'Submissions are no longer accepted after the deadline.' }}</p>
+            <h3 class="text-lg font-bold text-rose-800 dark:text-rose-300">{{ lang === 'ar' ? 'انتهت مهلة تسليم هذا الواجب' : 'This assignment deadline has passed' }}</h3>
+            <p class="text-sm text-rose-600 dark:text-rose-400 font-medium">{{ lang === 'ar' ? 'لا يمكن استقبال إجابات جديدة بعد انتهاء الوقت المحدد.' : 'Submissions are no longer accepted after the deadline.' }}</p>
           </div>
 
-          <div *ngFor="let q of assignment.questions; let i = index" class="bg-white p-6 lg:p-8 rounded-3xl shadow-sm border border-slate-200">
-            <h3 class="font-bold text-slate-800 text-lg mb-4 leading-relaxed">
-               <span class="text-indigo-600">{{ lang === 'ar' ? 'س' : 'Q' }}{{ i + 1 }}:</span> {{ q.questionText }}
+          <div *ngFor="let q of assignment.questions; let i = index" class="bg-white dark:bg-slate-900 p-6 lg:p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <h3 class="font-bold text-slate-800 dark:text-white text-lg mb-4 leading-relaxed">
+               <span class="text-indigo-600 dark:text-indigo-400">{{ lang === 'ar' ? 'س' : 'Q' }}{{ i + 1 }}:</span> {{ q.questionText }}
             </h3>
             
             <div *ngIf="q.type === 'mcq'" class="space-y-3">
-               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-indigo-50 transition" [ngClass]="{'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300': answers[q.id] === optIdx.toString(), 'opacity-60 cursor-not-allowed': isExpired}">
-                 <input type="radio" [disabled]="isExpired" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
-                 <span class="ml-3 rtl:mr-3 rtl:ml-0 font-medium text-slate-700 text-sm">{{ option }}</span>
+               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-800 transition" [ngClass]="{'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-500 ring-1 ring-indigo-300 dark:ring-indigo-500': answers[q.id] === optIdx.toString(), 'opacity-60 cursor-not-allowed': isExpired}">
+                 <input type="radio" [disabled]="isExpired" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500">
+                 <span class="ml-3 rtl:mr-3 rtl:ml-0 font-medium text-slate-700 dark:text-slate-300 text-sm">{{ option }}</span>
                </label>
             </div>
 
             <div *ngIf="q.type !== 'mcq'" class="mt-4">
-               <textarea [(ngModel)]="answers[q.id]" [disabled]="isExpired" rows="4" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
+               <textarea [(ngModel)]="answers[q.id]" [disabled]="isExpired" rows="4" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
             </div>
           </div>
 
           <div class="flex justify-end pt-4">
-             <button (click)="submitAssignment()" [disabled]="isSubmitting || isExpired" class="flex items-center justify-center gap-2 px-10 py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-200 disabled:opacity-50">
+             <button (click)="submitAssignment()" [disabled]="isSubmitting || isExpired" class="flex items-center justify-center gap-2 px-10 py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50">
                <svg *ngIf="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

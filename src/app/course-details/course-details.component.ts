@@ -12,7 +12,7 @@ import { PaymentService } from '../services/payment.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule],
   template: `
-    <div class="bg-slate-50 min-h-screen pb-12 font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+    <div class="bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen pb-12 font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
       
       <div *ngIf="message" 
            [ngClass]="{'bg-emerald-50 text-emerald-700 border-emerald-200': messageType === 'success', 'bg-rose-50 text-rose-700 border-rose-200': messageType === 'error'}"
@@ -23,12 +23,12 @@ import { PaymentService } from '../services/payment.service';
       </div>
 
       <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
-        <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
-          <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
-          <h3 class="text-xl font-bold text-slate-900 text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
-          <p class="text-sm text-slate-500 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
+          <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
           <div class="flex gap-3">
-            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition">
               {{ t[lang].cancel }}
             </button>
             <button (click)="confirmDelete()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md shadow-rose-200">
@@ -58,48 +58,48 @@ import { PaymentService } from '../services/payment.service';
       <main class="max-w-7xl mx-auto px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="lg:col-span-2 space-y-4">
-          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
-            <h2 class="text-xl font-extrabold text-slate-900 mb-6 flex items-center justify-between">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white mb-6 flex items-center justify-between">
             <span>{{ t[lang].courseLessons }}</span>
-              <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-black">{{ lessons.length }}</span>
+              <span class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-black">{{ lessons.length }}</span>
             </h2>
             
             <div *ngIf="isLoading" class="space-y-3 animate-pulse">
-              <div *ngFor="let i of [1,2,3]" class="p-4 rounded-2xl border border-slate-100 flex items-center justify-between gap-4 bg-slate-50">
+              <div *ngFor="let i of [1,2,3]" class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800">
                  <div class="flex items-center gap-4 min-w-0 w-full">
-                    <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0"></div>
+                    <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 shrink-0"></div>
                     <div class="flex-1 space-y-2">
-                       <div class="h-4 bg-slate-200 rounded w-1/2"></div>
-                       <div class="h-3 bg-slate-200 rounded w-1/3"></div>
+                       <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                       <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
                     </div>
                  </div>
               </div>
             </div>
 
             <div *ngIf="!isLoading" class="space-y-3 animate-fade-in">
-              <div *ngFor="let lesson of lessons; let i = index" class="p-4 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70 transition hover:bg-white hover:border-indigo-200 hover:shadow-md">
+              <div *ngFor="let lesson of lessons; let i = index" class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70 dark:bg-slate-800/60 transition hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-md">
                 <div class="flex items-center gap-4 min-w-0">
-                  <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-sm shrink-0">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-black text-sm shrink-0">
                     {{ i + 1 }}
                   </div>
                   <div class="min-w-0">
-                    <h3 class="font-bold text-slate-900 text-sm truncate">{{ lesson.title }}</h3>
-                    <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ lesson.description }}</p>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm truncate">{{ lesson.title }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{{ lesson.description }}</p>
                   </div>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
                   <ng-container *ngIf="isTeacher">
-                    <button (click)="onEditLesson(lesson)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition">
+                    <button (click)="onEditLesson(lesson)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition">
                       {{ t[lang].edit }}
                     </button>
-                    <button (click)="openDeleteModal(lesson.id)" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition">
+                    <button (click)="openDeleteModal(lesson.id)" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg transition">
                       {{ t[lang].delete }}
                     </button>
-                    <button (click)="openQuizCreator(lesson.id)" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition shadow-sm border border-indigo-100">
+                    <button (click)="openQuizCreator(lesson.id)" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold rounded-lg text-xs transition shadow-sm border border-indigo-100 dark:border-indigo-900/40">
                       {{ t[lang].manageQuiz }}
                     </button>
-                    <button (click)="openAssignmentCreator(lesson.id)" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold rounded-lg text-xs transition shadow-sm border border-purple-100">
+                    <button (click)="openAssignmentCreator(lesson.id)" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-bold rounded-lg text-xs transition shadow-sm border border-purple-100 dark:border-purple-900/40">
                       {{ t[lang].manageAssignment }}
                     </button>
                   </ng-container>
@@ -112,78 +112,72 @@ import { PaymentService } from '../services/payment.service';
                 </div>
               </div>
               
-              <div *ngIf="lessons.length === 0" class="text-center py-12 px-4 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
+              <div *ngIf="lessons.length === 0" class="text-center py-12 px-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-800/30">
                 <span class="text-4xl mb-3 block"></span>
-                <p class="text-slate-500 text-sm font-semibold">{{ t[lang].noLessons }}</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold">{{ t[lang].noLessons }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="space-y-4">
-          <div *ngIf="isTeacher" class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 sticky top-6">
-            <h3 class="text-lg font-extrabold text-slate-900 mb-4">
+          <div *ngIf="isTeacher" class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 sticky top-6">
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-white mb-4">
               {{ editingLessonId ? t[lang].editLessonTitle : t[lang].addLessonTitle }}
             </h3>
 
             <form [formGroup]="lessonForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].lessonTitle }}</label>
-                <input type="text" formControlName="title" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition">
-                </div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].lessonTitle }}</label>
+                <input type="text" formControlName="title" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition">
+              </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].lessonDesc }}</label>
-                <textarea formControlName="description" rows="3" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition"></textarea>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].lessonDesc }}</label>
+                <textarea formControlName="description" rows="3" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition"></textarea>
               </div>
               
-              <!-- Video File Upload Section -->
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].videoUpload }}</label>
-                <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer relative">
-                    <input type="file" (change)="onVideoSelected($event)" accept="video/mp4,video/x-m4v,video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                    
-                    <div *ngIf="!isUploadingVideo && !lessonForm.get('videoUrl')?.value">
-                        <span class="text-2xl mb-1 block"></span>
-                        <p class="text-xs font-bold text-indigo-600">{{ t[lang].clickToUploadVideo }}</p>
-                    </div>
-
-                    <div *ngIf="isUploadingVideo" class="flex flex-col items-center justify-center">
-                        <svg class="animate-spin h-6 w-6 text-indigo-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p class="text-xs font-bold text-slate-500">{{ t[lang].uploading }}</p>
-                    </div>
-
-                    <div *ngIf="!isUploadingVideo && lessonForm.get('videoUrl')?.value">
-                        <span class="text-2xl mb-1 block">✅</span>
-                        <p class="text-xs font-bold text-emerald-600">{{ t[lang].videoUploadedSuccess }}</p>
-                    </div>
+              <!-- Video Link / URL Input -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {{ lang === 'ar' ? 'رابط الفيديو (URL)' : 'Video Link (URL)' }}
+                </label>
+                <div class="relative">
+                  <input type="text" formControlName="videoUrl" 
+                         placeholder="https://www.youtube.com/watch?v=... or https://.../video.mp4" 
+                         class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono transition">
+                  <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                  {{ lang === 'ar' ? 'يدعم روابط يوتيوب وفيميو أو روابط الفيديو المباشرة (MP4/WebM).' : 'Supports YouTube, Vimeo, or direct MP4/WebM URLs.' }}
+                </p>
+                <div *ngIf="lessonForm.get('videoUrl')?.value" class="p-2.5 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between text-xs">
+                  <span class="font-bold text-indigo-700 dark:text-indigo-300 truncate max-w-xs">{{ lessonForm.get('videoUrl')?.value }}</span>
+                  <button type="button" (click)="lessonForm.patchValue({ videoUrl: '' })" class="text-rose-500 hover:text-rose-700 font-bold text-xs ml-2 cursor-pointer">✖</button>
                 </div>
               </div>
               
               <div class="flex gap-2 pt-2">
-                <button *ngIf="editingLessonId" type="button" (click)="cancelEdit()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold py-3 rounded-xl transition">
+                <button *ngIf="editingLessonId" type="button" (click)="cancelEdit()" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold py-3 rounded-xl transition cursor-pointer">
                   {{ t[lang].cancel }}
                 </button>
-                <button type="submit" [disabled]="!lessonForm.valid || isUploadingVideo" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-100 disabled:opacity-50">
+                <button type="submit" [disabled]="!lessonForm.valid" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-100 dark:shadow-none disabled:opacity-50 cursor-pointer">
                   {{ editingLessonId ? t[lang].updateLessonBtn : t[lang].saveLessonBtn }}
                 </button>
               </div>
             </form>
           </div>
 
-          <div *ngIf="!isTeacher" class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 sticky top-6 text-center">
-            <div class="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div *ngIf="!isTeacher" class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 sticky top-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
               </svg>
             </div>
-            <h3 class="text-sm font-bold text-slate-400 mb-1 uppercase tracking-wider">{{ t[lang].coursePrice }}</h3>
-            <p class="text-4xl font-black text-slate-900 mb-6 flex justify-center items-center gap-1">
-              {{ course?.price || '0' }} <span class="text-base text-slate-500 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wider">{{ t[lang].coursePrice }}</h3>
+            <p class="text-4xl font-black text-slate-900 dark:text-white mb-6 flex justify-center items-center gap-1">
+              {{ course?.price || '0' }} <span class="text-base text-slate-500 dark:text-slate-400 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
             </p>
-            <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-2xl transition shadow-lg shadow-indigo-200 disabled:opacity-70 flex justify-center items-center gap-2">
+            <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-2xl transition shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-70 flex justify-center items-center gap-2">
               <svg *ngIf="isProcessingPayment" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -194,19 +188,19 @@ import { PaymentService } from '../services/payment.service';
         </div>
       </main>
 
-      <div *ngIf="showAssignmentPage" class="fixed inset-0 z-[90] flex flex-col bg-slate-100 overflow-y-auto animate-fade-in">
+      <div *ngIf="showAssignmentPage" class="fixed inset-0 z-[90] flex flex-col bg-slate-100 dark:bg-[#0B0F19] text-slate-900 dark:text-white overflow-y-auto animate-fade-in">
         
         <div *ngIf="showDeleteAssignmentModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
-        <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
-            <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
-            <h3 class="text-xl font-bold text-slate-900 text-center mb-2">{{ t[lang].deleteAssignConfirmTitle }}</h3>
-            <p class="text-sm text-slate-500 text-center mb-8">{{ t[lang].deleteAssignConfirmDesc }}</p>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
+            <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">{{ t[lang].deleteAssignConfirmTitle }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">{{ t[lang].deleteAssignConfirmDesc }}</p>
             <div class="flex gap-3">
-              <button (click)="showDeleteAssignmentModal = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+              <button (click)="showDeleteAssignmentModal = false" [disabled]="isDeletingAssignment" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition disabled:opacity-50">
                 {{ t[lang].cancel }}
               </button>
-              <button (click)="confirmDeleteAssignment()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md shadow-rose-200">
-                {{ t[lang].confirmDeleteBtn }}
+              <button (click)="confirmDeleteAssignment()" [disabled]="isDeletingAssignment" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md shadow-rose-200 disabled:opacity-50">
+                {{ isDeletingAssignment ? (lang === 'ar' ? 'جاري الحذف...' : 'Deleting...') : t[lang].confirmDeleteBtn }}
               </button>
             </div>
           </div>
@@ -226,28 +220,28 @@ import { PaymentService } from '../services/payment.service';
 
         <div class="max-w-4xl w-full mx-auto p-6 lg:p-10 space-y-6">
           
-          <div *ngIf="assignmentError" class="bg-rose-50 border-2 border-rose-300 text-rose-700 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 animate-fade-in shadow-md">
+          <div *ngIf="assignmentError" class="bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-900 text-rose-700 dark:text-rose-300 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 animate-fade-in shadow-md">
             <span class="text-xl">⚠️</span>
             <span class="flex-1">{{ assignmentError }}</span>
             <button type="button" (click)="assignmentError = ''" class="text-rose-400 hover:text-rose-600 font-black">✕</button>
           </div>
 
-          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].assignTitleLabel }}</label>
-              <input type="text" [(ngModel)]="assignmentData.title" [placeholder]="t[lang].assignTitlePlaceholder" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ t[lang].assignTitleLabel }}</label>
+              <input type="text" [(ngModel)]="assignmentData.title" [placeholder]="t[lang].assignTitlePlaceholder" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
             </div>
             <div>
-              <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].dueDateLabel }}</label>
-              <input type="datetime-local" [(ngModel)]="assignmentData.dueDate" [min]="minDate" (click)="$any($event.target).showPicker?.()" (keydown)="preventDateKeyboardTyping($event)" (input)="validateAssignmentDueDate($event)" (change)="validateAssignmentDueDate($event)" style="accent-color: #4f46e5 !important;" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm dir-ltr text-left accent-indigo-600">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ t[lang].dueDateLabel }}</label>
+              <input type="datetime-local" [(ngModel)]="assignmentData.dueDate" [min]="minDate" (click)="$any($event.target).showPicker?.()" (keydown)="preventDateKeyboardTyping($event)" (input)="validateAssignmentDueDate($event)" (change)="validateAssignmentDueDate($event)" style="accent-color: #4f46e5 !important;" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm dir-ltr text-left accent-indigo-600">
             </div>
           </div>
 
           <div class="space-y-6">
-            <div *ngFor="let q of assignmentData.questions; let i = index; trackBy: trackByIndex" class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4 relative">
+            <div *ngFor="let q of assignmentData.questions; let i = index; trackBy: trackByIndex" class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 space-y-4 relative">
               
-              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <span class="font-black text-indigo-600 text-sm"># {{ i + 1 }} - {{ t[lang].questionText }}</span>
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <span class="font-black text-indigo-600 dark:text-indigo-400 text-sm"># {{ i + 1 }} - {{ t[lang].questionText }}</span>
                 <button (click)="removeAssignmentQuestion(i)" class="text-rose-500 hover:text-rose-700 text-xs font-bold transition">
                   {{ t[lang].delete }}
                 </button>
@@ -255,47 +249,57 @@ import { PaymentService } from '../services/payment.service';
 
               <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
                 <div class="sm:col-span-3">
-                  <input type="text" [(ngModel)]="q.text" [placeholder]="t[lang].questionPlaceholder" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
+                  <input type="text" [(ngModel)]="q.text" [placeholder]="t[lang].questionPlaceholder" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
                 </div>
                 <div>
-                <select [(ngModel)]="q.type" (change)="onQuestionTypeChange(q)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
+                <select [(ngModel)]="q.type" (change)="onQuestionTypeChange(q)" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm">
                     <option value="mcq">{{ t[lang].mcqOption }}</option>
                     <option value="written">{{ t[lang].writtenOption }}</option>
                   </select>
                 </div>
               </div>
 
-              <div *ngIf="q.type === 'mcq'" class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                <p class="text-xs font-bold text-slate-500 mb-2">{{ t[lang].optionsInstruction }}</p>
+              <div *ngIf="q.type === 'mcq'" class="mt-4 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{{ t[lang].optionsInstruction }}</p>
                 
-                <div *ngFor="let opt of q.options; let optIdx = index; trackBy: trackByIndex" class="flex items-center gap-3">
-                  <input type="radio" [name]="'correct_' + i" [checked]="q.correctIndex === optIdx" (change)="q.correctIndex = optIdx" style="accent-color: #4f46e5 !important;" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                  <input type="text" [(ngModel)]="q.options[optIdx]" [placeholder]="t[lang].optionPlaceholder + ' ' + (optIdx + 1)" class="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none">
+                <div *ngFor="let opt of q.options; let optIdx = index; trackBy: trackByIndex" 
+                     class="flex items-center gap-3 p-2 rounded-xl transition"
+                     [ngClass]="q.correctIndex === optIdx ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800' : 'border border-transparent'">
+                  <label class="flex items-center gap-2 cursor-pointer shrink-0" [title]="lang === 'ar' ? 'حدد هذا الخيار كإجابة صحيحة' : 'Mark as correct answer'">
+                    <input type="radio" [name]="'correct_' + i" [checked]="q.correctIndex === optIdx" (change)="q.correctIndex = optIdx" class="w-4 h-4 text-emerald-600 accent-emerald-600 cursor-pointer">
+                    <span *ngIf="q.correctIndex === optIdx" class="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                      ✓ {{ lang === 'ar' ? 'الإجابة النموذجية' : 'Correct Answer' }}
+                    </span>
+                  </label>
+                  <input type="text" [(ngModel)]="q.options[optIdx]" [placeholder]="t[lang].optionPlaceholder + ' ' + (optIdx + 1)" class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg text-sm focus:outline-none">
                   <button *ngIf="q.options.length > 2" (click)="removeMcqOption(q, optIdx)" class="text-rose-400 hover:text-rose-600 text-xs font-bold">✖</button>
                 </div>
 
-                <button *ngIf="q.options.length < 4" (click)="addMcqOption(q)" class="mt-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition">
+                <button *ngIf="q.options.length < 4" (click)="addMcqOption(q)" class="mt-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition">
                   + {{ t[lang].addOptionBtn }}
                 </button>
               </div>
 
             </div>
 
-            <button (click)="addAssignmentQuestion()" class="w-full py-4 border-2 border-dashed border-indigo-300 hover:border-indigo-500 text-indigo-600 font-bold rounded-3xl transition bg-indigo-50/50 flex items-center justify-center gap-2">
+            <button (click)="addAssignmentQuestion()" class="w-full py-4 border-2 border-dashed border-indigo-300 dark:border-indigo-700 hover:border-indigo-500 dark:hover:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold rounded-3xl transition bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center gap-2">
               + {{ t[lang].addNewQuestionBtn }}
             </button>
           </div>
 
-          <div class="flex items-center gap-4 pt-6 pb-12">
-            <button (click)="submitAssignment()" [disabled]="isSavingAssignment" class="flex-1 flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-200 disabled:opacity-50">
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-4 pt-6 pb-12 border-t border-slate-200 dark:border-slate-800">
+            <button *ngIf="isAssignmentEditMode" (click)="openDeleteAssignmentModal()" class="w-full sm:w-1/4 py-3.5 bg-rose-100 dark:bg-rose-950/50 hover:bg-rose-200 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-400 font-bold rounded-2xl text-base transition">
+              {{ t[lang].deleteAssignmentBtn }}
+            </button>
+            <button (click)="showAssignmentPage = false" [disabled]="isSavingAssignment" class="flex-1 py-3.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl text-base transition disabled:opacity-50">
+              {{ t[lang].cancel }}
+            </button>
+            <button (click)="submitAssignment()" [disabled]="isSavingAssignment" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-base shadow-md transition disabled:opacity-50">
               <svg *ngIf="isSavingAssignment" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               {{ isSavingAssignment ? t[lang].savingAssignment : t[lang].saveAssignmentBtn }}
-            </button>
-            <button (click)="showAssignmentPage = false" [disabled]="isSavingAssignment" class="flex-1 py-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl text-sm transition disabled:opacity-50">
-              {{ t[lang].cancel }}
             </button>
           </div>
 
@@ -312,6 +316,7 @@ export class CourseDetailsComponent implements OnInit {
   lessonForm: FormGroup;
   isLoading = true;
   isUploadingVideo = false;
+  videoSourceType: 'upload' | 'url' = 'upload';
 
   message = '';
   messageType: 'success' | 'error' = 'success';
@@ -324,6 +329,8 @@ export class CourseDetailsComponent implements OnInit {
 
   showAssignmentPage = false;
   showDeleteAssignmentModal = false;
+  isAssignmentEditMode = false;
+  isDeletingAssignment = false;
   selectedLessonIdForAssignment: number | null = null;
   minDate = '';
   assignmentError = '';
@@ -428,7 +435,7 @@ export class CourseDetailsComponent implements OnInit {
     if (this.assignmentData.dueDate && this.assignmentData.dueDate < nowStr) {
       this.assignmentData.dueDate = nowStr;
       const msg = this.lang === 'ar' ? 'لا يمكن اختيار تاريخ أو وقت في الماضي.' : 'Cannot select a date or time in the past.';
-      this.showMessage(msg, 'error');
+      this.assignmentError = msg;
     }
   }
 
@@ -477,6 +484,7 @@ export class CourseDetailsComponent implements OnInit {
 
     if (this.localAssignmentsCache[lessonId]) {
       this.assignmentData = JSON.parse(JSON.stringify(this.localAssignmentsCache[lessonId]));
+      this.isAssignmentEditMode = true;
       this.showAssignmentPage = true;
       return;
     }
@@ -492,21 +500,28 @@ export class CourseDetailsComponent implements OnInit {
           this.assignmentData = {
             title: (assignment.title || '').trimStart(),
             dueDate: this.formatDateForInput(assignment.dueDate),
-            questions: assignment.questions.map((q: any) => ({
-              text: q.questionText || '',
-              type: q.type === 'essay' ? 'written' : 'mcq',
-              options: q.options ? q.options.split(',') : ['', '', '', ''],
-              correctIndex: q.options ? q.options.split(',').indexOf(q.correctAnswer) : 0
-            }))
+            questions: assignment.questions.map((q: any) => {
+              const opts = q.options ? q.options.split(',').map((o: string) => o.trim()) : ['', '', '', ''];
+              const cIdx = q.correctAnswer ? opts.indexOf(q.correctAnswer.trim()) : 0;
+              return {
+                text: q.questionText || '',
+                type: q.type === 'essay' ? 'written' : 'mcq',
+                options: opts,
+                correctIndex: cIdx >= 0 ? cIdx : 0
+              };
+            })
           };
           this.localAssignmentsCache[lessonId] = JSON.parse(JSON.stringify(this.assignmentData));
+          this.isAssignmentEditMode = true;
         } else {
           this.resetAssignmentForm();
+          this.isAssignmentEditMode = false;
         }
         this.showAssignmentPage = true;
       },
       error: () => {
         this.resetAssignmentForm();
+        this.isAssignmentEditMode = false;
         this.showAssignmentPage = true;
       }
     });
@@ -572,26 +587,22 @@ export class CourseDetailsComponent implements OnInit {
 
     if (!this.assignmentData.title || !this.assignmentData.title.trim()) {
       this.assignmentError = this.lang === 'ar' ? 'يرجى إدخال عنوان الواجب.' : 'Please enter the assignment title.';
-      this.showMessage(this.assignmentError, 'error');
       return;
     }
 
     if (this.assignmentData.title.startsWith(' ')) {
       this.assignmentError = this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الواجب بمسافة فارغة.' : 'Assignment title cannot start with a space.';
-      this.showMessage(this.assignmentError, 'error');
       return;
     }
 
     if (!this.assignmentData.dueDate) {
       this.assignmentError = this.lang === 'ar' ? 'يرجى تحديد موعد وتاريخ التسليم.' : 'Please select the assignment due date & time.';
-      this.showMessage(this.assignmentError, 'error');
       return;
     }
 
     const nowStr = this.getLocalDateTimeString();
     if (this.assignmentData.dueDate < nowStr) {
       this.assignmentError = this.lang === 'ar' ? 'لا يمكن تحديد موعد تسليم في الماضي.' : 'Assignment due date cannot be in the past.';
-      this.showMessage(this.assignmentError, 'error');
       return;
     }
 
@@ -599,12 +610,10 @@ export class CourseDetailsComponent implements OnInit {
       const q = this.assignmentData.questions[i];
       if (!q.text || !q.text.trim()) {
         this.assignmentError = this.lang === 'ar' ? `يرجى إدخال نص السؤال #${i + 1}.` : `Please enter text for question #${i + 1}.`;
-        this.showMessage(this.assignmentError, 'error');
         return;
       }
       if (q.text.startsWith(' ')) {
         this.assignmentError = this.lang === 'ar' ? `لا يمكن أن يبدأ نص السؤال #${i + 1} بمسافة فارغة.` : `Question #${i + 1} text cannot start with a space.`;
-        this.showMessage(this.assignmentError, 'error');
         return;
       }
       if (q.type === 'mcq') {
@@ -612,12 +621,10 @@ export class CourseDetailsComponent implements OnInit {
           const opt = q.options[j];
           if (!opt || !opt.trim()) {
             this.assignmentError = this.lang === 'ar' ? `يرجى ملء جميع خيارات السؤال #${i + 1}.` : `Please fill out all options for question #${i + 1}.`;
-            this.showMessage(this.assignmentError, 'error');
             return;
           }
           if (opt.startsWith(' ')) {
             this.assignmentError = this.lang === 'ar' ? `لا يمكن أن يبدأ خيار الإجابة في السؤال #${i + 1} بمسافة فارغة.` : `Option text in question #${i + 1} cannot start with a space.`;
-            this.showMessage(this.assignmentError, 'error');
             return;
           }
         }
@@ -640,7 +647,7 @@ export class CourseDetailsComponent implements OnInit {
         questionText: q.text.trim(),
         type: q.type === 'written' ? 'essay' : 'mcq',
         options: q.type === 'mcq' ? q.options.map((o: string) => o.trim()).join(',') : null,
-        correctAnswer: q.type === 'mcq' ? q.options[q.correctIndex].trim() : null,
+        correctAnswer: q.type === 'mcq' ? (q.options && q.options[q.correctIndex] ? q.options[q.correctIndex].trim() : (q.options && q.options[0] ? q.options[0].trim() : null)) : null,
         score: 1
       }))
     };
@@ -659,7 +666,6 @@ export class CourseDetailsComponent implements OnInit {
       error: (err) => {
         this.isSavingAssignment = false;
         this.assignmentError = err.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء حفظ الواجب' : 'An error occurred while saving the assignment');
-        this.showMessage(this.assignmentError, 'error');
       }
     });
   }
@@ -669,8 +675,24 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   confirmDeleteAssignment() {
-    this.showDeleteAssignmentModal = false;
-    this.showAssignmentPage = false;
+    if (!this.selectedLessonIdForAssignment) return;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    this.isDeletingAssignment = true;
+    this.http.delete(`http://localhost:5162/api/assignments/lesson/${this.selectedLessonIdForAssignment}`, { headers }).subscribe({
+      next: () => {
+        delete this.localAssignmentsCache[this.selectedLessonIdForAssignment!];
+        this.isDeletingAssignment = false;
+        this.showDeleteAssignmentModal = false;
+        this.showAssignmentPage = false;
+        this.showMessage(this.lang === 'ar' ? 'تم حذف الواجب نهائياً 🗑️' : 'Assignment deleted permanently 🗑️', 'success');
+      },
+      error: () => {
+        this.isDeletingAssignment = false;
+        this.showDeleteAssignmentModal = false;
+        this.showMessage(this.lang === 'ar' ? 'حدث خطأ أثناء حذف الواجب' : 'An error occurred while deleting the assignment', 'error');
+      }
+    });
   }
 
   enrollInCourse() {
@@ -720,6 +742,12 @@ export class CourseDetailsComponent implements OnInit {
 
   onEditLesson(lesson: any) {
     this.editingLessonId = lesson.id;
+    const vUrl = lesson.videoUrl || '';
+    if (vUrl.startsWith('http://') || vUrl.startsWith('https://') || vUrl.includes('youtube.com') || vUrl.includes('youtu.be') || vUrl.includes('vimeo.com')) {
+      this.videoSourceType = 'url';
+    } else {
+      this.videoSourceType = 'upload';
+    }
     this.lessonForm.patchValue({
       title: lesson.title,
       description: lesson.description,
@@ -730,6 +758,7 @@ export class CourseDetailsComponent implements OnInit {
 
   cancelEdit() {
     this.editingLessonId = null;
+    this.videoSourceType = 'upload';
     this.lessonForm.reset();
   }
 

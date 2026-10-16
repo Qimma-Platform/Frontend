@@ -10,14 +10,14 @@ import { LanguageService } from '../services/language.service';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
-    <div class="min-h-screen bg-[#F4F7FE] text-slate-800 flex flex-col font-sans" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+    <div class="min-h-screen bg-[#F4F7FE] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 flex flex-col font-sans" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
       
       <!-- رسالة نجاح أو خطأ -->
       <div *ngIf="message" [ngClass]="{'bg-emerald-500': messageType === 'success', 'bg-rose-500': messageType === 'error'}" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-xl shadow-xl text-white font-bold transition-all flex items-center gap-3">
         <span>{{ message }}</span>
       </div>
 
-      <header class="bg-[#130E35] text-white px-8 py-5 flex items-center justify-between shadow-md">
+      <header class="bg-[#130E35] dark:bg-slate-900 border-b border-indigo-900/50 dark:border-slate-800 text-white px-8 py-5 flex items-center justify-between shadow-md">
         <div class="flex items-center gap-4">
           <button (click)="goBack()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
             <span class="rtl:rotate-180">←</span>
@@ -27,34 +27,34 @@ import { LanguageService } from '../services/language.service';
       </header>
 
       <main class="flex-1 max-w-2xl w-full mx-auto p-6 lg:p-10">
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 space-y-8">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 space-y-8">
           
           <!-- قسم صورة البروفايل -->
-          <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100">
+          <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
             <div class="relative group">
-              <img [src]="profileData.profileImage ? 'http://localhost:5162' + profileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + profileData.username)" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 shadow-md">
+              <img [src]="profileData.profileImage ? 'http://localhost:5162' + profileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + profileData.username)" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 dark:border-slate-700 shadow-md">
               <label class="absolute inset-0 bg-slate-900/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-xs font-bold">
                 📷 {{ t[lang].change }}
                 <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
               </label>
             </div>
             <div class="text-center sm:text-start">
-              <h3 class="font-extrabold text-lg text-slate-900">{{ profileData.username }}</h3>
-              <p class="text-sm text-slate-500">{{ profileData.email }}</p>
-              <p class="text-xs text-indigo-600 font-semibold mt-1">Role: {{ profileData.role === '1' ? 'Teacher' : 'Student' }}</p>
+              <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">{{ profileData.username }}</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400">{{ profileData.email }}</p>
+              <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1">Role: {{ profileData.role === '1' ? 'Teacher' : 'Student' }}</p>
             </div>
           </div>
 
           <!-- نموذج تعديل البيانات -->
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].username }}</label>
-              <input type="text" [(ngModel)]="profileData.username" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-medium">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ t[lang].username }}</label>
+              <input type="text" [(ngModel)]="profileData.username" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-medium">
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-slate-700 mb-2">{{ t[lang].phone }}</label>
-              <input type="text" [(ngModel)]="profileData.phoneNumber" [placeholder]="t[lang].phonePlaceholder" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-medium">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ t[lang].phone }}</label>
+              <input type="text" [(ngModel)]="profileData.phoneNumber" [placeholder]="t[lang].phonePlaceholder" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-medium">
             </div>
           </div>
 

@@ -42,4 +42,12 @@ export class AssignmentService {
   getSubmissionsForGrading(courseId: number, studentId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/grading/course/${courseId}/student/${studentId}`, { headers: this.getHeaders() });
   }
+
+  deleteAssignment(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  deleteAssignmentByLesson(lessonId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/lesson/${lessonId}`, { headers: this.getHeaders() });
+  }
 }

@@ -10,96 +10,114 @@ import { LanguageService } from '../services/language.service';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
-    <div class="min-h-screen bg-slate-50 flex flex-col font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+    <div class="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 flex flex-col font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
       
       <div *ngIf="message" [ngClass]="{'bg-emerald-500': messageType === 'success', 'bg-rose-500': messageType === 'error'}" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-xl shadow-xl text-white font-bold transition-all duration-500 flex items-center gap-3">
         <span>{{ message }}</span>
       </div>
 
       <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
-        <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all">
-          <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto mb-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all">
+          <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-3xl mx-auto mb-4">
             ⚠️
           </div>
-          <h3 class="text-xl font-bold text-slate-900 text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
-          <p class="text-sm text-slate-500 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
           <div class="flex gap-3">
-            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">
               {{ t[lang].cancelQuiz }}
             </button>
-            <button (click)="confirmDeleteQuiz()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md shadow-rose-200">
+            <button (click)="confirmDeleteQuiz()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md shadow-rose-200 dark:shadow-none">
               {{ t[lang].confirmDeleteBtn }}
             </button>
           </div>
         </div>
       </div>
 
-      <header class="bg-[#130E35] text-white px-6 py-4 flex items-center justify-between shadow-md z-10 relative">
+      <header class="bg-[#130E35] dark:bg-slate-900 border-b border-indigo-900/50 dark:border-slate-800 text-white px-6 py-4 flex items-center justify-between shadow-md z-10 relative">
         <div class="flex items-center gap-4">
           <button (click)="goBack()" class="text-slate-400 hover:text-white transition flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10">
             <span class="rtl:rotate-180 text-xl">←</span>
           </button>
           <div>
             <h1 class="text-lg font-bold">{{ isEditMode ? t[lang].editTitle : t[lang].title }}</h1>
-            <p class="text-xs text-indigo-300">{{ t[lang].subtitle }}</p>
+            <p class="text-xs text-indigo-300 dark:text-indigo-400">{{ t[lang].subtitle }}</p>
           </div>
         </div>
       </header>
 
       <main class="flex-1 max-w-4xl w-full mx-auto p-6 space-y-6">
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-6">
-          
-          <!-- ضفنا trackBy للأسئلة عشان نضمن أداء سريع -->
-          <div *ngFor="let q of questions; let qIdx = index; trackBy: trackByIndex" class="p-5 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-4">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+          <div *ngIf="formError" class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 rounded-2xl text-sm font-bold flex items-center gap-3 animate-fade-in">
+            <span>⚠️ {{ formError }}</span>
+          </div>
+          <div *ngFor="let q of questions; let qIdx = index; trackBy: trackByIndex" class="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 space-y-4">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-slate-700 text-sm"># {{ qIdx + 1 }} - {{ t[lang].question }}</span>
-              <button *ngIf="questions.length > 1" (click)="removeQuestion(qIdx)" class="text-rose-500 hover:text-rose-700 text-xs font-bold">
+              <span class="font-bold text-slate-700 dark:text-slate-300 text-sm"># {{ qIdx + 1 }} - {{ t[lang].question }}</span>
+              <button *ngIf="questions.length > 1" (click)="removeQuestion(qIdx)" class="text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 text-xs font-bold">
                  {{ t[lang].delete }}
               </button>
             </div>
 
             <div class="space-y-3">
-              <input type="text" [(ngModel)]="q.text" [name]="'question_text_' + qIdx" [placeholder]="t[lang].questionPlaceholder" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+              <input type="text" [(ngModel)]="q.text" [name]="'question_text_' + qIdx" [placeholder]="t[lang].questionPlaceholder" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-800 dark:text-white">
               
               <div class="flex items-center gap-3">
-                <label class="cursor-pointer px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2">
+                <label class="cursor-pointer px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-xs transition flex items-center gap-2">
                    {{ t[lang].uploadImage }}
                   <input type="file" (change)="onImageSelected($event, q)" accept="image/*" class="hidden">
                 </label>
-                <span class="text-xs text-slate-500 truncate max-w-xs" *ngIf="q.imageFileName">{{ q.imageFileName }}</span>
-                <button *ngIf="q.imageUrl" (click)="q.imageUrl = ''; q.imageFileName = ''" class="text-rose-500 text-xs font-bold hover:underline">Remove</button>
+                <span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs" *ngIf="q.imageFileName">{{ q.imageFileName }}</span>
+                <button *ngIf="q.imageUrl" (click)="q.imageUrl = ''; q.imageFileName = ''" class="text-rose-500 dark:text-rose-400 text-xs font-bold hover:underline">Remove</button>
               </div>
 
-              <div *ngIf="q.imageUrl" class="w-32 h-20 rounded-xl overflow-hidden border border-slate-200 relative">
+              <div *ngIf="q.imageUrl" class="w-32 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 relative">
                 <img [src]="q.imageUrl" class="w-full h-full object-cover">
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-500">{{ t[lang].options }}</label>
-              <!-- ضفنا trackBy للاختيارات، ده اللي بيحل الباج! -->
-              <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
-                <input type="radio" [name]="'correct_option_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" style="accent-color: #4f46e5 !important;" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ t[lang].options }}</label>
+                <button *ngIf="q.options.length < 6" type="button" (click)="addOption(q)" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700">
+                  + {{ lang === 'ar' ? 'إضافة خيار' : 'Add Option' }}
+                </button>
+              </div>
+
+              <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" 
+                   class="flex items-center gap-3 p-2.5 rounded-2xl transition border"
+                   [ngClass]="q.correctIndex === oIdx ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800' : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700'">
+                <label class="flex items-center gap-2 cursor-pointer shrink-0" [title]="lang === 'ar' ? 'حدد هذا الخيار كإجابة صحيحة' : 'Mark as correct answer'">
+                  <input type="radio" [name]="'correct_option_q_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-emerald-600 accent-emerald-600 cursor-pointer">
+                  <span *ngIf="q.correctIndex === oIdx" class="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    {{ t[lang].correctAnswer }}
+                  </span>
+                </label>
                 
-                <!-- الأنجولار دلوقتي بيقدر يفرق بين حقول الإدخال دي -->
-                <input type="text" [(ngModel)]="q.options[oIdx]" [name]="'q_' + qIdx + '_opt_' + oIdx" [placeholder]="t[lang].optionPlaceholder + ' ' + (oIdx + 1)" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none">
+                <input type="text" [(ngModel)]="q.options[oIdx]" [name]="'q_' + qIdx + '_opt_' + oIdx" [placeholder]="t[lang].optionPlaceholder + ' ' + (oIdx + 1)" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <button *ngIf="q.options.length > 2" type="button" (click)="removeOption(q, oIdx)" class="text-slate-400 hover:text-rose-500 font-bold text-xs p-1" title="Delete Option">
+                  ✕
+                </button>
               </div>
             </div>
           </div>
 
-          <button (click)="addQuestion()" class="w-full py-3 border-2 border-dashed border-indigo-300 hover:border-indigo-500 text-indigo-600 hover:text-indigo-700 font-bold rounded-2xl text-sm transition">
+          <button (click)="addQuestion()" class="w-full py-3 border-2 border-dashed border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-500 dark:hover:border-indigo-400 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-bold rounded-2xl text-sm transition">
             + {{ t[lang].addQuestion }}
           </button>
 
-          <div class="flex flex-wrap sm:flex-nowrap items-center gap-4 pt-4 border-t border-slate-200">
-            <button *ngIf="isEditMode" (click)="openDeleteModal()" class="w-full sm:w-1/4 py-3.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded-2xl text-base transition">
-               {{ t[lang].deleteQuiz }}
+          <div class="flex items-center gap-4 pt-6 border-t border-slate-200 dark:border-slate-800">
+            <button (click)="openDeleteModal()" 
+                    class="px-6 py-3.5 bg-rose-50 dark:bg-[#28131d] hover:bg-rose-100 dark:hover:bg-[#381a28] text-rose-600 dark:text-[#ff6b81] border border-rose-200 dark:border-rose-900/40 font-bold rounded-2xl text-base transition shrink-0 cursor-pointer">
+              {{ t[lang].deleteQuiz }}
             </button>
-            <button (click)="cancelQuiz()" class="flex-1 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl text-base transition">
-               {{ t[lang].cancelQuiz }}
+            <button (click)="cancelQuiz()" 
+                    class="flex-1 py-3.5 bg-slate-100 dark:bg-[#1a2234] hover:bg-slate-200 dark:hover:bg-[#232d45] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 font-bold rounded-2xl text-base transition cursor-pointer">
+              {{ t[lang].cancelQuiz }}
             </button>
-            <button (click)="saveQuiz()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-base shadow-md transition">
-               {{ t[lang].saveQuiz }}
+            <button (click)="saveQuiz()" 
+                    class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-base shadow-lg shadow-indigo-600/30 transition cursor-pointer">
+              {{ t[lang].saveQuiz }}
             </button>
           </div>
 
@@ -113,6 +131,7 @@ export class QuizCreatorComponent implements OnInit {
   lang: 'en' | 'ar' = 'en';
   message = '';
   messageType: 'success' | 'error' = 'success';
+  formError = '';
   isEditMode = false;
   showDeleteModal = false;
 
@@ -124,7 +143,8 @@ export class QuizCreatorComponent implements OnInit {
     en: {
       title: 'Create Lesson Quiz', editTitle: 'Edit Lesson Quiz', subtitle: 'Add or modify questions and set correct answers',
       question: 'Question', delete: 'Delete', questionPlaceholder: 'Enter question text...',
-      uploadImage: 'Upload Photo (Optional)', options: 'Options (Select the correct radio)',
+      uploadImage: 'Upload Photo (Optional)', options: 'Options (Select correct answer button):',
+      correctAnswer: '✓ Correct Answer',
       optionPlaceholder: 'Option', addQuestion: 'Add Another Question', saveQuiz: 'Save Quiz',
       cancelQuiz: 'Cancel', deleteQuiz: 'Delete Quiz', successMsg: 'Quiz saved successfully! 🚀',
       validationError: 'Please fill in all questions and options correctly ❌', deletedMsg: 'Quiz deleted permanently 🗑️',
@@ -134,7 +154,8 @@ export class QuizCreatorComponent implements OnInit {
     ar: {
       title: 'إنشاء اختبار الدرس', editTitle: 'تعديل اختبار الدرس', subtitle: 'إضافة أو تعديل الأسئلة وتحديد الإجابات الصحيحة',
       question: 'سؤال', delete: 'حذف', questionPlaceholder: 'اكتب نص السؤال هنا...',
-      uploadImage: 'رفع صورة (اختياري)', options: 'الاختيارات (اختر زر الإجابة الصحيحة)',
+      uploadImage: 'رفع صورة (اختياري)', options: 'الاختيارات (اختر زر الإجابة الصحيحة):',
+      correctAnswer: '✓ الإجابة النموذجية',
       optionPlaceholder: 'اختيار', addQuestion: 'إضافة سؤال جديد', saveQuiz: 'حفظ الاختبار',
       cancelQuiz: 'إلغاء', deleteQuiz: 'حذف الاختبار', successMsg: 'تم حفظ الاختبار بنجاح! 🚀',
       validationError: 'يرجى ملء جميع الأسئلة والاختيارات بشكل صحيح ❌', deletedMsg: 'تم حذف الاختبار نهائياً 🗑️',
@@ -176,7 +197,7 @@ export class QuizCreatorComponent implements OnInit {
             text: q.text,
             imageUrl: q.imageUrl || '',
             imageFileName: q.imageUrl ? 'Uploaded Image' : '',
-            options: q.options && q.options.length === 4 ? q.options : ['', '', '', ''],
+            options: q.options && q.options.length >= 2 ? q.options : ['', '', '', ''],
             correctIndex: q.correctIndex
           }));
         }
@@ -196,6 +217,21 @@ export class QuizCreatorComponent implements OnInit {
 
   removeQuestion(index: number) {
     this.questions.splice(index, 1);
+  }
+
+  addOption(q: any) {
+    if (q.options.length < 6) {
+      q.options.push('');
+    }
+  }
+
+  removeOption(q: any, oIdx: number) {
+    if (q.options.length > 2) {
+      q.options.splice(oIdx, 1);
+      if (q.correctIndex >= q.options.length) {
+        q.correctIndex = q.options.length - 1;
+      }
+    }
   }
 
   onImageSelected(event: any, question: any) {
@@ -248,22 +284,23 @@ export class QuizCreatorComponent implements OnInit {
   }
 
   saveQuiz() {
+    this.formError = '';
     for (let q of this.questions) {
       if (!q.text.trim()) {
-        this.showMessage(this.t[this.lang].validationError, 'error');
+        this.formError = this.t[this.lang].validationError;
         return;
       }
       if (q.text.startsWith(' ')) {
-        this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ نص السؤال بمسافة فارغة.' : 'Question text cannot start with a space.', 'error');
+        this.formError = this.lang === 'ar' ? 'لا يمكن أن يبدأ نص السؤال بمسافة فارغة.' : 'Question text cannot start with a space.';
         return;
       }
       for (let opt of q.options) {
         if (!opt.trim()) {
-          this.showMessage(this.t[this.lang].validationError, 'error');
+          this.formError = this.t[this.lang].validationError;
           return;
         }
         if (opt.startsWith(' ')) {
-          this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ خيار الإجابة بمسافة فارغة.' : 'Option text cannot start with a space.', 'error');
+          this.formError = this.lang === 'ar' ? 'لا يمكن أن يبدأ خيار الإجابة بمسافة فارغة.' : 'Option text cannot start with a space.';
           return;
         }
       }
@@ -279,11 +316,14 @@ export class QuizCreatorComponent implements OnInit {
 
     this.http.post('http://localhost:5162/api/quiz/create', quizData, { headers }).subscribe({
       next: () => {
+        this.formError = '';
         this.showMessage(this.t[this.lang].successMsg, 'success');
         this.clearAllStudentAttemptsForThisLesson();
         setTimeout(() => this.location.back(), 1500);
       },
-      error: () => this.showMessage(this.t[this.lang].serverError, 'error')
+      error: () => {
+        this.formError = this.t[this.lang].serverError;
+      }
     });
   }
 

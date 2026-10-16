@@ -6,6 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { LanguageService } from '../services/language.service';
 import { SignalrService } from '../services/signalr.service';
 import { AssignmentService } from '../services/assignment.service';
+import { ThemeService } from '../services/theme.service';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -13,7 +14,7 @@ import Chart from 'chart.js/auto';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HttpClientModule, FormsModule],
   template: `
-    <div class="bg-[#F4F7FE] text-slate-800 min-h-screen flex w-full relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+    <div class="bg-[#F8FAFC] dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 flex w-full h-screen overflow-hidden" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
       
       <div *ngIf="message" [ngClass]="{'bg-emerald-600 shadow-emerald-500/30': messageType === 'success', 'bg-rose-600 shadow-rose-500/30': messageType === 'error'}" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-2xl shadow-2xl text-white font-bold transition-all duration-300 flex items-center gap-3 animate-fade-in pointer-events-auto border border-white/20">
         <span *ngIf="messageType === 'success'" class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">✓</span>
@@ -23,9 +24,9 @@ import Chart from 'chart.js/auto';
 
       <!-- Settings & Other Modals -->
       <div *ngIf="showCropModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 animate-fade-in">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl flex flex-col items-center">
-          <h3 class="text-xl font-bold text-slate-900 mb-6">{{ lang === 'ar' ? 'تعديل الصورة' : 'Crop Image' }}</h3>
-          <div class="relative overflow-hidden bg-slate-100 rounded-2xl cursor-move touch-none border-2 border-slate-200"
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">{{ lang === 'ar' ? 'تعديل الصورة' : 'Crop Image' }}</h3>
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700"
                [style.width.px]="300"
                [style.height.px]="300"
                (mousedown)="startDrag($event)" (mousemove)="onDrag($event)"
@@ -35,12 +36,12 @@ import Chart from 'chart.js/auto';
                   [style.width.px]="baseImageW" [style.height.px]="baseImageH">
           </div>
           <div class="w-full mt-6 px-4">
-            <label class="block text-sm font-bold text-slate-700 mb-2">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
+            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
             <input type="range" min="1" max="3" step="0.05" [(ngModel)]="zoom" class="w-full accent-indigo-600">
           </div>
           <div class="flex gap-3 mt-8 w-full">
-            <button (click)="showCropModal = false; isUploadingImage = false" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
-            <button (click)="applyCrop()" [disabled]="isUploadingImage" class="flex-1 py-3 bg-[#130E35] hover:bg-slate-800 text-white font-bold rounded-xl transition shadow-lg disabled:opacity-50">
+            <button (click)="showCropModal = false; isUploadingImage = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
+            <button (click)="applyCrop()" [disabled]="isUploadingImage" class="flex-1 py-3 bg-[#130E35] dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg disabled:opacity-50">
               {{ isUploadingImage ? t[lang].saving : (lang === 'ar' ? 'تطبيق' : 'Apply') }}
             </button>
           </div>
@@ -48,12 +49,12 @@ import Chart from 'chart.js/auto';
       </div>
 
       <div *ngIf="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
-        <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
-        <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
-          <h3 class="text-xl font-bold text-slate-900 text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
-          <p class="text-sm text-slate-500 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in">
+        <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">{{ t[lang].deleteConfirmTitle }}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">{{ t[lang].deleteConfirmDesc }}</p>
           <div class="flex gap-3">
-            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
+            <button (click)="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
             <button (click)="confirmDelete()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md">{{ t[lang].confirmDeleteBtn }}</button>
           </div>
         </div>
@@ -61,34 +62,34 @@ import Chart from 'chart.js/auto';
 
       <!-- EDIT COURSE MODAL (Matching Add New Schedule Event style) -->
       <div *ngIf="showEditCourseModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="font-extrabold text-xl text-slate-900">{{ lang === 'ar' ? 'تعديل بيانات الكورس' : 'Edit Course Details' }}</h3>
-              <p class="text-slate-500 text-xs mt-0.5">{{ lang === 'ar' ? 'قم بتعديل تفاصيل الكورس بالأسفل.' : 'Update the course details below.' }}</p>
+              <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">{{ lang === 'ar' ? 'تعديل بيانات الكورس' : 'Edit Course Details' }}</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{{ lang === 'ar' ? 'قم بتعديل تفاصيل الكورس بالأسفل.' : 'Update the course details below.' }}</p>
             </div>
-            <button (click)="closeEditCourseModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold transition">✕</button>
+            <button (click)="closeEditCourseModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
           </div>
 
-          <div *ngIf="editCourseError" class="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-2 animate-fade-in">
-            <svg class="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div *ngIf="editCourseError" class="mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold flex items-center gap-2 animate-fade-in">
+            <svg class="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <span>{{ editCourseError }}</span>
           </div>
 
           <form [formGroup]="editCourseForm" (ngSubmit)="saveCourseEdit()" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].courseTitle }} <span class="text-rose-500">*</span></label>
-              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'عنوان الكورس...' : 'Course Title...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].courseTitle }} <span class="text-rose-500">*</span></label>
+              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'عنوان الكورس...' : 'Course Title...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].desc }} <span class="text-slate-400 font-normal">({{ lang === 'ar' ? 'اختياري' : 'Optional' }})</span></label>
-              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'وصف وتفاصيل الكورس...' : 'Course description & details...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].desc }} <span class="text-slate-400 font-normal">({{ lang === 'ar' ? 'اختياري' : 'Optional' }})</span></label>
+              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'وصف وتفاصيل الكورس...' : 'Course description & details...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].courseType }}</label>
-              <div class="flex items-center gap-6 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].courseType }}</label>
+              <div class="flex items-center gap-6 p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="radio" formControlName="isFree" [value]="true" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                   <span>{{ t[lang].freeCourse }}</span>
@@ -102,30 +103,30 @@ import Chart from 'chart.js/auto';
 
             <div class="grid grid-cols-2 gap-3" *ngIf="!editCourseForm.get('isFree')?.value">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].price }}</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].price }}</label>
                 <div class="relative">
-                  <input type="number" formControlName="price" placeholder="0" class="w-full pl-3 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
+                  <input type="number" formControlName="price" placeholder="0" class="w-full pl-3 pr-12 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                 </div>
-                <p class="text-[11px] text-amber-600 mt-1 font-medium leading-tight">
+                <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium leading-tight">
                   {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 20% من سعر الكورس.' : 'Notice: Platform deducts 20% of the price.' }}
                 </p>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].discount }}</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].discount }}</label>
                 <div class="relative">
-                  <input type="number" formControlName="discountPercentage" placeholder="0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
+                  <input type="number" formControlName="discountPercentage" placeholder="0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">%</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].uploadCover }}</label>
-              <div class="border-2 border-dashed border-slate-300 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-slate-50 transition cursor-pointer relative overflow-hidden group">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].uploadCover }}</label>
+              <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer relative overflow-hidden group">
                 <input type="file" (change)="onEditFileSelected($event)" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <div *ngIf="!editCourseImagePreview" class="text-center pointer-events-none py-2">
-                  <p class="text-xs font-bold text-indigo-600">{{ t[lang].clickToUpload }}</p>
+                  <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ t[lang].clickToUpload }}</p>
                 </div>
                 <div *ngIf="editCourseImagePreview" class="w-full h-32 relative rounded-xl overflow-hidden pointer-events-none">
                   <img [src]="editCourseImagePreview" class="w-full h-full object-cover">
@@ -136,8 +137,8 @@ import Chart from 'chart.js/auto';
               </div>
             </div>
 
-            <div class="flex gap-3 pt-3 border-t border-slate-100">
-              <button type="button" (click)="closeEditCourseModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
+            <div class="flex gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button type="button" (click)="closeEditCourseModal()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
               <button type="submit" [disabled]="isSaving || !editCourseForm.valid" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-md disabled:opacity-50 flex items-center justify-center gap-2">
                 <span>{{ isSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes') }}</span>
               </button>
@@ -148,14 +149,14 @@ import Chart from 'chart.js/auto';
 
       <!-- UNSAVED CHANGES WARNING MODAL (Overlay above settings, Red warning style) -->
       <div *ngIf="showUnsavedModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 animate-fade-in">
-        <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in border border-rose-100">
-          <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <svg class="w-8 h-8 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 lg:p-8 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in border border-rose-100 dark:border-rose-900/50">
+          <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <svg class="w-8 h-8 text-rose-600 dark:text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
-          <h3 class="text-xl font-extrabold text-slate-900 text-center mb-2">{{ t[lang].unsavedTitle }}</h3>
-          <p class="text-sm text-slate-500 text-center mb-8 leading-relaxed">{{ t[lang].unsavedDesc }}</p>
+          <h3 class="text-xl font-extrabold text-slate-900 dark:text-white text-center mb-2">{{ t[lang].unsavedTitle }}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8 leading-relaxed">{{ t[lang].unsavedDesc }}</p>
           <div class="flex gap-3">
-            <button (click)="cancelDiscard()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">{{ t[lang].stayBtn }}</button>
+            <button (click)="cancelDiscard()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">{{ t[lang].stayBtn }}</button>
             <button (click)="confirmDiscard()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md">{{ t[lang].discardBtn }}</button>
           </div>
         </div>
@@ -163,65 +164,88 @@ import Chart from 'chart.js/auto';
 
       <!-- ACCOUNT SETTINGS MODAL (Matching Add New Schedule Event style) -->
       <div *ngIf="showSettingsModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="font-extrabold text-xl text-slate-900">{{ t[lang].accountSettings }}</h3>
-              <p class="text-slate-500 text-xs mt-0.5">{{ lang === 'ar' ? 'تعديل بيانات الحساب والملف الشخصي' : 'Update your profile information and account details' }}</p>
+              <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">{{ t[lang].accountSettings }}</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{{ lang === 'ar' ? 'تعديل بيانات الحساب والملف الشخصي' : 'Update your profile information and account details' }}</p>
             </div>
-            <button (click)="closeSettings()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold transition">✕</button>
+            <button (click)="closeSettings()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
           </div>
 
           <div class="space-y-4">
-            <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
+            <!-- Cover image preview & change (Req 2) -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'صورة الغلاف للملف الشخصي' : 'Profile Cover Image' }}</label>
+              <div class="relative group rounded-2xl overflow-hidden h-28 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                <img [src]="getCoverImageUrl(editProfileData.coverImage)" (error)="$any($event.target).src='assets/images/default-cover.jpg'" class="w-full h-full object-cover">
+                <label class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-xs font-bold gap-2">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  {{ lang === 'ar' ? 'تغيير صورة الغلاف' : 'Change Cover Image' }}
+                  <input type="file" (change)="onCoverSelected($event)" accept="image/*" class="hidden">
+                </label>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div class="relative group shrink-0">
-                <img [src]="editProfileData.profileImage ? 'http://localhost:5162' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 shadow-sm">
+                <img [src]="editProfileData.profileImage ? 'http://localhost:5162' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 dark:border-indigo-900 shadow-sm">
                 <label class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-[11px] font-bold">
                   {{ t[lang].change }}
                   <input type="file" (change)="onAvatarSelected($event)" accept="image/*" class="hidden">
                 </label>
               </div>
               <div class="min-w-0">
-                <h4 class="font-bold text-sm text-slate-900 truncate">{{ editProfileData.fullName || 'Teacher' }}</h4>
-                <p class="text-xs text-slate-500 truncate">{{ editProfileData.email }}</p>
-                <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-lg mt-1 inline-block">{{ editProfileData.specialization || t[lang].teacher }}</span>
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ editProfileData.fullName || 'Teacher' }}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ editProfileData.email }}</p>
+                <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/50 rounded-lg mt-1 inline-block">{{ editProfileData.specialization || t[lang].teacher }}</span>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].fullName }} <span class="text-rose-500">*</span></label>
-              <input type="text" [(ngModel)]="editProfileData.fullName" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].fullName }} <span class="text-rose-500">*</span></label>
+              <input type="text" [(ngModel)]="editProfileData.fullName" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-slate-900 dark:text-white">
             </div>
             
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].specialization }} <span class="text-rose-500">*</span></label>
-              <input type="text" [(ngModel)]="editProfileData.specialization" [placeholder]="t[lang].specPlaceholder" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].specialization }} <span class="text-rose-500">*</span></label>
+              <input type="text" [(ngModel)]="editProfileData.specialization" [placeholder]="t[lang].specPlaceholder" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-slate-900 dark:text-white">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].email }}</label>
-              <input type="email" [(ngModel)]="editProfileData.email" disabled class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed text-sm font-medium">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].email }}</label>
+              <input type="email" [(ngModel)]="editProfileData.email" disabled class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 cursor-not-allowed text-sm font-medium">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].phone }}</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].phone }}</label>
               <div class="flex gap-2">
-                <select [(ngModel)]="editProfileData.countryCode" class="w-28 px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium dir-ltr text-left outline-none">
+                <select [(ngModel)]="editProfileData.countryCode" class="w-28 px-2 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium dir-ltr text-left outline-none text-slate-900 dark:text-white">
                   <option *ngFor="let country of countries; trackBy: trackById" [value]="country.code">
                     {{ country.flag }} {{ country.code }}
                   </option>
                 </select>
-                <input type="text" [(ngModel)]="editProfileData.phone" class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium dir-ltr text-left outline-none">
+                <input type="text" [(ngModel)]="editProfileData.phone" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium dir-ltr text-left outline-none text-slate-900 dark:text-white">
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].bio }}</label>
-              <textarea [(ngModel)]="editProfileData.bio" rows="3" [placeholder]="t[lang].bioPlaceholder" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].bio }}</label>
+              <textarea [(ngModel)]="editProfileData.bio" rows="3" [placeholder]="t[lang].bioPlaceholder" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-slate-900 dark:text-white"></textarea>
             </div>
 
-            <div class="flex gap-3 pt-3 border-t border-slate-100">
-              <button (click)="closeSettings()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <h4 class="font-extrabold text-sm text-slate-900 dark:text-white mb-1">{{ t[lang].securitySectionTitle }}</h4>
+              <p class="text-xs text-slate-400 mb-3">{{ t[lang].securitySectionDesc }}</p>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].resetPasswordOptional }}</label>
+                <input type="password" [(ngModel)]="editProfileData.newPassword" [placeholder]="t[lang].leaveBlankIfSame" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-slate-900 dark:text-white">
+              </div>
+            </div>
+
+            <div class="flex gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button (click)="closeSettings()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
               <button (click)="saveProfile()" [disabled]="isSaving || !editProfileData.specialization || editProfileData.specialization.trim() === '' || !editProfileData.fullName || editProfileData.fullName.trim() === ''" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-md disabled:opacity-50">
                 {{ isSaving ? t[lang].saving : t[lang].saveBtn }}
               </button>
@@ -232,32 +256,42 @@ import Chart from 'chart.js/auto';
 
       <!-- CREATE COURSE MODAL (Placed at root level with z-[100] to cover entire screen) -->
       <div *ngIf="showCreateForm" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="font-extrabold text-xl text-slate-900">{{ t[lang].createCourse }}</h3>
-              <p class="text-slate-500 text-xs mt-0.5">{{ t[lang].fillDetails }}</p>
+              <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">{{ t[lang].createCourse }}</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{{ t[lang].fillDetails }}</p>
             </div>
-            <button (click)="cancelCreateCourse()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
+            <button (click)="cancelCreateCourse()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">✕</button>
           </div>
+
+          <div *ngIf="createCourseError" class="mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-xs rounded-xl flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="2"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+            </svg>
+            <span>{{ createCourseError }}</span>
+          </div>
+
           <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].courseTitle }}</label>
-              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'عنوان الكورس...' : 'Course Title...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].courseTitle }}</label>
+              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'عنوان الكورس...' : 'Course Title...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'الوصف (اختياري)' : 'Description (Optional)' }}</label>
-              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'وصف وتفاصيل الكورس...' : 'Course description & details...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الوصف (اختياري)' : 'Description (Optional)' }}</label>
+              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'وصف وتفاصيل الكورس...' : 'Course description & details...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].courseType }}</label>
-              <div class="flex gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].courseType }}</label>
+              <div class="flex gap-4 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300">
                   <input type="radio" formControlName="isFree" [value]="true" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                   <span>{{ t[lang].freeCourse }}</span>
                 </label>
-                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300">
                   <input type="radio" formControlName="isFree" [value]="false" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
                   <span>{{ t[lang].paidCourse }}</span>
                 </label>
@@ -266,30 +300,30 @@ import Chart from 'chart.js/auto';
             
             <div class="grid grid-cols-2 gap-3" *ngIf="!courseForm.get('isFree')?.value">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].price }}</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].price }}</label>
                 <div class="relative">
-                  <input type="number" formControlName="price" placeholder="0" class="w-full pl-3 pr-12 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
+                  <input type="number" formControlName="price" placeholder="0" class="w-full pl-3 pr-12 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                 </div>
-                <p class="text-[11px] text-amber-600 mt-1.5 font-medium leading-tight">
+                <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 font-medium leading-tight">
                   {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 20% من سعر الكورس.' : 'Notice: Platform deducts 20% of the price.' }}
                 </p>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].discount }}</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].discount }}</label>
                 <div class="relative">
-                  <input type="number" formControlName="discountPercentage" placeholder="0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
+                  <input type="number" formControlName="discountPercentage" placeholder="0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none text-left" style="direction: ltr;">
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">%</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ t[lang].uploadCover }}</label>
-              <div class="border-2 border-dashed border-slate-300 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-slate-50 transition cursor-pointer relative overflow-hidden group">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].uploadCover }}</label>
+              <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer relative overflow-hidden group">
                 <input type="file" (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <div *ngIf="!imagePreview" class="text-center pointer-events-none py-2">
-                  <p class="text-xs font-bold text-indigo-600">{{ t[lang].clickToUpload }}</p>
+                  <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ t[lang].clickToUpload }}</p>
                 </div>
                 <div *ngIf="imagePreview" class="w-full h-32 relative rounded-xl overflow-hidden pointer-events-none">
                   <img [src]="imagePreview" class="w-full h-full object-cover">
@@ -300,7 +334,7 @@ import Chart from 'chart.js/auto';
               </div>
             </div>
             <div class="flex gap-3 pt-3">
-              <button type="button" (click)="cancelCreateCourse()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
+              <button type="button" (click)="cancelCreateCourse()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
               <button type="submit" [disabled]="!courseForm.valid || isSaving" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm transition shadow-md">{{ isSaving ? t[lang].saving : t[lang].publishBtn }}</button>
             </div>
           </form>
@@ -309,40 +343,40 @@ import Chart from 'chart.js/auto';
 
       <!-- SCHEDULE EVENT CREATION MODAL (Placed at root level with z-[100] to cover entire screen) -->
       <div *ngIf="showEventForm" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="font-extrabold text-xl text-slate-900">{{ lang === 'ar' ? 'إضافة موعد جديد في الجدول' : 'Add New Schedule Event' }}</h3>
-            <button (click)="cancelCreateEvent()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold transition">✕</button>
+            <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">{{ lang === 'ar' ? 'إضافة موعد جديد في الجدول' : 'Add New Schedule Event' }}</h3>
+            <button (click)="cancelCreateEvent()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
           </div>
 
-          <div *ngIf="eventFormError" class="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-2 animate-fade-in">
-            <svg class="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div *ngIf="eventFormError" class="mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold flex items-center gap-2 animate-fade-in">
+            <svg class="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <span>{{ eventFormError }}</span>
           </div>
 
           <form [formGroup]="eventForm" (ngSubmit)="submitEvent()" class="space-y-4">
             <div class="relative">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'الكورس المرتبط' : 'Related Course' }}</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المرتبط' : 'Related Course' }}</label>
               <button type="button" 
                       (click)="isCourseDropdownOpen = !isCourseDropdownOpen" 
-                      class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none flex items-center justify-between text-start cursor-pointer hover:bg-slate-100/70 transition">
-                <span class="truncate" [ngClass]="eventForm.get('courseId')?.value ? 'text-slate-900 font-semibold' : 'text-slate-400'">
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none flex items-center justify-between text-start cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-700/50 transition">
+                <span class="truncate" [ngClass]="eventForm.get('courseId')?.value ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-400 dark:text-slate-500'">
                   {{ getSelectedCourseTitle() || (lang === 'ar' ? 'اختر الكورس...' : 'Select course...') }}
                 </span>
                 <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200" [ngClass]="{'rotate-180': isCourseDropdownOpen}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </button>
 
               <!-- Dropdown List limited to ~3 items with clean scrollbar -->
-              <div *ngIf="isCourseDropdownOpen" class="absolute z-30 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-fade-in">
-                <div class="max-h-36 overflow-y-auto divide-y divide-slate-100">
+              <div *ngIf="isCourseDropdownOpen" class="absolute z-30 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-fade-in">
+                <div class="max-h-36 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
                   <div *ngFor="let c of courses; trackBy: trackById" 
                        (click)="selectEventCourse(c.id)" 
-                       class="px-4 py-2.5 hover:bg-indigo-50/60 cursor-pointer text-sm font-medium transition flex items-center justify-between"
-                       [ngClass]="eventForm.get('courseId')?.value == c.id ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-700'">
+                       class="px-4 py-2.5 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/40 cursor-pointer text-sm font-medium transition flex items-center justify-between"
+                       [ngClass]="eventForm.get('courseId')?.value == c.id ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300'">
                     <span class="truncate">{{ c.title }}</span>
-                    <svg *ngIf="eventForm.get('courseId')?.value == c.id" class="w-4 h-4 text-indigo-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <svg *ngIf="eventForm.get('courseId')?.value == c.id" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
-                  <div *ngIf="courses.length === 0" class="px-4 py-3 text-xs text-slate-400 text-center">
+                  <div *ngIf="courses.length === 0" class="px-4 py-3 text-xs text-slate-400 dark:text-slate-500 text-center">
                     {{ lang === 'ar' ? 'لا توجد كورسات متاحة' : 'No courses available' }}
                   </div>
                 </div>
@@ -350,27 +384,27 @@ import Chart from 'chart.js/auto';
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'عنوان الحدث' : 'Event Title' }}</label>
-              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'مثال: محاضرة مراجعة البلاغة' : 'e.g. Grammar Review Session' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'عنوان الحدث' : 'Event Title' }}</label>
+              <input type="text" formControlName="title" placeholder="{{ lang === 'ar' ? 'مثال: محاضرة مراجعة البلاغة' : 'e.g. Grammar Review Session' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'نوع الحدث' : 'Event Type' }}</label>
-              <input type="text" formControlName="eventType" placeholder="{{ lang === 'ar' ? 'مثال: Live, Deadline, Workshop...' : 'e.g. Live, Deadline, Workshop...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'نوع الحدث' : 'Event Type' }}</label>
+              <input type="text" formControlName="eventType" placeholder="{{ lang === 'ar' ? 'مثال: Live, Deadline, Workshop...' : 'e.g. Live, Deadline, Workshop...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'تاريخ ووقت الحدث' : 'Event Date & Time' }}</label>
-              <input type="datetime-local" formControlName="eventDate" [min]="minDate" (click)="$any($event.target).showPicker?.()" (keydown)="preventDateKeyboardTyping($event)" (input)="validateEventDate($event)" (change)="validateEventDate($event)" style="accent-color: #4f46e5 !important;" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none accent-indigo-600">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'تاريخ ووقت الحدث' : 'Event Date & Time' }}</label>
+              <input type="datetime-local" formControlName="eventDate" [min]="minDate" (click)="$any($event.target).showPicker?.()" (keydown)="preventDateKeyboardTyping($event)" (input)="validateEventDate($event)" (change)="validateEventDate($event)" style="accent-color: #4f46e5 !important;" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none accent-indigo-600">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">{{ lang === 'ar' ? 'الوصف (اختياري)' : 'Description (Optional)' }}</label>
-              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'ملاحظات وتفاصيل إضافية للطلاب...' : 'Additional notes for students...' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الوصف (اختياري)' : 'Description (Optional)' }}</label>
+              <textarea formControlName="description" rows="3" placeholder="{{ lang === 'ar' ? 'ملاحظات وتفاصيل إضافية للطلاب...' : 'Additional notes for students...' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
             </div>
 
             <div class="flex gap-3 pt-4">
-              <button type="button" (click)="cancelCreateEvent()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
+              <button type="button" (click)="cancelCreateEvent()" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm transition">{{ t[lang].cancel }}</button>
               <button type="submit" [disabled]="!eventForm.valid || isSaving" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm transition shadow-md">
                 {{ isSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'إضافة الحدث' : 'Add Event') }}
               </button>
@@ -379,193 +413,377 @@ import Chart from 'chart.js/auto';
         </div>
       </div>
 
-      <!-- Sidebar -->
-      <aside [ngClass]="isSidebarCollapsed ? 'w-20' : 'w-64'" class="bg-[#130E35] text-white flex flex-col fixed h-screen z-40 hidden lg:flex transition-all duration-300">
-        <div class="p-5 flex items-center justify-between border-b border-white/10">
-          <div class="flex items-center gap-3 overflow-hidden">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-400 to-purple-500 flex items-center justify-center font-bold text-xl shrink-0">F</div>
-            <span *ngIf="!isSidebarCollapsed" class="font-bold text-lg tracking-wide truncate">{{ t[lang].brand }}</span>
+      <!-- SIDEBAR: STRICTLY FIXED AND DOES NOT SCROLL WITH PAGE -->
+      <aside [ngClass]="isSidebarCollapsed ? 'w-20' : 'w-72'" 
+             class="bg-[#130E35] text-white flex flex-col shrink-0 transition-all duration-300 relative z-30 shadow-2xl h-screen overflow-hidden">
+        
+        <!-- Brand Header -->
+        <div class="h-20 flex items-center px-6 border-b border-white/10 gap-3 justify-between shrink-0">
+          <div (click)="switchTab('dashboard')" class="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-90 transition group" *ngIf="!isSidebarCollapsed" title="Qimma Dashboard">
+            <img src="assets/images/qimma-round.jpg" alt="Qimma Logo" class="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-indigo-500/30 shrink-0 border border-white/20">
+            <div>
+              <h1 class="font-black text-lg leading-tight tracking-wide text-white group-hover:text-indigo-300 transition">Qimma</h1>
+              <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">{{ t[lang].instructorPanel }}</p>
+            </div>
           </div>
-          <button (click)="toggleSidebar()" class="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition" [title]="isSidebarCollapsed ? (lang === 'ar' ? 'توسيع القائمة' : 'Expand Sidebar') : (lang === 'ar' ? 'طي القائمة' : 'Collapse Sidebar')">
-            <svg class="w-5 h-5 transition-transform" [ngClass]="{'rotate-180': isSidebarCollapsed}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path *ngIf="lang === 'en'" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-              <path *ngIf="lang === 'ar'" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          <button (click)="toggleSidebar()" 
+                  class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition shrink-0"
+                  [title]="isSidebarCollapsed ? (lang === 'ar' ? 'توسيع القائمة' : 'Expand Sidebar') : (lang === 'ar' ? 'طي القائمة' : 'Collapse Sidebar')">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path *ngIf="!isSidebarCollapsed" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+              <path *ngIf="isSidebarCollapsed" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
             </svg>
           </button>
         </div>
-        <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
-          <div *ngIf="!isSidebarCollapsed" class="text-xs uppercase tracking-wider text-white/40 px-3 mb-2">{{ t[lang].menu }}</div>
-          <a (click)="switchTab('dashboard')" [title]="t[lang].dashboard" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'dashboard', 'text-white/70 hover:bg-white/5': activeTab !== 'dashboard', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].dashboard }}</span>
-          </a>
-          <a (click)="switchTab('courses')" [title]="t[lang].myCourses" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'courses', 'text-white/70 hover:bg-white/5': activeTab !== 'courses', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].myCourses }}</span>
-          </a>
-          <a (click)="switchTab('students')" [title]="t[lang].students" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'students', 'text-white/70 hover:bg-white/5': activeTab !== 'students', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].students }}</span>
-          </a>
-          <a (click)="switchTab('live')" [title]="t[lang].liveSessions" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'live', 'text-white/70 hover:bg-white/5': activeTab !== 'live', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].liveSessions }}</span>
-          </a>
-          <a (click)="switchTab('schedule')" [title]="t[lang].schedule" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'schedule', 'text-white/70 hover:bg-white/5': activeTab !== 'schedule', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].schedule }}</span>
-          </a>
-          <a (click)="switchTab('support')" [title]="t[lang].support" [ngClass]="{'bg-indigo-600/40 text-white': activeTab === 'support', 'text-white/70 hover:bg-white/5': activeTab !== 'support', 'justify-center px-2': isSidebarCollapsed}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].support }}</span>
-          </a>
-          
-          <div *ngIf="!isSidebarCollapsed" class="text-xs uppercase tracking-wider text-white/40 px-3 mt-6 mb-2">{{ t[lang].account }}</div>
-          
-          <a (click)="openSettings()" [title]="t[lang].accountSettings" [ngClass]="isSidebarCollapsed ? 'justify-center px-2' : ''" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white font-medium text-sm transition cursor-pointer">
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].accountSettings }}</span>
-          </a>
-          <button (click)="logout()" [title]="t[lang].logout" [ngClass]="isSidebarCollapsed ? 'justify-center px-2' : ''" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-300 hover:bg-rose-500/10 font-medium text-sm transition w-full text-start cursor-pointer">
-            <svg class="w-5 h-5 shrink-0 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].logout }}</span>
-          </button>
-        </nav>
-        <div class="p-4 border-t border-white/10">
-          <div class="flex items-center gap-3 p-2 rounded-xl bg-white/5" [ngClass]="isSidebarCollapsed ? 'justify-center p-1' : ''">
-            <img [src]="userData?.profileImage ? 'http://localhost:5162' + userData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userData?.username || 'Teacher'))" class="w-9 h-9 rounded-full bg-white/10 object-cover shrink-0" />
-            <div *ngIf="!isSidebarCollapsed" class="min-w-0">
-              <p class="text-sm font-semibold truncate">{{ userData?.username || 'Loading...' }}</p>
-              <p class="text-xs text-indigo-300 truncate">{{ userData?.specialization || t[lang].teacher }}</p>
+
+        <!-- Instructor Profile Pill -->
+        <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
+          <div class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
+              <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+              <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'T').substring(0,1).toUpperCase() }}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="font-extrabold text-sm text-white truncate">{{ userData?.username || (lang === 'ar' ? 'معلم' : 'Instructor') }}</p>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-md">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>{{ userData?.specialization || t[lang].teacher }}</span>
+              </span>
             </div>
           </div>
         </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-none">
+          <button (click)="switchTab('dashboard')" 
+                  [ngClass]="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+              <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+              <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].dashboard }}</span>
+          </button>
+
+          <button (click)="switchTab('courses')" 
+                  [ngClass]="activeTab === 'courses' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].myCourses }}</span>
+          </button>
+
+          <button (click)="switchTab('students')" 
+                  [ngClass]="activeTab === 'students' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].students }}</span>
+          </button>
+
+          <button (click)="switchTab('live')" 
+                  [ngClass]="activeTab === 'live' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].liveSessions }}</span>
+          </button>
+
+          <button (click)="switchTab('schedule')" 
+                  [ngClass]="activeTab === 'schedule' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].schedule }}</span>
+          </button>
+
+          <button (click)="switchTab('support')" 
+                  [ngClass]="activeTab === 'support' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].support }}</span>
+          </button>
+
+          <button (click)="openSettings()" 
+                  [ngClass]="activeTab === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].accountSettings }}</span>
+          </button>
+        </nav>
+
+        <!-- Bottom Actions -->
+        <div class="p-4 border-t border-white/10 shrink-0">
+          <button (click)="logout()" 
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-xs transition"
+                  [class.justify-center]="isSidebarCollapsed">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed">{{ t[lang].logout }}</span>
+          </button>
+        </div>
       </aside>
-      
-      <!-- Main Content -->
-      <div [ngClass]="isSidebarCollapsed ? 'ltr:lg:ml-20 rtl:lg:mr-20' : 'ltr:lg:ml-64 rtl:lg:mr-64'" class="flex-1 min-h-screen flex flex-col transition-all duration-300">
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-4 flex items-center justify-between gap-4">
-          <div class="flex items-center flex-1 gap-4">
-            <button (click)="toggleSidebar()" class="hidden lg:flex p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition shrink-0" [title]="isSidebarCollapsed ? (lang === 'ar' ? 'توسيع القائمة' : 'Expand Sidebar') : (lang === 'ar' ? 'طي القائمة' : 'Collapse Sidebar')">
+
+      <!-- Main Content Wrapper -->
+      <div class="flex-1 h-screen flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-6 lg:px-10 flex items-center justify-between shrink-0 shadow-sm z-10">
+          <div class="flex items-center gap-3">
+            <button (click)="toggleSidebar()" class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             </button>
-            <h2 class="text-lg font-bold text-slate-800 lg:hidden">{{ t[lang].brand }}</h2>
-            <div class="relative hidden sm:block w-full max-w-md">
-              <span class="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 text-slate-400">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              </span>
-              <input type="text" [(ngModel)]="searchQuery" [placeholder]="lang === 'ar' ? 'ابحث...' : 'Search...'" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all dir-ltr text-left">
-            </div>
+            <h2 class="text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+              {{ getTabTitle() }}
+            </h2>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>{{ t[lang].systemStatusOk }}</span>
+            </span>
           </div>
-          <div class="flex items-center gap-3 shrink-0">
-            <button (click)="toggleLang()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition whitespace-nowrap">
-              {{ lang === 'ar' ? 'English' : 'عربي' }}
+
+          <div class="flex items-center gap-3">
+            <!-- Dark Mode Switcher in Header -->
+            <button (click)="toggleDarkMode()" 
+                    [title]="isDarkMode ? (lang === 'ar' ? 'الوضع النهاري' : 'Light Mode') : (lang === 'ar' ? 'الوضع الليلي' : 'Dark Mode')"
+                    class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-amber-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-sm">
+              <svg *ngIf="isDarkMode" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+              <svg *ngIf="!isDarkMode" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
             </button>
 
+            <!-- Language Switcher in Header (Image 2) -->
+            <button (click)="toggleLang()" 
+                    class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
+              </svg>
+              <span>{{ lang === 'ar' ? 'English' : 'العربية' }}</span>
+            </button>
+
+            <!-- NOTIFICATION BELL (Image 2 & 3) -->
             <div class="relative notification-container">
-              <button (click)="toggleNotifications()" class="relative p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl transition flex items-center justify-center">
-                <svg class="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                <span *ngIf="unreadCount > 0" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse"></span>
+              <button (click)="toggleNotifications()" 
+                      class="relative p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition flex items-center justify-center">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span *ngIf="unreadCount > 0" 
+                      class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-rose-500 text-white text-[10px] font-black rounded-full min-w-[18px] text-center shadow-md animate-pulse">
+                  {{ unreadCount }}
+                </span>
               </button>
 
-              <div *ngIf="showNotificationsDropdown" class="absolute rtl:left-0 ltr:right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-fade-in">
+              <!-- Notifications Dropdown Panel (Image 3) -->
+              <div *ngIf="showNotificationsDropdown" 
+                   class="absolute ltr:right-0 rtl:left-0 mt-3 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 z-50 overflow-hidden animate-fade-in"
+                   [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
                 
-                <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                  <div>
-                    <h3 class="font-bold text-slate-800 text-sm">{{ t[lang].notificationsTitle }}</h3>
-                    <span class="text-xs text-indigo-600 font-semibold">{{ unreadCount }} {{ t[lang].unreadText }}</span>
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">{{ t[lang].notificationsTitle }}</h3>
+                    <span *ngIf="unreadCount > 0" class="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
+                      {{ unreadCount }} {{ t[lang].unreadText }}
+                    </span>
                   </div>
-                  <button *ngIf="notifications.length > 0" (click)="deleteAllNotifications()" class="text-xs font-bold text-rose-500 hover:text-rose-700 transition">
-                    {{ lang === 'ar' ? 'مسح الكل' : 'Clear All' }}
-                  </button>
-                </div>
-
-                <div class="max-h-72 overflow-y-auto divide-y divide-slate-50">
-                  <div *ngFor="let notif of notifications; trackBy: trackById" (click)="onNotificationClick(notif)" 
-                       [ngClass]="{'bg-indigo-50/40': !notif.isRead}"
-                       class="p-4 hover:bg-slate-50 transition cursor-pointer flex items-start justify-between gap-3 group">
-                    <div class="flex-1 min-w-0" dir="auto" style="unicode-bidi: plaintext; text-align: start;">
-                      <p class="font-bold text-xs text-slate-900 break-words whitespace-normal" *ngIf="notif.title">{{ notif.title }}</p>
-                      <p class="text-xs mt-1 break-words whitespace-normal" [ngClass]="!notif.isRead ? 'font-bold text-slate-900' : 'font-normal text-slate-600'" style="line-height: 1.4;">{{ getNotificationText(notif.message) }}</p>
-                      <span class="text-[10px] text-slate-400 mt-2 block">{{ notif.createdAt | date:'short' }}</span>
-                    </div>
-                    <button (click)="deleteNotification(notif.id, $event)" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 p-1" title="مسح">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <div class="flex items-center gap-2">
+                    <button *ngIf="unreadCount > 0" (click)="markAllNotificationsAsRead()" 
+                            class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition">
+                      {{ t[lang].markAllAsRead }}
+                    </button>
+                    <button *ngIf="notifications.length > 0" (click)="deleteAllNotifications()" 
+                            class="text-xs font-bold text-rose-500 hover:text-rose-700 transition">
+                      {{ t[lang].clearAll }}
                     </button>
                   </div>
-                  <div *ngIf="notifications.length === 0" class="p-8 text-center text-xs text-slate-400">
+                </div>
+
+                <div class="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                  <div *ngIf="notifications.length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 font-bold text-xs">
                     {{ t[lang].noNotifications }}
                   </div>
+
+                  <div *ngFor="let notif of notifications" (click)="onNotificationClick(notif)" 
+                       [ngClass]="{'bg-indigo-50/40 dark:bg-indigo-950/20': !notif.isRead, 'bg-white dark:bg-slate-900': notif.isRead}" 
+                       class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition cursor-pointer flex items-start gap-3 group">
+                    
+                    <div class="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-xs font-black shadow-xs"
+                         [ngClass]="{
+                           'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400': getNotificationType(notif.message) === 'ENROLLMENT_PAID',
+                           'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400': getNotificationType(notif.message) === 'ENROLLMENT',
+                           'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400': getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT',
+                           'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400': getNotificationType(notif.message) === 'ASSIGNMENT',
+                           'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300': getNotificationType(notif.message) === 'SYSTEM'
+                         }">
+                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT_PAID'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                      </svg>
+                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                      </svg>
+                      <svg *ngIf="getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                      </svg>
+                      <svg *ngIf="getNotificationType(notif.message) === 'ASSIGNMENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                      </svg>
+                      <svg *ngIf="getNotificationType(notif.message) === 'SYSTEM'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-bold text-slate-900 dark:text-white leading-snug break-words">
+                        {{ getNotificationTitle(notif.message) }}
+                      </p>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed break-words" *ngIf="getNotificationDesc(notif.message)">
+                        {{ getNotificationDesc(notif.message) }}
+                      </p>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ formatTimeAgo(notif.createdAt) }}</span>
+                        <span class="text-[10px] text-slate-300 dark:text-slate-600">•</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ formatDateTime(notif.createdAt) }}</span>
+                      </div>
+                    </div>
+
+                    <span *ngIf="!notif.isRead" class="w-2 h-2 rounded-full bg-indigo-600 shrink-0 mt-1.5"></span>
+                  </div>
                 </div>
+
               </div>
             </div>
 
+            <!-- Vertical Separator (Image 2) -->
+            <div class="h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
+
+            <!-- Instructor Profile Indicator in Header (Image 2) -->
+            <div class="flex items-center gap-3 pl-2 cursor-pointer" (click)="openSettings()" [ngClass]="lang === 'ar' ? 'pr-2 pl-0 border-r border-slate-200 dark:border-slate-700' : 'pl-2 border-l border-slate-200 dark:border-slate-700'">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-200 dark:border-indigo-800/60 overflow-hidden shadow-xs">
+                <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+                <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'T').substring(0,1).toUpperCase() }}</span>
+              </div>
+              <div class="hidden sm:block">
+                <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight">{{ userData?.username || (lang === 'ar' ? 'معلم' : 'Instructor') }}</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-400 font-medium">{{ t[lang].teacher }}</p>
+              </div>
+            </div>
           </div>
         </header>
 
-        <main class="p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-8">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
           
           <!-- DASHBOARD TAB -->
           <ng-container *ngIf="activeTab === 'dashboard'">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-900">{{ t[lang].welcome }}, {{ userData?.username || 'Instructor' }} 👋</h1>
-                <p class="text-slate-500 mt-1">{{ t[lang].streak }}</p>
+                <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white">{{ t[lang].welcome }}, {{ userData?.username || 'Instructor' }} 👋</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">{{ t[lang].streak }}</p>
               </div>
             </div>
 
             <!-- Top Number Metrics -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ t[lang].totalStudents }}</p>
-                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 rounded animate-pulse mt-2"></div>
-                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35]">{{ totalStudentsCount }}</p>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{{ t[lang].totalStudents }}</p>
+                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mt-2"></div>
+                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35] dark:text-white">{{ totalStudentsCount }}</p>
                   </div>
-                  <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                   </div>
                 </div>
               </div>
               
-              <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ t[lang].activeCourses }}</p>
-                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 rounded animate-pulse mt-2"></div>
-                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35]">{{ courses.length }}</p>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{{ t[lang].activeCourses }}</p>
+                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mt-2"></div>
+                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35] dark:text-white">{{ courses.length }}</p>
                   </div>
-                  <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                   </div>
                 </div>
               </div>
 
-              <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ t[lang].totalQuizzes }}</p>
-                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 rounded animate-pulse mt-2"></div>
-                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35]">{{ totalQuizzesCount }}</p>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{{ t[lang].totalQuizzes }}</p>
+                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mt-2"></div>
+                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35] dark:text-white">{{ totalQuizzesCount }}</p>
                   </div>
-                  <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-sm">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                   </div>
                 </div>
               </div>
 
-              <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                   <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ t[lang].totalLessons }}</p>
-                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 rounded animate-pulse mt-2"></div>
-                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35]">{{ totalLessonsCount }}</p>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">{{ t[lang].totalLessons }}</p>
+                    <div *ngIf="isLoadingTopMetrics" class="h-8 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mt-2"></div>
+                    <p *ngIf="!isLoadingTopMetrics" class="mt-2 text-3xl font-black text-[#130E35] dark:text-white">{{ totalLessonsCount }}</p>
                   </div>
-                  <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
                   </div>
                 </div>
@@ -596,38 +814,38 @@ import Chart from 'chart.js/auto';
                 </div>
               </div>
 
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col justify-center">
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col justify-center">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="font-bold text-slate-500">{{ t[lang].studentGrowth }}</h3>
-                  <span class="p-2 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                  <h3 class="font-bold text-slate-500 dark:text-slate-400">{{ t[lang].studentGrowth }}</h3>
+                  <span class="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                   </span>
                 </div>
                 <div *ngIf="!isLoadingDashboard">
-                  <p class="text-3xl font-black text-slate-900 mb-1 flex items-center gap-2">
+                  <p class="text-3xl font-black text-slate-900 dark:text-white mb-1 flex items-center gap-2">
                     <span *ngIf="studentGrowth > 0">+</span>{{ studentGrowth }}% 
                     <svg *ngIf="studentGrowth >= 0" class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                     <svg *ngIf="studentGrowth < 0" class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>
                   </p>
-                  <p class="text-sm text-slate-400 font-medium mt-1">{{ t[lang].increaseLastMonth }}</p>
+                  <p class="text-sm text-slate-400 dark:text-slate-500 font-medium mt-1">{{ t[lang].increaseLastMonth }}</p>
                 </div>
                 <div *ngIf="isLoadingDashboard" class="space-y-3">
-                  <div class="h-8 w-24 bg-slate-200 rounded animate-pulse"></div>
-                  <div class="h-4 w-40 bg-slate-100 rounded animate-pulse mt-2"></div>
+                  <div class="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                  <div class="h-4 w-40 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-2"></div>
                 </div>
               </div>
 
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col justify-center">
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col justify-center">
                 <div class="flex items-center justify-between mb-2">
-                  <h3 class="font-bold text-slate-500">{{ t[lang].instructorRating }}</h3>
-                  <span class="p-2 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center">
+                  <h3 class="font-bold text-slate-500 dark:text-slate-400">{{ t[lang].instructorRating }}</h3>
+                  <span class="p-2 bg-amber-50 dark:bg-amber-950/60 text-amber-500 dark:text-amber-400 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                   </span>
                 </div>
                 <div *ngIf="!isLoadingDashboard">
                   <div class="flex items-end gap-3 mt-2">
-                    <p class="text-5xl font-black text-slate-900">{{ instructorRating }}</p>
-                    <p class="text-base text-slate-400 font-bold mb-1">/ 5.0</p>
+                    <p class="text-5xl font-black text-slate-900 dark:text-white">{{ instructorRating }}</p>
+                    <p class="text-base text-slate-400 dark:text-slate-500 font-bold mb-1">/ 5.0</p>
                   </div>
                   <div class="flex gap-1 mt-3">
                     <span *ngFor="let star of [1,2,3,4,5]; trackBy: trackById" class="text-amber-400 text-lg" [class.opacity-30]="star > instructorRating">★</span>
@@ -640,44 +858,124 @@ import Chart from 'chart.js/auto';
               </div>
             </div>
 
-            <!-- New Enrollments & Completions Chart Section (Req 2) -->
-            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-hidden relative">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2.5">
-                  <svg class="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                  <span>{{ lang === 'ar' ? 'التسجيلات وإتمام الكورسات' : 'Enrollments & Course Completions' }}</span>
-                </h3>
-                <div class="flex items-center gap-2">
-                   <select [(ngModel)]="selectedChartTimeframe" (change)="onTimeframeChange()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
-                      <option value="7days">{{ lang === 'ar' ? 'أخر 7 أيام' : 'Last 7 Days' }}</option>
-                      <option value="30days">{{ lang === 'ar' ? 'أخر 30 يوم' : 'Last 30 Days' }}</option>
-                      <option value="1year">{{ lang === 'ar' ? 'أخر 12 شهر' : 'Last 12 Months' }}</option>
-                    </select>
+            <!-- Filter Capsule matching Image 1 (Req 2) -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Timeframe Capsule Filter Pills (Matching image 1) -->
+                <div class="bg-white dark:bg-slate-900 rounded-full p-1.5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-1 self-start sm:self-auto">
+                  <button (click)="setChartTimeframe('7days')"
+                          [ngClass]="selectedChartTimeframe === '7days' && !selectedChartDate ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                          class="px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    {{ t[lang].days7 }}
+                  </button>
+                  <button (click)="setChartTimeframe('30days')"
+                          [ngClass]="selectedChartTimeframe === '30days' && !selectedChartDate ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                          class="px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    {{ t[lang].days30 }}
+                  </button>
+                  <button (click)="setChartTimeframe('1year')"
+                          [ngClass]="selectedChartTimeframe === '1year' && !selectedChartDate ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                          class="px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    {{ t[lang].year1 }}
+                  </button>
+                  <button (click)="setChartTimeframe('all')"
+                          [ngClass]="selectedChartTimeframe === 'all' && !selectedChartDate ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                          class="px-4 py-1.5 rounded-full text-xs font-bold transition">
+                    {{ t[lang].allTime }}
+                  </button>
                 </div>
-              </div>
-              
-              <!-- Chart Skeleton Loader -->
-              <div *ngIf="isLoadingDashboard" class="w-full h-[300px] bg-slate-50 rounded-xl border border-slate-100 flex items-end justify-between p-4 gap-2">
-                 <div *ngFor="let h of [10, 30, 20, 50, 40, 70, 60, 80, 50, 90, 70, 100]; trackBy: trackById" [style.height.%]="h" class="flex-1 bg-slate-200 rounded-t-sm animate-pulse"></div>
-              </div>
 
-              <!-- Actual Chart -->
-              <div *ngIf="!isLoadingDashboard" class="w-full h-[300px] relative">
-                <canvas id="assignmentsChart"></canvas>
+                <!-- Specific Day Filter (Matching image 1) -->
+                <div class="bg-white dark:bg-slate-900 rounded-full px-3 py-1.5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-indigo-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span class="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ t[lang].specificDayFilter }}:</span>
+                  <input type="date" [(ngModel)]="selectedChartDate" (change)="onChartDateChange()" class="text-xs bg-transparent border-0 outline-none font-bold text-indigo-700 dark:text-indigo-400 cursor-pointer">
+                  <button *ngIf="selectedChartDate" (click)="clearChartDate()" class="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 flex items-center justify-center font-bold text-[10px]" title="{{ t[lang].clearDateFilter }}">✕</button>
+                </div>
               </div>
             </div>
 
+            <!-- ANALYTICS CHARTS ROW: Enrollments & Completions + Course Catalog Distribution (Req 5) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <!-- lg:col-span-2: Enrollments & Course Completions -->
+              <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 class="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                      <svg class="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                      </svg>
+                      <span>{{ lang === 'ar' ? 'التسجيلات وإتمام الكورسات' : 'Enrollments & Course Completions' }}</span>
+                    </h4>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">{{ lang === 'ar' ? 'متابعة وتيرة تسجيل الطلاب وإكمالهم للكورسات' : 'Track student enrollments and course completions' }}</p>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs font-bold">
+                    <span class="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                      <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
+                      <span>{{ lang === 'ar' ? 'التسجيلات' : 'Enrollments' }}</span>
+                    </span>
+                    <span class="flex items-center gap-1.5 text-emerald-500 dark:text-emerald-400">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+                      <span>{{ lang === 'ar' ? 'المكتملة' : 'Completions' }}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="h-[280px] w-full relative">
+                  <canvas id="assignmentsChart"></canvas>
+                </div>
+              </div>
+
+              <!-- 1 col: Doughnut Breakdown Chart (Course Catalog Distribution: Free vs Paid) -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                  <h4 class="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+                    <svg class="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M12 2a10 10 0 0 1 10 10h-10z"></path>
+                    </svg>
+                    <span>{{ t[lang].courseDistributionChartTitle }}</span>
+                  </h4>
+                  <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mb-4">{{ t[lang].courseDistributionDesc }}</p>
+                </div>
+
+                <div class="h-[210px] w-full relative flex items-center justify-center">
+                  <canvas id="teacherCourseDistributionChart"></canvas>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-center text-xs">
+                  <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+                    <p class="text-slate-400 dark:text-slate-500 font-bold">{{ t[lang].paidCourse }}</p>
+                    <p class="font-black text-indigo-700 dark:text-indigo-400 text-sm mt-0.5">{{ paidCoursesCount }}</p>
+                  </div>
+                  <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+                    <p class="text-slate-400 dark:text-slate-500 font-bold">{{ t[lang].freeCourse }}</p>
+                    <p class="font-black text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">{{ freeCoursesCount }}</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
             <!-- YOUR TOP COURSES WIDGET (Req 2) -->
-            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-6">
               <!-- Card Header -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center shadow-xs">
+                  <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 border border-amber-100 dark:border-amber-900/40 flex items-center justify-center shadow-xs">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                   </div>
                   <div>
-                    <h3 class="font-extrabold text-lg text-slate-900 tracking-tight">{{ t[lang].yourTopCourses }}</h3>
-                    <p class="text-xs text-slate-400 font-medium">{{ lang === 'ar' ? 'الكورسات الأكثر نشاطاً ونسبة إتمام الطلاب' : 'Most engaged courses & student completion' }}</p>
+                    <h3 class="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">{{ t[lang].yourTopCourses }}</h3>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">{{ lang === 'ar' ? 'الكورسات الأكثر نشاطاً ونسبة إتمام الطلاب' : 'Most engaged courses & student completion' }}</p>
                   </div>
                 </div>
 
@@ -685,7 +983,7 @@ import Chart from 'chart.js/auto';
                 <button *ngIf="topCourses && topCourses.length > 3" 
                         (click)="showAllTopCourses = !showAllTopCourses" 
                         type="button"
-                        class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1.5 cursor-pointer px-3.5 py-1.5 rounded-xl bg-indigo-50/60 hover:bg-indigo-50 border border-indigo-100/50">
+                        class="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition flex items-center gap-1.5 cursor-pointer px-3.5 py-1.5 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 border border-indigo-100/50 dark:border-indigo-900/50">
                   <span>{{ showAllTopCourses ? (lang === 'ar' ? 'عرض أقل' : 'View Less') : (lang === 'ar' ? 'عرض الكل' : 'View All') }}</span>
                   <svg [ngClass]="{'rotate-180': showAllTopCourses}" class="w-4 h-4 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </button>
@@ -693,14 +991,14 @@ import Chart from 'chart.js/auto';
 
               <!-- Skeleton Loader while dashboard stats load -->
               <div *ngIf="isLoadingDashboard" class="space-y-4">
-                <div *ngFor="let i of [1, 2, 3]" class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3 animate-pulse">
+                <div *ngFor="let i of [1, 2, 3]" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-3 animate-pulse">
                   <div class="flex justify-between items-center">
-                    <div class="h-4 bg-slate-200 rounded w-14"></div>
-                    <div class="h-4 bg-slate-200 rounded w-40"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-14"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-40"></div>
                   </div>
-                  <div class="w-full bg-slate-200 h-2.5 rounded-full"></div>
+                  <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full"></div>
                   <div class="flex justify-end">
-                    <div class="h-3 bg-slate-200 rounded w-20"></div>
+                    <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
                   </div>
                 </div>
               </div>
@@ -708,20 +1006,20 @@ import Chart from 'chart.js/auto';
               <!-- Courses List -->
               <div class="space-y-3.5" *ngIf="!isLoadingDashboard && topCourses && topCourses.length > 0">
                 <div *ngFor="let course of (showAllTopCourses ? topCourses : topCourses.slice(0, 3)); trackBy: trackById" 
-                     class="p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all duration-200 space-y-2.5">
+                     class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/60 transition-all duration-200 space-y-2.5">
                   <!-- Row 1: Percentage on left, Course Title on right -->
                   <div class="flex items-center justify-between gap-3">
-                    <span class="text-xs sm:text-sm font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/60 shadow-xs">{{ course.completionPercentage }}%</span>
-                    <span class="text-sm sm:text-base font-bold text-slate-800 truncate max-w-[75%] text-start">{{ course.title }}</span>
+                    <span class="text-xs sm:text-sm font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">{{ course.completionPercentage }}%</span>
+                    <span class="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate max-w-[75%] text-start">{{ course.title }}</span>
                   </div>
 
                   <!-- Row 2: Progress Track (filled with emerald gradient) -->
-                  <div class="w-full bg-slate-200/80 h-2.5 rounded-full overflow-hidden flex justify-end">
+                  <div class="w-full bg-slate-200/80 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden flex justify-end">
                     <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-700 shadow-xs" [style.width.%]="course.completionPercentage"></div>
                   </div>
 
                   <!-- Row 3: Students count on right -->
-                  <div class="flex items-center justify-end gap-1.5 text-xs text-slate-500 font-semibold">
+                  <div class="flex items-center justify-end gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
                     <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                     <span>{{ course.studentsCount }} {{ t[lang].studentsCountText }}</span>
                   </div>
@@ -729,7 +1027,7 @@ import Chart from 'chart.js/auto';
               </div>
 
               <!-- Empty state if no courses -->
-              <div *ngIf="!isLoadingDashboard && (!topCourses || topCourses.length === 0)" class="text-center py-8 text-slate-400 text-sm font-medium bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <div *ngIf="!isLoadingDashboard && (!topCourses || topCourses.length === 0)" class="text-center py-8 text-slate-400 dark:text-slate-500 text-sm font-medium bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                 {{ lang === 'ar' ? 'لا توجد كورسات منشورة حالياً لعرضها هنا.' : 'No published courses available yet.' }}
               </div>
             </div>
@@ -738,14 +1036,14 @@ import Chart from 'chart.js/auto';
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               
               <!-- Recent Transactions Box -->
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-hidden flex flex-col max-h-[500px]">
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm overflow-hidden flex flex-col max-h-[500px]">
                 <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-                  <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                  <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                     <span>{{ t[lang].recentTransactions }}</span>
                   </h3>
                   <div class="flex items-center gap-2 flex-wrap" *ngIf="!isLoadingDashboard">
-                    <select [(ngModel)]="selectedTransactionMonth" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
+                    <select [(ngModel)]="selectedTransactionMonth" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
                       <option value="all">{{ lang === 'ar' ? 'كل الشهور' : 'All Months' }}</option>
                       <option value="1">{{ lang === 'ar' ? 'يناير' : 'Jan' }}</option>
                       <option value="2">{{ lang === 'ar' ? 'فبراير' : 'Feb' }}</option>
@@ -760,54 +1058,54 @@ import Chart from 'chart.js/auto';
                       <option value="11">{{ lang === 'ar' ? 'نوفمبر' : 'Nov' }}</option>
                       <option value="12">{{ lang === 'ar' ? 'ديسمبر' : 'Dec' }}</option>
                     </select>
-                    <select [(ngModel)]="selectedTransactionYear" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
+                    <select [(ngModel)]="selectedTransactionYear" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
                       <option value="all">{{ lang === 'ar' ? 'كل السنوات' : 'All Years' }}</option>
                       <option value="2026">2026</option>
                       <option value="2025">2025</option>
                       <option value="2024">2024</option>
                     </select>
-                    <button (click)="showAllTransactions = !showAllTransactions" class="text-xs font-bold text-indigo-600 hover:underline">
+                    <button (click)="showAllTransactions = !showAllTransactions" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
                        {{ showAllTransactions ? (lang === 'ar' ? 'عرض أقل' : 'View Less') : (lang === 'ar' ? 'عرض الكل' : 'View All') }}
                     </button>
                   </div>
                 </div>
                 <div class="flex-1 overflow-y-auto pr-2">
                   <table class="w-full text-left rtl:text-right border-collapse whitespace-nowrap">
-                    <thead class="sticky top-0 bg-white z-10">
-                      <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
+                    <thead class="sticky top-0 bg-white dark:bg-slate-900 z-10">
+                      <tr class="text-slate-400 dark:text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
                         <th class="pb-3 font-bold">{{ t[lang].studentName }}</th>
                         <th class="pb-3 font-bold">{{ t[lang].course }}</th>
                         <th class="pb-3 font-bold">{{ t[lang].amount }}</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                       <!-- Skeleton Loader for Transactions -->
                       <ng-container *ngIf="isLoadingDashboard">
                         <tr *ngFor="let i of [1,2,3,4,5]; trackBy: trackById">
-                          <td class="py-4"><div class="h-4 bg-slate-200 rounded w-24 animate-pulse"></div><div class="h-2 bg-slate-100 rounded w-16 mt-2 animate-pulse"></div></td>
-                          <td class="py-4"><div class="h-3 bg-slate-100 rounded w-32 animate-pulse"></div></td>
-                          <td class="py-4"><div class="h-5 bg-slate-200 rounded w-16 animate-pulse"></div></td>
+                          <td class="py-4"><div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 animate-pulse"></div><div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-16 mt-2 animate-pulse"></div></td>
+                          <td class="py-4"><div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-32 animate-pulse"></div></td>
+                          <td class="py-4"><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-16 animate-pulse"></div></td>
                         </tr>
                       </ng-container>
 
                       <!-- Actual Data -->
                       <ng-container *ngIf="!isLoadingDashboard">
-                        <tr *ngFor="let tr of filteredRecentTransactions; trackBy: trackById" class="hover:bg-slate-50 transition">
-                          <td class="py-3 text-sm font-bold text-slate-800">{{ tr.studentName }}
-                            <span class="block text-[10px] text-slate-400">{{ tr.date | date:'MMM d, y' }}</span>
+                        <tr *ngFor="let tr of filteredRecentTransactions; trackBy: trackById" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                          <td class="py-3 text-sm font-bold text-slate-800 dark:text-white">{{ tr.studentName }}
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500">{{ tr.date | date:'MMM d, y' }}</span>
                           </td>
-                          <td class="py-3 text-xs text-slate-500 font-medium">{{ tr.courseTitle }}</td>
+                          <td class="py-3 text-xs text-slate-500 dark:text-slate-400 font-medium">{{ tr.courseTitle }}</td>
                           <td class="py-3">
-                            <span *ngIf="tr.amount > 0" class="text-sm font-black text-emerald-600">+{{ tr.amount }} <span class="text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span></span>
-                            <span *ngIf="tr.amount === 0" class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-md">{{ lang === 'ar' ? 'مجاني' : 'Free' }}</span>
+                            <span *ngIf="tr.amount > 0" class="text-sm font-black text-emerald-600 dark:text-emerald-400">+{{ tr.amount }} <span class="text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span></span>
+                            <span *ngIf="tr.amount === 0" class="text-xs font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-1 rounded-md">{{ lang === 'ar' ? 'مجاني' : 'Free' }}</span>
                           </td>
                         </tr>
                         <tr *ngIf="filteredRecentTransactions.length === 0">
                           <td colspan="3" class="py-8 text-center">
-                             <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                             <div class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-2">
                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                              </div>
-                             <p class="text-xs text-slate-400 font-medium">{{ lang === 'ar' ? 'لا توجد معاملات مطابقة لعوامل التصفية.' : 'No transactions found for these filters.' }}</p>
+                             <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">{{ lang === 'ar' ? 'لا توجد معاملات مطابقة لعوامل التصفية.' : 'No transactions found for these filters.' }}</p>
                           </td>
                         </tr>
                       </ng-container>
@@ -817,14 +1115,14 @@ import Chart from 'chart.js/auto';
               </div>
 
               <!-- Activity Feed Box -->
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-hidden flex flex-col max-h-[500px]">
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm overflow-hidden flex flex-col max-h-[500px]">
                 <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-                  <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                  <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                     <span>{{ t[lang].activityFeed }}</span>
                   </h3>
                   <div class="flex items-center gap-2 flex-wrap" *ngIf="!isLoadingDashboard">
-                    <select [(ngModel)]="selectedActivityMonth" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
+                    <select [(ngModel)]="selectedActivityMonth" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
                       <option value="all">{{ lang === 'ar' ? 'كل الشهور' : 'All Months' }}</option>
                       <option value="1">{{ lang === 'ar' ? 'يناير' : 'Jan' }}</option>
                       <option value="2">{{ lang === 'ar' ? 'فبراير' : 'Feb' }}</option>
@@ -839,26 +1137,26 @@ import Chart from 'chart.js/auto';
                       <option value="11">{{ lang === 'ar' ? 'نوفمبر' : 'Nov' }}</option>
                       <option value="12">{{ lang === 'ar' ? 'ديسمبر' : 'Dec' }}</option>
                     </select>
-                    <select [(ngModel)]="selectedActivityYear" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
+                    <select [(ngModel)]="selectedActivityYear" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer">
                       <option value="all">{{ lang === 'ar' ? 'كل السنوات' : 'All Years' }}</option>
                       <option value="2026">2026</option>
                       <option value="2025">2025</option>
                       <option value="2024">2024</option>
                     </select>
-                    <button (click)="showAllActivities = !showAllActivities" class="text-xs font-bold text-indigo-600 hover:underline">
+                    <button (click)="showAllActivities = !showAllActivities" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
                       {{ showAllActivities ? (lang === 'ar' ? 'عرض أقل' : 'View Less') : (lang === 'ar' ? 'عرض الكل' : 'View All') }}
                     </button>
                   </div>
                 </div>
-                <div class="flex-1 overflow-y-auto relative rtl:pr-4 ltr:pl-4 border-l-2 rtl:border-r-2 rtl:border-l-0 border-slate-100 space-y-6">
+                <div class="flex-1 overflow-y-auto relative rtl:pr-4 ltr:pl-4 border-l-2 rtl:border-r-2 rtl:border-l-0 border-slate-100 dark:border-slate-800 space-y-6">
                   
                   <!-- Skeleton Loader for Activity Feed -->
                   <ng-container *ngIf="isLoadingDashboard">
                     <div *ngFor="let i of [1,2,3,4,5]; trackBy: trackById" class="relative flex gap-4 mt-2">
-                       <div class="absolute -left-[26px] rtl:-right-[26px] rtl:left-auto top-1 w-4 h-4 rounded-full border-4 border-white bg-slate-200 animate-pulse"></div>
+                       <div class="absolute -left-[26px] rtl:-right-[26px] rtl:left-auto top-1 w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
                        <div class="flex-1 space-y-2 rtl:mr-2 ltr:ml-2">
-                          <div class="h-4 bg-slate-200 rounded w-3/4 animate-pulse"></div>
-                          <div class="h-3 bg-slate-100 rounded w-1/3 animate-pulse"></div>
+                          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
+                          <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-1/3 animate-pulse"></div>
                        </div>
                     </div>
                   </ng-container>
@@ -866,14 +1164,14 @@ import Chart from 'chart.js/auto';
                   <!-- Actual Data -->
                   <ng-container *ngIf="!isLoadingDashboard">
                     <div *ngFor="let feed of filteredActivityFeed; trackBy: trackById" class="relative">
-                      <div class="absolute -left-[25px] rtl:-right-[25px] rtl:left-auto top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm"
+                      <div class="absolute -left-[25px] rtl:-right-[25px] rtl:left-auto top-1 w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 shadow-sm"
                            [ngClass]="{'bg-indigo-500': feed.type === 'enroll', 'bg-emerald-500': feed.type === 'quiz', 'bg-blue-500': feed.type === 'lesson'}">
                       </div>
                       <div class="rtl:mr-2 ltr:ml-2">
-                        <p class="text-sm font-bold text-slate-800 mb-0.5 leading-snug">
+                        <p class="text-sm font-bold text-slate-800 dark:text-white mb-0.5 leading-snug">
                           {{ lang === 'ar' ? feed.messageAr : feed.messageEn }}
                         </p>
-                        <p class="text-[11px] text-slate-400 font-medium">{{ feed.date | date:'MMM d, y, h:mm a' }}</p>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ formatDateTime(feed.date) }}</p>
                       </div>
                     </div>
                     
@@ -896,8 +1194,8 @@ import Chart from 'chart.js/auto';
             <div>
               <div class="flex items-center justify-between mb-6">
                 <div>
-                  <h2 class="text-2xl font-extrabold text-slate-900">{{ t[lang].myPublished }}</h2>
-                  <p class="text-slate-500 text-sm mt-1">{{ t[lang].manageCourses }}</p>
+                  <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ t[lang].myPublished }}</h2>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ t[lang].manageCourses }}</p>
                 </div>
                 <button (click)="openCreateCourse()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm">
                   + {{ t[lang].newCourseBtn }}
@@ -905,51 +1203,53 @@ import Chart from 'chart.js/auto';
               </div>
 
               <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm animate-pulse flex flex-col h-[280px]">
-                  <div class="h-32 bg-slate-200 w-full"></div>
+                <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm animate-pulse flex flex-col h-[280px]">
+                  <div class="h-32 bg-slate-200 dark:bg-slate-800 w-full"></div>
                   <div class="p-5 flex-1 flex flex-col gap-3">
-                    <div class="h-5 bg-slate-200 rounded-md w-3/4 mb-1"></div>
-                    <div class="h-4 bg-slate-200 rounded-md w-1/2 mb-4"></div>
-                    <div class="h-10 bg-slate-200 rounded-xl w-full mt-auto"></div>
+                    <div class="h-5 bg-slate-200 dark:bg-slate-700 rounded-md w-3/4 mb-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-md w-1/2 mb-4"></div>
+                    <div class="h-10 bg-slate-200 dark:bg-slate-700 rounded-xl w-full mt-auto"></div>
                   </div>
                 </div>
               </div>
 
               <div *ngIf="!isLoading && courses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div *ngFor="let c of filteredCourses; trackBy: trackById" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col group">
-                  <div class="h-32 bg-slate-100 flex items-center justify-center overflow-hidden">
-                    <img *ngIf="c.coverImageUrl" [src]="getCoverImageUrl(c.coverImageUrl)" class="w-full h-full object-cover">
-                    <span *ngIf="!c.coverImageUrl" class="text-4xl font-bold text-slate-300">{{ c.title.substring(0,2) | uppercase }}</span>
-                    </div>
+                <div *ngFor="let c of filteredCourses; trackBy: trackById" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col group">
+                  <div class="h-32 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+                    <img [src]="getCoverImageUrl(c.coverImageUrl)" (error)="$any($event.target).src='assets/images/default-cover.jpg'" class="w-full h-full object-cover">
+                  </div>
                   <div class="p-5 flex-1 flex flex-col">
                     <div class="flex items-center justify-between mb-2 gap-2">
                       <div class="flex items-center gap-2 flex-1 min-w-0">
-                        <h3 class="font-bold text-lg text-slate-900 truncate" [title]="c.title">{{ c.title }}</h3>
-                        <div class="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg shrink-0" [title]="lang === 'ar' ? 'تقييم الكورس' : 'Course Rating'">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white truncate" [title]="c.title">{{ c.title }}</h3>
+                        <div class="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-lg shrink-0 border border-amber-200/50 dark:border-amber-800/50" [title]="lang === 'ar' ? 'تقييم الكورس' : 'Course Rating'">
                           <span class="text-amber-500 text-xs">★</span>
-                          <span class="text-xs font-bold text-amber-700">{{ c.rating || '0.0' }}</span>
+                          <span class="text-xs font-bold text-amber-700 dark:text-amber-400">{{ c.rating || '0.0' }}</span>
                         </div>
                       </div>
-                      <button (click)="openEditCourseModal(c)" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center transition shadow-sm shrink-0" [title]="lang === 'ar' ? 'تعديل الكورس' : 'Edit Course'">
+                      <button (click)="openEditCourseModal(c)" class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 flex items-center justify-center transition shadow-sm shrink-0 border border-amber-200/50 dark:border-amber-800/50" [title]="lang === 'ar' ? 'تعديل الكورس' : 'Edit Course'">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                       </button>
                     </div>
                     <div class="flex items-center gap-2 mb-4">
-                      <span *ngIf="c.isFree" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span *ngIf="c.isFree" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
                         <span>{{ lang === 'ar' ? 'مجاني' : 'Free' }}</span>
                       </span>
-                      <span *ngIf="!c.isFree" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      <span *ngIf="!c.isFree" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50">
                         <span>{{ lang === 'ar' ? 'مدفوع' : 'Paid' }}</span>
-                        <span class="text-indigo-300">•</span>
+                        <span class="text-indigo-300 dark:text-indigo-500">•</span>
                         <span class="dir-ltr font-extrabold">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                       </span>
                     </div>
-                    <div class="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100">
-                      <button (click)="onViewCourse(c)" class="flex-1 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <div class="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <button (click)="onViewCourse(c)" class="flex-1 py-2.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-indigo-200/50 dark:border-indigo-800/50">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
                         <span>{{ t[lang].view }}</span>
                       </button>
-                      <button (click)="openDeleteModal(c.id)" class="flex-1 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5" [title]="t[lang].deleteCourseBtn">
+                      <button (click)="openDeleteModal(c.id)" class="flex-1 py-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-400 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-rose-200/50 dark:border-rose-800/50" [title]="t[lang].deleteCourseBtn">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
                         <span>{{ lang === 'ar' ? 'حذف' : 'Delete' }}</span>
                       </button>
@@ -957,15 +1257,15 @@ import Chart from 'chart.js/auto';
                   </div>
                 </div>
 
-                <div *ngIf="filteredCourses.length === 0 && courses.length > 0" class="col-span-full bg-white rounded-2xl border border-slate-200 border-dashed p-12 text-center">{{ t[lang].noSearchResults }}</div>
+                <div *ngIf="filteredCourses.length === 0 && courses.length > 0" class="col-span-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed p-12 text-center text-slate-500 dark:text-slate-400">{{ t[lang].noSearchResults }}</div>
               </div>
 
               <!-- EMPTY STATE: NO COURSES PUBLISHED -->
-              <div *ngIf="courses.length === 0 && !isLoading" class="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center animate-fade-in mt-6">
-                <div class="w-16 h-16 rounded-3xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto mb-4">
+              <div *ngIf="courses.length === 0 && !isLoading" class="bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center animate-fade-in mt-6">
+                <div class="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 flex items-center justify-center mx-auto mb-4 border border-indigo-200/50 dark:border-indigo-800/50">
                   <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                 </div>
-                <p class="text-slate-500 font-semibold text-lg">{{ lang === 'ar' ? 'لم تقم بنشر أي كورسات حتى الآن.' : 'No courses published yet.' }}</p>
+                <p class="text-slate-500 dark:text-slate-400 font-semibold text-lg">{{ lang === 'ar' ? 'لم تقم بنشر أي كورسات حتى الآن.' : 'No courses published yet.' }}</p>
               </div>
 
             </div>
@@ -975,8 +1275,8 @@ import Chart from 'chart.js/auto';
             <div *ngIf="studentViewMode === 'select-course'" class="animate-fade-in">
               <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 class="text-2xl font-extrabold text-slate-900">{{ t[lang].selectCourseToView }}</h2>
-                  <p class="text-slate-500 text-sm mt-1">{{ t[lang].selectCourseDesc }}</p>
+                  <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ t[lang].selectCourseToView }}</h2>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ t[lang].selectCourseDesc }}</p>
                 </div>
                 <button (click)="viewAllPlatformStudents()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm text-sm flex items-center gap-2 self-start sm:self-auto transition">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -985,34 +1285,33 @@ import Chart from 'chart.js/auto';
               </div>
 
               <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div *ngFor="let i of [1,2,3]; trackBy: trackById" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-pulse flex items-center gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-slate-200 shrink-0"></div>
+                <div *ngFor="let i of [1,2,3]; trackBy: trackById" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-xl bg-slate-200 dark:bg-slate-800 shrink-0"></div>
                   <div class="flex-1 space-y-2">
-                    <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                    <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                    <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-1/2"></div>
                   </div>
                 </div>
               </div>
 
               <div *ngIf="!isLoading && courses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div *ngFor="let c of filteredCourses; trackBy: trackById" (click)="selectCourseForStudents(c)" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer flex items-center gap-4 group">
-                  <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden shrink-0">
-                    <img *ngIf="c.coverImageUrl" [src]="getCoverImageUrl(c.coverImageUrl)" class="w-full h-full object-cover">
-                    <span *ngIf="!c.coverImageUrl" class="text-xl font-bold text-indigo-300">{{ c.title.substring(0,2) | uppercase }}</span>
+                <div *ngFor="let c of filteredCourses; trackBy: trackById" (click)="selectCourseForStudents(c)" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition cursor-pointer flex items-center gap-4 group">
+                  <div class="w-14 h-14 rounded-xl bg-indigo-50 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+                    <img [src]="getCoverImageUrl(c.coverImageUrl)" (error)="$any($event.target).src='assets/images/default-cover.jpg'" class="w-full h-full object-cover">
                   </div>
                   <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{{ c.title }}</h4>
-                    <p class="text-xs text-slate-500 mt-1">{{ t[lang].clickToViewStudents }} →</p>
+                    <h4 class="font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 transition-colors">{{ c.title }}</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ t[lang].clickToViewStudents }} →</p>
                   </div>
                 </div>
               </div>
 
               <!-- EMPTY STATE: NO COURSES TO SELECT -->
-              <div *ngIf="courses.length === 0 && !isLoading" class="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center animate-fade-in mt-6">
-                <div class="w-16 h-16 rounded-3xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto mb-4">
+              <div *ngIf="courses.length === 0 && !isLoading" class="bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center animate-fade-in mt-6">
+                <div class="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 flex items-center justify-center mx-auto mb-4 border border-indigo-200/50 dark:border-indigo-800/50">
                   <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <p class="text-slate-500 font-semibold text-lg">
+                <p class="text-slate-500 dark:text-slate-400 font-semibold text-lg">
                   {{ lang === 'ar' ? 'لم تقم بنشر أي كورسات حتى الآن لعرض طلابها.' : 'You haven\'t published any courses yet to view students.' }}
                 </p>
               </div>
@@ -1023,243 +1322,289 @@ import Chart from 'chart.js/auto';
             <div *ngIf="studentViewMode === 'all-platform-students'" class="animate-fade-in">
               <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div class="flex items-center gap-4">
-                  <button (click)="goBackToCourseSelection()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition text-slate-600">
+                  <button (click)="goBackToCourseSelection()" class="w-10 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
                     <span class="rtl:rotate-180">←</span>
                   </button>
                   <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">{{ lang === 'ar' ? 'جميع طلاب المنصة' : 'All Platform Students' }}</h2>
-                    <p class="text-slate-500 text-sm mt-1">{{ lang === 'ar' ? 'عرض شامل لكافة الطلاب المسجلين في منصة Fluency First.' : 'Overview of all registered students on the Fluency First platform.' }}</p>
+                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ lang === 'ar' ? 'جميع طلاب المنصة' : 'All Platform Students' }}</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ lang === 'ar' ? 'عرض شامل لكافة الطلاب المسجلين في منصة قِمَّـة.' : 'Overview of all registered students on the Qimma platform.' }}</p>
                   </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                  <div class="px-4 py-2 bg-indigo-50 text-indigo-700 font-black rounded-xl text-sm border border-indigo-100">
+                  <div class="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 font-black rounded-xl text-sm border border-indigo-100 dark:border-indigo-900/50">
                     {{ filteredAllPlatformStudents.length }} {{ lang === 'ar' ? 'طالب' : 'Students' }}
                   </div>
                 </div>
               </div>
 
               <!-- Search Bar -->
-              <div class="bg-white p-3.5 rounded-2xl border border-slate-200 mb-6 flex items-center gap-3 shadow-sm">
+              <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 flex items-center gap-3 shadow-sm">
                 <svg class="w-5 h-5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" [(ngModel)]="allStudentsSearchQuery" [placeholder]="lang === 'ar' ? 'ابحث عن طالب بالاسم، البريد أو الهاتف...' : 'Search student by name, email or phone...'" class="w-full bg-transparent focus:outline-none text-sm font-medium">
+                <input type="text" [(ngModel)]="allStudentsSearchQuery" [placeholder]="lang === 'ar' ? 'ابحث عن طالب بالاسم، البريد أو الهاتف...' : 'Search student by name, email or phone...'" class="w-full bg-transparent focus:outline-none text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
               </div>
 
               <!-- Loading Skeleton -->
               <div *ngIf="isLoadingAllStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div *ngFor="let i of [1,2,3,4,5,6,7,8]; trackBy: trackById" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-pulse flex items-center gap-4">
-                  <div class="w-14 h-14 rounded-full bg-slate-200 shrink-0"></div>
+                <div *ngFor="let i of [1,2,3,4,5,6,7,8]; trackBy: trackById" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
                   <div class="flex-1 space-y-2">
-                    <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                    <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                    <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-1/2"></div>
                   </div>
                 </div>
               </div>
 
               <!-- Students Grid -->
               <div *ngIf="!isLoadingAllStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div *ngFor="let s of filteredAllPlatformStudents; trackBy: trackById" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition flex flex-col justify-between group">
+                <div *ngFor="let s of filteredAllPlatformStudents; trackBy: trackById" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition flex flex-col justify-between group">
                   <div class="flex items-start gap-3.5 mb-3">
-                    <img [src]="s.profileImage ? 'http://localhost:5162' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.name)" class="w-12 h-12 rounded-full bg-slate-100 object-cover border border-slate-200 shrink-0">
+                    <img [src]="s.profileImage ? 'http://localhost:5162' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                     <div class="min-w-0 flex-1">
-                      <h4 class="font-extrabold text-slate-900 text-sm truncate group-hover:text-indigo-600 transition-colors">{{ s.name }}</h4>
-                      <p class="text-xs text-slate-500 truncate mt-0.5" *ngIf="s.email">{{ s.email }}</p>
-                      <p class="text-[11px] text-slate-400 dir-ltr text-left rtl:text-right font-mono mt-0.5" *ngIf="s.phoneNumber">{{ s.phoneNumber }}</p>
+                      <h4 class="font-extrabold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{{ s.name }}</h4>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5" *ngIf="s.email">{{ s.email }}</p>
+                      <p class="text-[11px] text-slate-400 dark:text-slate-500 dir-ltr text-left rtl:text-right font-mono mt-0.5" *ngIf="s.phoneNumber">{{ s.phoneNumber }}</p>
                     </div>
                   </div>
-                  <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
-                    <span class="inline-flex items-center gap-1.5 text-indigo-600">
+                  <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-400">
+                    <span class="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                       <span>{{ s.enrolledCoursesCount || 0 }} {{ lang === 'ar' ? 'كورس مسجل' : 'Courses' }}</span>
                     </span>
-                    <span class="text-[11px] text-slate-400 font-medium">{{ s.createdAt | date:'MMM y' }}</span>
+                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ s.createdAt | date:'MMM y' }}</span>
                   </div>
                 </div>
 
-                <div *ngIf="filteredAllPlatformStudents.length === 0" class="col-span-full py-16 text-center bg-white rounded-3xl border border-dashed border-slate-200">
-                  <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                <div *ngIf="filteredAllPlatformStudents.length === 0" class="col-span-full py-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   </div>
-                  <p class="text-slate-500 font-bold text-sm">{{ t[lang].noSearchResults }}</p>
+                  <p class="text-slate-500 dark:text-slate-400 font-bold text-sm">{{ t[lang].noSearchResults }}</p>
                 </div>
               </div>
             </div>
 
             <div *ngIf="studentViewMode === 'select-student'" class="animate-fade-in">
               <div class="flex items-center gap-4 mb-6">
-                <button (click)="goBackToCourseSelection()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition text-slate-600">
+                <button (click)="goBackToCourseSelection()" class="w-10 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
                   <span class="rtl:rotate-180">←</span>
                 </button>
                 <div>
-                  <h2 class="text-2xl font-extrabold text-slate-900">{{ t[lang].enrolledStudents }}</h2>
-                  <p class="text-slate-500 text-sm mt-1">{{ t[lang].inCourse }}: <span class="font-semibold text-indigo-600">{{ selectedCourse?.title }}</span></p>
+                  <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ t[lang].enrolledStudents }}</h2>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ t[lang].inCourse }}: <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ selectedCourse?.title }}</span></p>
                 </div>
               </div>
 
               <div *ngIf="isLoadingStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-pulse flex items-center gap-3.5">
-                  <div class="w-12 h-12 rounded-full bg-slate-200 shrink-0"></div>
+                <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse flex items-center gap-3.5">
+                  <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
                   <div class="flex-1 space-y-2">
-                    <div class="h-3 bg-slate-200 rounded w-full"></div>
-                    <div class="h-2 bg-slate-100 rounded w-2/3"></div>
+                    <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+                    <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
 
               <div *ngIf="!isLoadingStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div *ngFor="let student of filteredStudents; trackBy: trackById" (click)="selectStudentDetails(student)" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition cursor-pointer flex items-center gap-3.5 group">
-                  <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-12 h-12 rounded-full bg-slate-100 object-cover border border-slate-100 shrink-0">
+                <div *ngFor="let student of filteredStudents; trackBy: trackById" (click)="selectStudentDetails(student)" class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition cursor-pointer flex items-center gap-3.5 group">
+                  <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-100 dark:border-slate-700 shrink-0">
                   <div class="flex-1 min-w-0">
-                    <p class="font-bold text-slate-900 text-sm truncate group-hover:text-indigo-600 transition-colors">{{ student.name }}</p>
-                    <p class="text-[11px] text-emerald-600 font-semibold mt-1">{{ t[lang].viewResults }}</p>
+                    <p class="font-bold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{{ student.name }}</p>
+                    <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">{{ t[lang].viewResults }}</p>
                   </div>
                 </div>
                 
-                <div *ngIf="enrolledStudents.length === 0" class="col-span-full py-12 text-center bg-white rounded-2xl border border-slate-200">
-                  <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                <div *ngIf="enrolledStudents.length === 0" class="col-span-full py-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   </div>
-                  <p class="text-slate-500 font-semibold">{{ t[lang].noStudentsEnrolled }}</p>
+                  <p class="text-slate-500 dark:text-slate-400 font-semibold">{{ t[lang].noStudentsEnrolled }}</p>
                 </div>
-                <div *ngIf="filteredStudents.length === 0 && enrolledStudents.length > 0" class="col-span-full py-12 text-center text-slate-500">{{ t[lang].noSearchResults }}</div>
+                <div *ngIf="filteredStudents.length === 0 && enrolledStudents.length > 0" class="col-span-full py-12 text-center text-slate-500 dark:text-slate-400">{{ t[lang].noSearchResults }}</div>
               </div>
             </div>
 
             <div *ngIf="studentViewMode === 'student-details'" class="animate-fade-in">
               <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-4">
-                  <button (click)="goBackToStudentSelection()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center hover:bg-slate-50 transition text-slate-600">
+                  <button (click)="goBackToStudentSelection()" class="w-10 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
                     <span class="rtl:rotate-180">←</span>
                   </button>
                   <div class="flex items-center gap-3">
-                    <img [src]="selectedStudent?.profileImage ? 'http://localhost:5162' + selectedStudent.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedStudent?.name)" class="w-12 h-12 rounded-full bg-white shadow-sm border border-slate-200 object-cover">
+                    <img [src]="selectedStudent?.profileImage ? 'http://localhost:5162' + selectedStudent.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedStudent?.name)" class="w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 object-cover">
                     <div>
-                      <h2 class="text-xl font-extrabold text-slate-900">{{ selectedStudent?.name }}</h2>
-                      <p class="text-slate-500 text-xs mt-1">{{ selectedCourse?.title }}</p>
+                      <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">{{ selectedStudent?.name }}</h2>
+                      <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">{{ selectedCourse?.title }}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div *ngIf="isLoadingStudents" class="space-y-4 animate-pulse">
-                <div *ngFor="let i of [1,2]; trackBy: trackById" class="h-20 bg-slate-200 rounded-2xl"></div>
+                <div *ngFor="let i of [1,2]; trackBy: trackById" class="h-20 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
               </div>
 
               <div class="space-y-4" *ngIf="!isLoadingStudents && filteredStudentResults.length > 0">
-                <div *ngFor="let group of filteredStudentResults; trackBy: trackById" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm transition-all">
+                <div *ngFor="let group of filteredStudentResults; trackBy: trackById" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
                   
-                  <div (click)="group.expanded = !group.expanded" class="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition">
+                  <div (click)="group.expanded = !group.expanded" class="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
                     <div class="flex items-center gap-4">
-                       <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                       <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                        </div>
                        <div>
-                         <h3 class="font-bold text-slate-800 text-base">{{ group.lessonTitle }}</h3>
+                         <h3 class="font-bold text-slate-800 dark:text-white text-base">{{ group.lessonTitle }}</h3>
                          <div class="flex gap-3 mt-1">
-                           <p *ngIf="group.attempts.length > 0" class="text-xs text-slate-500 font-semibold">{{ group.attempts.length }} {{ t[lang].attemptsText }}</p>
-                           <p *ngIf="group.assignment && group.assignment.givenScore === null" class="text-xs text-amber-600 font-bold flex items-center gap-1">
+                           <p *ngIf="group.attempts.length > 0" class="text-xs text-slate-500 dark:text-slate-400 font-semibold">{{ group.attempts.length }} {{ t[lang].attemptsText }}</p>
+                           <p *ngIf="group.assignment && group.assignment.givenScore === null" class="text-xs text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                              <span>{{ lang === 'ar' ? 'يحتاج للتقييم' : 'Needs Grading' }}</span>
                            </p>
-                           <p *ngIf="group.assignment && group.assignment.givenScore !== null" class="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                           <p *ngIf="group.assignment && group.assignment.givenScore !== null" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                              <span>{{ lang === 'ar' ? 'تم التقييم' : 'Graded' }}</span>
                            </p>
                          </div>
                        </div>
                     </div>
-                    <button class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform" [ngClass]="{'rotate-180': group.expanded}">▼</button>
+                    <button class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 transition-transform" [ngClass]="{'rotate-180': group.expanded}">▼</button>
                   </div>
                   
-                  <div *ngIf="group.expanded" class="border-t border-slate-100 bg-slate-50/50 p-5 animate-fade-in">
+                  <div *ngIf="group.expanded" class="border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 p-5 animate-fade-in">
                      
                      <div *ngIf="group.attempts.length > 0" class="overflow-x-auto">
-                       <h4 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
-                         <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                       <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                         <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
                          <span>{{ lang === 'ar' ? 'نتائج الاختبار (Quiz)' : 'Quiz Results' }}</span>
                        </h4>
                        <table class="w-full text-left rtl:text-right border-collapse whitespace-nowrap">
                        <thead>
-                           <tr class="text-slate-500 text-xs border-b border-slate-200">
+                           <tr class="text-slate-500 dark:text-slate-400 text-xs border-b border-slate-200 dark:border-slate-800">
                              <th class="pb-3 font-bold">{{ t[lang].attemptNo }}</th>
                              <th class="pb-3 font-bold">{{ t[lang].score }}</th>
                              <th class="pb-3 font-bold">{{ t[lang].date }}</th>
                            </tr>
                          </thead>
                          <tbody>
-                           <tr *ngFor="let res of group.attempts" class="border-b border-slate-100 last:border-0">
-                             <td class="py-3 text-sm font-bold text-slate-700">#{{ res.attemptNumber }}</td>
+                           <tr *ngFor="let res of group.attempts" class="border-b border-slate-100 dark:border-slate-800 last:border-0">
+                             <td class="py-3 text-sm font-bold text-slate-700 dark:text-slate-300">#{{ res.attemptNumber }}</td>
                              <td class="py-3">
-                               <span class="px-2.5 py-1.5 rounded-lg text-xs font-bold" [ngClass]="res.score >= (res.totalQuestions / 2) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'">
+                               <span class="px-2.5 py-1.5 rounded-lg text-xs font-bold" [ngClass]="res.score >= (res.totalQuestions / 2) ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'">
                                  {{ res.score }} / {{ res.totalQuestions }}
                                </span>
                              </td>
-                             <td class="py-3 text-sm font-medium text-slate-500">{{ res.date | date:'shortDate' }}</td>
+                             <td class="py-3 text-sm font-medium text-slate-500 dark:text-slate-400">{{ res.date | date:'shortDate' }}</td>
                            </tr>
                          </tbody>
                        </table>
                      </div>
 
-                     <div *ngIf="group.attempts.length === 0 && !group.assignment" class="text-sm text-slate-500 text-center py-4 font-medium">
+                     <div *ngIf="group.attempts.length === 0 && !group.assignment" class="text-sm text-slate-500 dark:text-slate-400 text-center py-4 font-medium">
                         {{ lang === 'ar' ? 'لم يقم الطالب بأي نشاط في هذا الدرس حتى الآن.' : 'No activity recorded for this lesson yet.' }}
                      </div>
 
-                     <div *ngIf="group.assignment" class="mt-6 pt-6 border-t border-slate-200">
-                        <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
-                          <h4 class="font-bold text-slate-800 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                     <div *ngIf="group.assignment" class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 mb-4 shadow-sm">
+                          <h4 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                             <span>{{ lang === 'ar' ? 'حل الواجب (Assignment)' : 'Assignment Submission' }}</span>
                           </h4>
-                          <span *ngIf="group.assignment.givenScore === null" class="px-3 py-1.5 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
+                          <span *ngIf="group.assignment.givenScore === null" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>{{ lang === 'ar' ? 'يحتاج للتقييم' : 'Needs Grading' }}</span>
                           </span>
-                          <span *ngIf="group.assignment.givenScore !== null" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
+                          <span *ngIf="group.assignment.givenScore !== null" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             <span>{{ lang === 'ar' ? 'تم التقييم' : 'Graded' }}</span>
                           </span>
                         </div>
                         
+                        <!-- Student Answers Summary Bar (Req 6) -->
+                        <div class="mb-5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs font-bold shadow-xs">
+                          <span class="text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <span>{{ lang === 'ar' ? 'نتائج إجابات الطالب في الواجب:' : 'Student Assignment Questions Breakdown:' }}</span>
+                          </span>
+                          <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-xl flex items-center gap-1 border border-emerald-300 dark:border-emerald-800">
+                              ✓ {{ getCorrectCount(group.assignment) }} {{ lang === 'ar' ? 'إجابة صحيحة' : 'Correct' }}
+                            </span>
+                            <span class="px-3 py-1 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 rounded-xl flex items-center gap-1 border border-rose-300 dark:border-rose-800">
+                              ✕ {{ getIncorrectCount(group.assignment) }} {{ lang === 'ar' ? 'إجابة خاطئة' : 'Incorrect' }}
+                            </span>
+                            <span *ngIf="getEssayCount(group.assignment) > 0" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 rounded-xl flex items-center gap-1 border border-indigo-300 dark:border-indigo-800">
+                              📝 {{ getEssayCount(group.assignment) }} {{ lang === 'ar' ? 'مقالي' : 'Essay' }}
+                            </span>
+                          </div>
+                        </div>
+
                         <div class="space-y-4 mb-6">
-                          <div *ngFor="let q of group.assignment.answers; let i = index" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative">
-                            <div class="absolute top-4 rtl:left-4 ltr:right-4">
-                              <span *ngIf="q.type === 'mcq'" class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded-md">{{ lang === 'ar' ? 'اختياري (تلقائي)' : 'MCQ (Auto)' }}</span>
-                              <span *ngIf="q.type !== 'mcq'" class="text-[10px] font-bold px-2 py-1 bg-purple-50 text-purple-600 rounded-md">{{ lang === 'ar' ? 'مقالي (للتقييم)' : 'Essay (Manual)' }}</span>
+                          <div *ngFor="let q of group.assignment.answers; let i = index" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative">
+                            
+                            <!-- Header with Question Number and Status Badge (Req 6) -->
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                              <span class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs">
+                                  {{ i + 1 }}
+                                </span>
+                                <span>{{ lang === 'ar' ? 'السؤال' : 'Question' }} {{ i + 1 }}</span>
+                              </span>
+
+                              <!-- Clear correctness badge -->
+                              <div class="flex items-center gap-2">
+                                <span *ngIf="q.type === 'mcq' && q.isCorrect" class="px-3 py-1 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 text-xs font-black rounded-xl border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shadow-xs">
+                                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                  <span>{{ lang === 'ar' ? 'إجابة صحيحة' : 'Correct Answer' }}</span>
+                                </span>
+
+                                <span *ngIf="q.type === 'mcq' && !q.isCorrect" class="px-3 py-1 bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 text-xs font-black rounded-xl border border-rose-300 dark:border-rose-800 flex items-center gap-1.5 shadow-xs">
+                                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                  <span>{{ lang === 'ar' ? 'إجابة خاطئة' : 'Incorrect Answer' }}</span>
+                                </span>
+
+                                <span *ngIf="q.type !== 'mcq'" class="px-3 py-1 bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-xl border border-indigo-300 dark:border-indigo-800 flex items-center gap-1.5 shadow-xs">
+                                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                  <span>{{ lang === 'ar' ? 'سؤال مقالي' : 'Essay Question' }}</span>
+                                </span>
+                              </div>
                             </div>
-                            <p class="text-sm font-bold text-slate-800 mb-3 pr-24 rtl:pl-24 ltr:pr-24">{{ lang === 'ar' ? 'س' : 'Q' }}{{ i+1 }}: {{ q.question }}</p>
+
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3">{{ q.question }}</p>
+                            
+                            <!-- Student's answer box -->
                             <div class="p-4 rounded-xl border text-sm font-medium"
-                                 [ngClass]="q.type === 'mcq' ? (q.isCorrect ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900' : 'bg-rose-50/60 border-rose-200 text-rose-900') : 'bg-slate-50 border-slate-100 text-slate-700'">
-                              <span class="text-xs font-bold block mb-1" [ngClass]="q.type === 'mcq' ? (q.isCorrect ? 'text-emerald-700' : 'text-rose-700') : 'text-slate-500'">
+                                 [ngClass]="q.type === 'mcq' ? (q.isCorrect ? 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200') : 'bg-slate-50 dark:bg-slate-800/80 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-200'">
+                              <span class="text-xs font-bold block mb-1" [ngClass]="q.type === 'mcq' ? (q.isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400') : 'text-slate-500 dark:text-slate-400'">
                                 {{ lang === 'ar' ? 'إجابة الطالب:' : "Student's Answer:" }}
                               </span>
                               {{ q.answer || (lang === 'ar' ? '(لم تتم الإجابة)' : '(No answer provided)') }}
                             </div>
-                            <div *ngIf="q.type === 'mcq'" class="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                              <span *ngIf="q.isCorrect" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center gap-1.5 shadow-sm">
-                                <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>{{ lang === 'ar' ? 'إجابة صحيحة' : 'Correct Answer' }}</span>
+
+                            <!-- Model answer for MCQ questions -->
+                            <div *ngIf="q.type === 'mcq' && q.correctAnswer" class="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs font-bold">
+                              <div class="flex items-center gap-2">
+                                <span class="text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'الإجابة النموذجية المحددة بالسؤال:' : 'Expected Model Answer:' }}</span>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-black">{{ q.correctAnswer }}</span>
+                              </div>
+                              <span *ngIf="q.isCorrect" class="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+                                ✓ {{ lang === 'ar' ? 'تطابقت الإجابة' : 'Answer Matched' }}
                               </span>
-                              <span *ngIf="!q.isCorrect" class="text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1.5 shadow-sm">
-                                <svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                <span>{{ lang === 'ar' ? 'إجابة خاطئة' : 'Incorrect Answer' }}</span>
-                              </span>
-                              <span *ngIf="!q.isCorrect && q.correctAnswer" class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5">
-                                <span class="text-slate-400">{{ lang === 'ar' ? 'الإجابة النموذجية:' : 'Expected Answer:' }}</span>
-                                <span class="text-emerald-700">{{ q.correctAnswer }}</span>
+                              <span *ngIf="!q.isCorrect" class="text-rose-600 dark:text-rose-400 font-extrabold flex items-center gap-1">
+                                ✕ {{ lang === 'ar' ? 'لم تتطابق الإجابة' : 'Answer Mismatched' }}
                               </span>
                             </div>
                           </div>
                         </div>
                         
-                        <div class="flex items-center justify-between bg-white p-4 lg:px-6 rounded-2xl border-2 border-slate-100 shadow-sm">
-                          <p class="text-sm font-bold text-slate-500 hidden sm:block">{{ lang === 'ar' ? 'التقييم النهائي للواجب المقالي:' : 'Final Assignment Grade:' }}</p>
+                        <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-4 lg:px-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 hidden sm:block">{{ lang === 'ar' ? 'التقييم النهائي للواجب المقالي:' : 'Final Assignment Grade:' }}</p>
                           <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                            <div class="flex items-center bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
-                              <span class="px-3 py-2 text-sm font-bold text-slate-600 bg-slate-100 border-l border-slate-200">{{ lang === 'ar' ? 'الدرجة:' : 'Score:' }}</span>
-                              <input type="number" min="0" [max]="group.assignment.totalScore" [(ngModel)]="group.assignment.givenScore" placeholder="-" class="w-16 px-2 py-2 bg-white focus:outline-none text-center font-black text-indigo-600">
-                              <span class="px-3 py-2 text-slate-400 font-bold bg-slate-50 border-r border-slate-200">/ {{ group.assignment.totalScore }}</span>
+                            <div class="flex items-center bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-inner">
+                              <span class="px-3 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 border-l border-slate-200 dark:border-slate-700">{{ lang === 'ar' ? 'الدرجة:' : 'Score:' }}</span>
+                              <input type="number" min="0" [max]="group.assignment.totalScore" [(ngModel)]="group.assignment.givenScore" placeholder="-" class="w-16 px-2 py-2 bg-white dark:bg-slate-900 focus:outline-none text-center font-black text-indigo-600 dark:text-indigo-400">
+                              <span class="px-3 py-2 text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">/ {{ group.assignment.totalScore }}</span>
                             </div>
-                            <button (click)="saveAssignmentGrade(group.assignment)" [disabled]="isSaving" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition shadow-md shadow-emerald-200 flex items-center gap-2 disabled:opacity-50">
+                            <button (click)="saveAssignmentGrade(group.assignment)" [disabled]="isSaving" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition shadow-md shadow-emerald-200 dark:shadow-none flex items-center gap-2 disabled:opacity-50">
                               <svg *ngIf="!isSaving" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                               <svg *ngIf="isSaving" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"></circle></svg>
                               <span>{{ isSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ' : 'Save') }}</span>
@@ -1272,7 +1617,7 @@ import Chart from 'chart.js/auto';
                 </div>
               </div>
               
-              <div *ngIf="!isLoadingStudents && filteredStudentResults.length === 0" class="py-12 text-center text-slate-500 font-medium">
+              <div *ngIf="!isLoadingStudents && filteredStudentResults.length === 0" class="py-12 text-center text-slate-500 dark:text-slate-400 font-medium">
                 {{ t[lang].noSearchResults }}
               </div>
             </div>
@@ -1283,42 +1628,41 @@ import Chart from 'chart.js/auto';
             <div class="space-y-8 animate-fade-in">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2.5">
+                  <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
                     <svg class="w-6 h-6 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                     <span>{{ t[lang].liveSessions }}</span>
                   </h2>
-                  <p class="text-slate-500 text-sm mt-1">{{ lang === 'ar' ? 'اختر الكورس المستهدف لبدء البث المباشر وإشعار الطلاب المشتركين فورياً.' : 'Select a course to broadcast a live session and instantly notify enrolled students.' }}</p>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ lang === 'ar' ? 'اختر الكورس المستهدف لبدء البث المباشر وإشعار الطلاب المشتركين فورياً.' : 'Select a course to broadcast a live session and instantly notify enrolled students.' }}</p>
                 </div>
 
-                <div *ngIf="isLiveActive" class="px-4 py-2 bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl flex items-center gap-2 font-bold text-xs animate-pulse">
+                <div *ngIf="isLiveActive" class="px-4 py-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center gap-2 font-bold text-xs animate-pulse">
                   <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                   <span>{{ lang === 'ar' ? 'البث المباشر قيد التشغيل حالياً' : 'Live Session is currently ACTIVE' }}</span>
                 </div>
               </div>
 
               <!-- Course Selection for Live -->
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-                <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                <h3 class="font-bold text-base text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                   <span>{{ lang === 'ar' ? '1. اختر الكورس لبدء الجلسة:' : '1. Select Course for the Session:' }}</span>
                 </h3>
 
-                <div *ngIf="courses.length === 0" class="text-center py-8 text-slate-400 text-sm">
+                <div *ngIf="courses.length === 0" class="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
                   {{ lang === 'ar' ? 'لم تقم بنشر أي كورسات حتى الآن.' : 'No courses published yet.' }}
                 </div>
 
                 <div *ngIf="courses.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div *ngFor="let c of courses; trackBy: trackById"
                        (click)="selectCourseForLiveSession(c)"
-                       [ngClass]="selectedCourseForLive?.id === c.id ? 'border-2 border-indigo-600 bg-indigo-50/50 shadow-md ring-2 ring-indigo-600/20' : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'"
+                       [ngClass]="selectedCourseForLive?.id === c.id ? 'border-2 border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 shadow-md ring-2 ring-indigo-600/20' : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
                        class="p-4 rounded-2xl cursor-pointer transition flex items-center gap-3.5 group">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden">
-                      <img *ngIf="c.coverImageUrl" [src]="getCoverImageUrl(c.coverImageUrl)" class="w-full h-full object-cover">
-                      <span *ngIf="!c.coverImageUrl" class="font-extrabold text-indigo-600 text-sm">{{ c.title.substring(0,2) | uppercase }}</span>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
+                      <img [src]="getCoverImageUrl(c.coverImageUrl)" (error)="$any($event.target).src='assets/images/default-cover.jpg'" class="w-full h-full object-cover">
                     </div>
                     <div class="min-w-0 flex-1">
-                      <h4 class="font-bold text-slate-900 text-sm truncate group-hover:text-indigo-600 transition-colors">{{ c.title }}</h4>
-                      <p class="text-xs text-slate-400 mt-0.5">{{ lang === 'ar' ? 'اضغط لتحديد الكورس' : 'Click to select' }}</p>
+                      <h4 class="font-bold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ c.title }}</h4>
+                      <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ lang === 'ar' ? 'اضغط لتحديد الكورس' : 'Click to select' }}</p>
                     </div>
                     <div *ngIf="selectedCourseForLive?.id === c.id" class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                       ✓
@@ -1331,45 +1675,45 @@ import Chart from 'chart.js/auto';
               <div *ngIf="selectedCourseForLive" class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
                 
                 <!-- Left: Broadcast Controls -->
-                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+                <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col justify-between">
                   <div>
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
                       <div>
-                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">{{ lang === 'ar' ? 'الكورس المحدد' : 'Selected Course' }}</span>
-                        <h3 class="text-xl font-black text-slate-900 mt-1">{{ selectedCourseForLive.title }}</h3>
+                        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{{ lang === 'ar' ? 'الكورس المحدد' : 'Selected Course' }}</span>
+                        <h3 class="text-xl font-black text-slate-900 dark:text-white mt-1">{{ selectedCourseForLive.title }}</h3>
                       </div>
                       <span class="px-3 py-1 rounded-full text-xs font-bold"
-                            [ngClass]="isLiveActive ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'">
+                            [ngClass]="isLiveActive ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
                         {{ isLiveActive ? (lang === 'ar' ? 'مباشر الآن' : 'Live Now') : (lang === 'ar' ? 'غير نشط' : 'Idle') }}
                       </span>
                     </div>
 
                     <div class="space-y-4">
                       <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                           {{ lang === 'ar' ? 'رابط الاجتماع (Google Meet / Zoom / Microsoft Teams):' : 'Meeting Link (Google Meet / Zoom / Microsoft Teams):' }}
                         </label>
                         <div class="relative">
-                          <span class="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 text-slate-400">
+                          <span class="absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 text-slate-400 dark:text-slate-500">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                           </span>
                           <input type="url" [(ngModel)]="meetUrlInput"
                                  [disabled]="isLiveActive"
                                  placeholder="https://meet.google.com/xyz-abcd-efg"
-                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-11 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium dir-ltr text-left">
+                                 class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl px-11 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium dir-ltr text-left">
                         </div>
                       </div>
 
-                      <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex items-start gap-3">
-                        <svg class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        <p class="text-xs text-indigo-900 leading-relaxed font-medium">
+                      <div class="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <p class="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed font-medium">
                           {{ lang === 'ar' ? 'بمجرد الضغط على "بدء البث المباشر"، سيتم إرسال إشعار فوري لجميع الطلاب المشتركين في هذا الكورس، وسيظهر شريط البث المباشر في لوحات تحكمهم مع زر للانضمام فوراً.' : 'Once you click "Start Live Session", an instant notification will be delivered to all students enrolled in this course, and a live banner with a Join button will activate on their dashboard.' }}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="pt-8 border-t border-slate-100 flex flex-wrap gap-3 mt-6">
+                  <div class="pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-3 mt-6">
                     <button *ngIf="!isLiveActive" (click)="startLiveSession()" [disabled]="!meetUrlInput"
                             class="flex-1 py-3.5 px-6 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
                       <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
@@ -1383,48 +1727,48 @@ import Chart from 'chart.js/auto';
                     </button>
 
                     <button *ngIf="isLiveActive" (click)="endLiveSession()"
-                            class="py-3.5 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition flex items-center justify-center gap-2">
+                            class="py-3.5 px-6 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition flex items-center justify-center gap-2">
                       <span>{{ lang === 'ar' ? 'إنهاء البث المباشر' : 'End Live Session' }}</span>
                     </button>
                   </div>
                 </div>
 
                 <!-- Right: Enrolled Students in Selected Course -->
-                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col max-h-[550px]">
-                  <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                    <h4 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                      <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col max-h-[550px]">
+                  <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                      <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                       <span>{{ lang === 'ar' ? 'الطلاب المشتركون' : 'Enrolled Students' }}</span>
                     </h4>
-                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-black rounded-lg">
+                    <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-black rounded-lg">
                       {{ enrolledStudentsForLive.length }}
                     </span>
                   </div>
 
                   <div *ngIf="isLoadingStudentsForLive" class="space-y-3">
-                    <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="p-3 bg-slate-50 rounded-xl animate-pulse flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full bg-slate-200"></div>
+                    <div *ngFor="let i of [1,2,3,4]; trackBy: trackById" class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl animate-pulse flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
                       <div class="flex-1 space-y-1.5">
-                        <div class="h-3 bg-slate-200 rounded w-3/4"></div>
-                        <div class="h-2 bg-slate-100 rounded w-1/2"></div>
+                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                        <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-1/2"></div>
                       </div>
                     </div>
                   </div>
 
                   <div *ngIf="!isLoadingStudentsForLive" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                    <div *ngFor="let student of enrolledStudentsForLive; trackBy: trackById" class="p-3 bg-slate-50 hover:bg-slate-100/70 rounded-xl transition flex items-center gap-3">
-                      <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-10 h-10 rounded-full bg-white object-cover border border-slate-200 shrink-0">
+                    <div *ngFor="let student of enrolledStudentsForLive; trackBy: trackById" class="p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100/70 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-3">
+                      <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                       <div class="min-w-0 flex-1">
-                        <p class="font-bold text-slate-800 text-xs truncate">{{ student.name }}</p>
-                        <p class="text-[10px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+                        <p class="font-bold text-slate-800 dark:text-white text-xs truncate">{{ student.name }}</p>
+                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                           <span>{{ lang === 'ar' ? 'مؤهل لتلقي البث' : 'Eligible for session' }}</span>
                         </p>
                       </div>
                     </div>
 
-                    <div *ngIf="enrolledStudentsForLive.length === 0" class="py-12 text-center text-slate-400 text-xs">
-                      <svg class="w-8 h-8 mx-auto mb-2 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    <div *ngIf="enrolledStudentsForLive.length === 0" class="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
+                      <svg class="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                       <span>{{ lang === 'ar' ? 'لا يوجد طلاب مشتركون في هذا الكورس بعد.' : 'No students enrolled in this course yet.' }}</span>
                     </div>
                   </div>
@@ -1439,11 +1783,11 @@ import Chart from 'chart.js/auto';
             <div class="space-y-6 animate-fade-in">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2.5">
-                    <svg class="w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                     <span>{{ t[lang].schedule }}</span>
                   </h2>
-                  <p class="text-slate-500 text-sm mt-1">{{ lang === 'ar' ? 'جدول المواعيد والجلسات المباشرة ومواعيد تسليم الواجبات.' : 'Manage your upcoming lectures, live sessions, and assignment deadlines.' }}</p>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ lang === 'ar' ? 'جدول المواعيد والجلسات المباشرة ومواعيد تسليم الواجبات.' : 'Manage your upcoming lectures, live sessions, and assignment deadlines.' }}</p>
                 </div>
 
                 <button (click)="openCreateEvent()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-2 self-start sm:self-auto">
@@ -1453,36 +1797,36 @@ import Chart from 'chart.js/auto';
               </div>
 
               <!-- Calendar Container Card -->
-              <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
                 
                 <!-- Calendar Controls Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
                   <div class="flex items-center gap-3">
-                    <h3 class="text-xl font-black text-slate-900 min-w-[150px]">
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white min-w-[150px]">
                       {{ getMonthYearTitle() }}
                     </h3>
                     <div class="flex items-center gap-1.5">
-                      <button (click)="prevCalendar()" class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold transition shadow-sm">
+                      <button (click)="prevCalendar()" class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold transition shadow-sm">
                         <span class="rtl:rotate-180">‹</span>
                       </button>
                       <button (click)="goToToday()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition">
                         {{ lang === 'ar' ? 'اليوم' : 'Today' }}
                       </button>
-                      <button (click)="nextCalendar()" class="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold transition shadow-sm">
+                      <button (click)="nextCalendar()" class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold transition shadow-sm">
                         <span class="rtl:rotate-180">›</span>
                       </button>
                     </div>
                   </div>
 
                   <div class="flex items-center gap-2">
-                    <div class="p-1 bg-slate-100 rounded-xl flex items-center gap-1 border border-slate-200">
+                    <div class="p-1 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center gap-1 border border-slate-200 dark:border-slate-700">
                       <button (click)="calendarView = 'week'"
-                              [ngClass]="calendarView === 'week' ? 'bg-white text-slate-900 shadow-sm font-black' : 'text-slate-500 font-bold hover:text-slate-950'"
+                              [ngClass]="calendarView === 'week' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-black' : 'text-slate-500 dark:text-slate-400 font-bold hover:text-slate-950 dark:hover:text-white'"
                               class="px-4 py-1.5 rounded-lg text-xs transition">
                         {{ lang === 'ar' ? 'أسبوعي' : 'Week' }}
                       </button>
                       <button (click)="calendarView = 'month'"
-                              [ngClass]="calendarView === 'month' ? 'bg-white text-slate-900 shadow-sm font-black' : 'text-slate-500 font-bold hover:text-slate-950'"
+                              [ngClass]="calendarView === 'month' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-black' : 'text-slate-500 dark:text-slate-400 font-bold hover:text-slate-950 dark:hover:text-white'"
                               class="px-4 py-1.5 rounded-lg text-xs transition">
                         {{ lang === 'ar' ? 'شهري' : 'Month' }}
                       </button>
@@ -1492,33 +1836,33 @@ import Chart from 'chart.js/auto';
 
                 <!-- Day Cards Horizontal Pills Row (Mockup Style) -->
                 <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-                  <div class="w-12 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 shrink-0">
+                  <div class="w-12 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   </div>
 
                   <div *ngFor="let day of weekDays; trackBy: trackById"
                        (click)="selectCalendarDay(day.date)"
-                       [ngClass]="day.isSelected ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-600 ring-offset-2' : (day.isToday ? 'bg-indigo-50 border-2 border-indigo-500 text-indigo-900 shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50')"
+                       [ngClass]="day.isSelected ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-600 ring-offset-2 dark:ring-offset-slate-900' : (day.isToday ? 'bg-indigo-50 dark:bg-indigo-950/50 border-2 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-sm' : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800')"
                        class="flex-1 min-w-[70px] h-14 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none shrink-0 relative">
-                    <span class="text-[11px] font-semibold" [ngClass]="day.isSelected ? 'text-indigo-100' : (day.isToday ? 'text-indigo-600 font-bold' : 'text-slate-400')">{{ day.dayName }}</span>
-                    <span class="text-base font-black mt-0.5 leading-none" [ngClass]="day.isSelected ? 'text-white' : (day.isToday ? 'text-indigo-700' : 'text-slate-800')">{{ day.dayNumber }}</span>
+                    <span class="text-[11px] font-semibold" [ngClass]="day.isSelected ? 'text-indigo-100' : (day.isToday ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-400 dark:text-slate-500')">{{ day.dayName }}</span>
+                    <span class="text-base font-black mt-0.5 leading-none" [ngClass]="day.isSelected ? 'text-white' : (day.isToday ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200')">{{ day.dayNumber }}</span>
                     <div *ngIf="day.hasEvents" class="w-1.5 h-1.5 rounded-full absolute bottom-1.5" [ngClass]="day.isSelected ? 'bg-emerald-300' : 'bg-indigo-600'"></div>
                   </div>
                 </div>
 
                 <!-- Main Calendar Board -->
                 <div *ngIf="isLoading" class="py-12 animate-pulse space-y-4">
-                  <div *ngFor="let i of [1,2,3]; trackBy: trackById" class="h-20 bg-slate-100 rounded-2xl"></div>
+                  <div *ngFor="let i of [1,2,3]; trackBy: trackById" class="h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
                 </div>
 
                 <div *ngIf="!isLoading">
                   <!-- WEEK VIEW: Pastel Event Cards matching mockup -->
                   <div *ngIf="calendarView === 'week'" class="space-y-4 pt-2">
                     <div class="flex items-center justify-between">
-                      <h3 class="font-extrabold text-sm text-slate-700">
+                      <h3 class="font-extrabold text-sm text-slate-700 dark:text-slate-200">
                         {{ selectedDate | date:'EEEE, d MMMM y' }}
                       </h3>
-                      <span class="text-xs font-bold text-slate-400">
+                      <span class="text-xs font-bold text-slate-400 dark:text-slate-500">
                         {{ filteredCalendarEvents.length }} {{ lang === 'ar' ? 'مواعيد' : 'events' }}
                       </span>
                     </div>
@@ -1526,9 +1870,9 @@ import Chart from 'chart.js/auto';
                     <div *ngIf="filteredCalendarEvents.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div *ngFor="let ev of filteredCalendarEvents; trackBy: trackById"
                            [ngClass]="{
-                              'bg-blue-50/70 border-blue-200 text-blue-950': ev.eventType === 'Live',
-                              'bg-amber-50/70 border-amber-200 text-amber-950': ev.eventType === 'Deadline',
-                              'bg-purple-50/70 border-purple-200 text-purple-950': ev.eventType === 'General'
+                              'bg-blue-50/70 border-blue-200 text-blue-950 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-100': ev.eventType === 'Live',
+                              'bg-amber-50/70 border-amber-200 text-amber-950 dark:bg-amber-950/30 dark:border-amber-900/50 dark:text-amber-100': ev.eventType === 'Deadline',
+                              'bg-purple-50/70 border-purple-200 text-purple-950 dark:bg-purple-950/30 dark:border-purple-900/50 dark:text-purple-100': ev.eventType === 'General'
                            }"
                            class="rounded-3xl border p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between relative group">
                         
@@ -1552,25 +1896,25 @@ import Chart from 'chart.js/auto';
                           <p *ngIf="ev.description" class="text-xs opacity-80 line-clamp-2 mt-2 leading-relaxed">{{ ev.description }}</p>
                         </div>
 
-                        <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-end">
-                          <button (click)="deleteEvent(ev.id)" class="p-1.5 rounded-lg bg-white/80 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition shadow-sm" [title]="lang === 'ar' ? 'حذف الموعد' : 'Delete Event'">
+                        <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-end">
+                          <button (click)="deleteEvent(ev.id)" class="p-1.5 rounded-lg bg-white/80 dark:bg-slate-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition shadow-sm" [title]="lang === 'ar' ? 'حذف الموعد' : 'Delete Event'">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
                           </button>
                         </div>
                       </div>
                     </div>
 
-                    <div *ngIf="filteredCalendarEvents.length === 0" class="py-16 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                      <div class="w-12 h-12 rounded-2xl bg-slate-200/70 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <div *ngIf="filteredCalendarEvents.length === 0" class="py-16 text-center bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                      <div class="w-12 h-12 rounded-2xl bg-slate-200/70 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-3">
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                       </div>
-                      <p class="text-slate-500 font-bold text-sm">{{ lang === 'ar' ? 'لا توجد مواعيد أو أحداث مجدولة في هذا اليوم.' : 'No events scheduled for this day.' }}</p>
+                      <p class="text-slate-500 dark:text-slate-400 font-bold text-sm">{{ lang === 'ar' ? 'لا توجد مواعيد أو أحداث مجدولة في هذا اليوم.' : 'No events scheduled for this day.' }}</p>
                     </div>
                   </div>
 
                   <!-- MONTH VIEW GRID -->
                   <div *ngIf="calendarView === 'month'" class="pt-2">
-                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-slate-400">
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-slate-400 dark:text-slate-500">
                       <div>{{ lang === 'ar' ? 'أحد' : 'Sun' }}</div>
                       <div>{{ lang === 'ar' ? 'إثنين' : 'Mon' }}</div>
                       <div>{{ lang === 'ar' ? 'ثلاثاء' : 'Tue' }}</div>
@@ -1582,18 +1926,18 @@ import Chart from 'chart.js/auto';
 
                     <div class="grid grid-cols-7 gap-2">
                       <ng-container *ngFor="let mDay of monthDays; trackBy: trackById">
-                        <div *ngIf="mDay.empty" class="h-20 rounded-2xl bg-slate-50/40"></div>
+                        <div *ngIf="mDay.empty" class="h-20 rounded-2xl bg-slate-50/40 dark:bg-slate-800/20"></div>
                         <div *ngIf="!mDay.empty"
                              (click)="selectCalendarDay(mDay.date)"
-                             [ngClass]="mDay.isSelected ? 'border-2 border-slate-900 bg-slate-50 shadow-sm' : 'border border-slate-100 bg-white hover:bg-slate-50'"
+                             [ngClass]="mDay.isSelected ? 'border-2 border-indigo-600 dark:border-indigo-500 bg-slate-50 dark:bg-slate-800 shadow-sm' : 'border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
                              class="h-20 rounded-2xl p-2 cursor-pointer transition flex flex-col justify-between">
                           <div class="flex items-center justify-between">
-                            <span class="text-xs font-black" [ngClass]="mDay.isToday ? 'w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black shadow-xs' : 'text-slate-700'">
+                            <span class="text-xs font-black" [ngClass]="mDay.isToday ? 'w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black shadow-xs' : 'text-slate-700 dark:text-slate-200'">
                               {{ mDay.dayNumber }}
                             </span>
                             <span *ngIf="mDay.eventsCount > 0" class="w-2 h-2 rounded-full bg-emerald-500"></span>
                           </div>
-                          <div *ngIf="mDay.eventsCount > 0" class="text-[10px] font-bold text-indigo-600 truncate">
+                          <div *ngIf="mDay.eventsCount > 0" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 truncate">
                             {{ mDay.eventsCount }} {{ lang === 'ar' ? 'حدث' : 'event(s)' }}
                           </div>
                         </div>
@@ -1601,13 +1945,13 @@ import Chart from 'chart.js/auto';
                     </div>
 
                     <!-- SELECTED DAY EVENTS IN MONTH VIEW -->
-                    <div class="mt-6 pt-5 border-t border-slate-200 animate-fade-in">
+                    <div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
                       <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+                        <h3 class="font-extrabold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
                           <span>📅</span>
                           <span>{{ selectedDate | date:'EEEE, d MMMM y' }}</span>
                         </h3>
-                        <span class="text-xs font-bold text-slate-400">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500">
                           {{ selectedDayEvents.length }} {{ lang === 'ar' ? 'مواعيد' : 'events' }}
                         </span>
                       </div>
@@ -1615,9 +1959,9 @@ import Chart from 'chart.js/auto';
                       <div *ngIf="selectedDayEvents.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div *ngFor="let ev of selectedDayEvents; trackBy: trackById"
                              [ngClass]="{
-                                'bg-blue-50/70 border-blue-200 text-blue-950': ev.eventType === 'Live',
-                                'bg-amber-50/70 border-amber-200 text-amber-950': ev.eventType === 'Deadline',
-                                'bg-purple-50/70 border-purple-200 text-purple-950': ev.eventType !== 'Live' && ev.eventType !== 'Deadline'
+                                'bg-blue-50/70 border-blue-200 text-blue-950 dark:bg-blue-950/30 dark:border-blue-900/50 dark:text-blue-100': ev.eventType === 'Live',
+                                'bg-amber-50/70 border-amber-200 text-amber-950 dark:bg-amber-950/30 dark:border-amber-900/50 dark:text-amber-100': ev.eventType === 'Deadline',
+                                'bg-purple-50/70 border-purple-200 text-purple-950 dark:bg-purple-950/30 dark:border-purple-900/50 dark:text-purple-100': ev.eventType !== 'Live' && ev.eventType !== 'Deadline'
                              }"
                              class="rounded-3xl border p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between relative group">
                           
@@ -1641,19 +1985,19 @@ import Chart from 'chart.js/auto';
                             <p *ngIf="ev.description" class="text-xs opacity-80 line-clamp-2 mt-2 leading-relaxed">{{ ev.description }}</p>
                           </div>
 
-                          <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-end">
-                            <button (click)="deleteEvent(ev.id)" class="p-1.5 rounded-lg bg-white/80 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition shadow-sm" [title]="lang === 'ar' ? 'حذف الموعد' : 'Delete Event'">
+                          <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-end">
+                            <button (click)="deleteEvent(ev.id)" class="p-1.5 rounded-lg bg-white/80 dark:bg-slate-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition shadow-sm" [title]="lang === 'ar' ? 'حذف الموعد' : 'Delete Event'">
                               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
                             </button>
                           </div>
                         </div>
                       </div>
 
-                      <div *ngIf="selectedDayEvents.length === 0" class="py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                        <div class="w-12 h-12 rounded-2xl bg-slate-200/70 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                      <div *ngIf="selectedDayEvents.length === 0" class="py-12 text-center bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-200/70 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-3">
                           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         </div>
-                        <p class="text-slate-500 font-bold text-sm">{{ lang === 'ar' ? 'لا توجد مواعيد أو أحداث مجدولة في هذا اليوم.' : 'No events scheduled for this day.' }}</p>
+                        <p class="text-slate-500 dark:text-slate-400 font-bold text-sm">{{ lang === 'ar' ? 'لا توجد مواعيد أو أحداث مجدولة في هذا اليوم.' : 'No events scheduled for this day.' }}</p>
                       </div>
                     </div>
                   </div>
@@ -1676,7 +2020,7 @@ import Chart from 'chart.js/auto';
                     <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     <span>{{ lang === 'ar' ? 'فريق الدعم متواجد لخدمتكم' : 'Support team ready to assist you' }}</span>
                   </span>
-                  <h1 class="text-3xl lg:text-4xl font-black mb-3">
+                  <h1 class="text-3xl lg:text-4xl font-black mb-3 text-white">
                     {{ lang === 'ar' ? 'مركز المساعدة والدعم الفني' : 'Help & Support Center' }}
                   </h1>
                   <p class="text-indigo-200 text-sm lg:text-base leading-relaxed">
@@ -1689,14 +2033,14 @@ import Chart from 'chart.js/auto';
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 <!-- Phone Support Card -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
                       <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                     </div>
-                    <h3 class="font-extrabold text-lg text-slate-900 mb-1">{{ lang === 'ar' ? 'الاتصال الهاتفي المباشر' : 'Direct Phone Support' }}</h3>
-                    <p class="text-xs text-slate-500 mb-4">{{ lang === 'ar' ? 'للتواصل العاجل مع المشرف الأكاديمي' : 'Urgent queries with platform staff' }}</p>
-                    <p class="text-xl font-black text-indigo-600 dir-ltr text-left rtl:text-right font-mono mb-4">01020653195</p>
+                    <h3 class="font-extrabold text-lg text-slate-900 dark:text-white mb-1">{{ lang === 'ar' ? 'الاتصال الهاتفي المباشر' : 'Direct Phone Support' }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ lang === 'ar' ? 'للتواصل العاجل مع المشرف الأكاديمي' : 'Urgent queries with platform staff' }}</p>
+                    <p class="text-xl font-black text-indigo-600 dark:text-indigo-400 dir-ltr text-left rtl:text-right font-mono mb-4">01020653195</p>
                   </div>
                   <a href="tel:01020653195" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm block">
                     {{ lang === 'ar' ? 'اتصل الآن' : 'Call Now' }}
@@ -1704,14 +2048,14 @@ import Chart from 'chart.js/auto';
                 </div>
 
                 <!-- WhatsApp Support Card -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
                       <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     </div>
-                    <h3 class="font-extrabold text-lg text-slate-900 mb-1">{{ lang === 'ar' ? 'محادثة واتساب الفورية' : 'Instant WhatsApp' }}</h3>
-                    <p class="text-xs text-slate-500 mb-4">{{ lang === 'ar' ? 'إرسال لقطات شاشة واستفسارات تقنية' : 'Send screenshots and technical tickets' }}</p>
-                    <p class="text-xl font-black text-emerald-600 dir-ltr text-left rtl:text-right font-mono mb-4">01020653195</p>
+                    <h3 class="font-extrabold text-lg text-slate-900 dark:text-white mb-1">{{ lang === 'ar' ? 'محادثة واتساب الفورية' : 'Instant WhatsApp' }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ lang === 'ar' ? 'إرسال لقطات شاشة واستفسارات تقنية' : 'Send screenshots and technical tickets' }}</p>
+                    <p class="text-xl font-black text-emerald-600 dark:text-emerald-400 dir-ltr text-left rtl:text-right font-mono mb-4">01020653195</p>
                   </div>
                   <a href="https://wa.me/201020653195" target="_blank" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-center text-xs font-bold transition shadow-sm block">
                     {{ lang === 'ar' ? 'محادثة عبر واتساب' : 'Chat on WhatsApp' }}
@@ -1719,41 +2063,41 @@ import Chart from 'chart.js/auto';
                 </div>
 
                 <!-- Working Hours Card -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
                       <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </div>
-                    <h3 class="font-extrabold text-lg text-slate-900 mb-1">{{ lang === 'ar' ? 'مواعيد العمل والدعم' : 'Support Working Hours' }}</h3>
-                    <p class="text-xs text-slate-500 mb-4">{{ lang === 'ar' ? 'ساعات تواجد المشرفين للرد والمساعدة' : 'Availability for instructor assistance' }}</p>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed mb-4">
+                    <h3 class="font-extrabold text-lg text-slate-900 dark:text-white mb-1">{{ lang === 'ar' ? 'مواعيد العمل والدعم' : 'Support Working Hours' }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ lang === 'ar' ? 'ساعات تواجد المشرفين للرد والمساعدة' : 'Availability for instructor assistance' }}</p>
+                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed mb-4">
                       {{ lang === 'ar' ? 'يومياً من 9:00 صباحاً حتى 11:00 مساءً بتوقيت القاهرة' : 'Daily from 9:00 AM to 11:00 PM (Cairo Time)' }}
                     </p>
                   </div>
-                  <div class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl text-center text-xs font-bold">
+                  <div class="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-center text-xs font-bold">
                     {{ lang === 'ar' ? 'طوال أيام الأسبوع' : '7 Days a Week' }}
                   </div>
                 </div>
               </div>
 
               <!-- Instructor FAQ Section -->
-              <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                <h3 class="font-extrabold text-xl text-slate-900 mb-6 flex items-center gap-2">
-                  <svg class="w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                <h3 class="font-extrabold text-xl text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                  <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                   <span>{{ lang === 'ar' ? 'الأسئلة الشائعة للمعلمين' : 'Instructor Frequently Asked Questions' }}</span>
                 </h3>
                 <div class="space-y-4">
-                  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h4 class="font-bold text-slate-900 text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم احتساب نسبة المنصة (20%) وصرف الأرباح؟' : 'How does the 20% platform deduction and payout work?' }}</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">{{ lang === 'ar' ? 'تخصم المنصة 20% لتغطية خوادم الاستضافة، البث المباشر، وتكاليف بوابات الدفع الإلكتروني. يتم تحويل صافي أرباحك دورياً عبر فودافون كاش، إنستاباي، أو التحويل البنكي.' : 'The platform deducts 20% to cover cloud hosting, video streaming, and secure payment gateway processing. Net profits are disbursed periodically via Vodafone Cash, InstaPay, or direct bank transfer.' }}</p>
+                  <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم احتساب نسبة المنصة (20%) وصرف الأرباح؟' : 'How does the 20% platform deduction and payout work?' }}</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ lang === 'ar' ? 'تخصم المنصة 20% لتغطية خوادم الاستضافة، البث المباشر، وتكاليف بوابات الدفع الإلكتروني. يتم تحويل صافي أرباحك دورياً عبر فودافون كاش، إنستاباي، أو التحويل البنكي.' : 'The platform deducts 20% to cover cloud hosting, video streaming, and secure payment gateway processing. Net profits are disbursed periodically via Vodafone Cash, InstaPay, or direct bank transfer.' }}</p>
                   </div>
-                  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h4 class="font-bold text-slate-900 text-sm mb-2">{{ lang === 'ar' ? 'كيف أقوم ببث جلسة مباشرة لطلابي عبر Google Meet أو Zoom؟' : 'How do I broadcast live sessions via Google Meet or Zoom?' }}</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">{{ lang === 'ar' ? 'من القائمة الجانبية، اختر تبويب "البث المباشر"، ثم حدد الكورس وأدخل رابط الاجتماع واضغط "بدء البث المباشر". سيتلقى جميع الطلاب المشتركين إشعاراً فورياً ورابط الانضمام.' : 'From the sidebar, open the "Live Sessions" tab, select your course, paste the meeting URL, and click "Start Live & Broadcast Link". All enrolled students will receive an instant notification with the direct join link.' }}</p>
+                  <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف أقوم ببث جلسة مباشرة لطلابي عبر Google Meet أو Zoom؟' : 'How do I broadcast live sessions via Google Meet or Zoom?' }}</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ lang === 'ar' ? 'من القائمة الجانبية، اختر تبويب "البث المباشر"، ثم حدد الكورس وأدخل رابط الاجتماع واضغط "بدء البث المباشر". سيتلقى جميع الطلاب المشتركين إشعاراً فورياً ورابط الانضمام.' : 'From the sidebar, open the "Live Sessions" tab, select your course, paste the meeting URL, and click "Start Live & Broadcast Link". All enrolled students will receive an instant notification with the direct join link.' }}</p>
                   </div>
-                  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h4 class="font-bold text-slate-900 text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم تصحيح الواجبات المقالية والاختبارات التلقائية؟' : 'How are MCQ quizzes and manual assignments graded?' }}</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed">{{ lang === 'ar' ? 'يتم تصحيح أسئلة الاختيار من متعدد تلقائياً ومنح النقاط للطلاب، بينما تظهر الأسئلة المقالية تحت تبويب "الطلاب" داخل ملف كل طالب مع حقل لوضع الدرجة وحفظها بنقرة واحدة.' : 'Multiple-choice questions are auto-graded and reward XP automatically. Essay assignments appear under the "Students" tab inside each student profile for manual score entry and saving.' }}</p>
+                  <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم تصحيح الواجبات المقالية والاختبارات التلقائية؟' : 'How are MCQ quizzes and manual assignments graded?' }}</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ lang === 'ar' ? 'يتم تصحيح أسئلة الاختيار من متعدد تلقائياً ومنح النقاط للطلاب، بينما تظهر الأسئلة المقالية تحت تبويب "الطلاب" داخل ملف كل طالب مع حقل لوضع الدرجة وحفظها بنقرة واحدة.' : 'Multiple-choice questions are auto-graded and reward XP automatically. Essay assignments appear under the "Students" tab inside each student profile for manual score entry and saving.' }}</p>
                   </div>
                 </div>
               </div>
@@ -1788,6 +2132,7 @@ export class TeacherDashboardComponent implements OnInit {
   editCourseError: string | null = null;
 
   imagePreview: string | ArrayBuffer | null = null;
+  createCourseError: string | null = null;
   courseForm: FormGroup;
   eventForm: FormGroup;
   eventFormError: string | null = null;
@@ -1885,9 +2230,32 @@ export class TeacherDashboardComponent implements OnInit {
     { code: '+971', flag: '🇦🇪', name: 'UAE' }
   ];
 
+  selectedChartDate: string = '';
+  distributionChart: any = null;
+
+  get paidCoursesCount(): number {
+    return this.courses.filter(c => !c.isFree && c.price > 0).length;
+  }
+  get freeCoursesCount(): number {
+    return this.courses.filter(c => c.isFree || !c.price || c.price === 0).length;
+  }
+
+  getTabTitle(): string {
+    switch (this.activeTab) {
+      case 'dashboard': return this.lang === 'ar' ? 'لوحة التحكم الرئيسية' : 'Instructor Overview';
+      case 'courses': return this.lang === 'ar' ? 'إدارة الكورسات' : 'Courses Management';
+      case 'students': return this.lang === 'ar' ? 'الطلاب المشتركون' : 'Enrolled Students';
+      case 'live': return this.lang === 'ar' ? 'الجلسات المباشرة' : 'Live Sessions';
+      case 'schedule': return this.lang === 'ar' ? 'الجدول والمواعيد' : 'Class Schedule';
+      case 'support': return this.lang === 'ar' ? 'الدعم والمساعدة' : 'Support & Help';
+      case 'settings': return this.lang === 'ar' ? 'إعدادات الحساب' : 'Account Settings';
+      default: return this.lang === 'ar' ? 'لوحة المعلم' : 'Instructor Dashboard';
+    }
+  }
+
   t = {
     en: {
-      brand: 'Fluency First', menu: 'Main', dashboard: 'Dashboard', myCourses: 'My Courses',
+      brand: 'Qimma', menu: 'Main', dashboard: 'Dashboard', myCourses: 'My Courses',
       students: 'Students', schedule: 'Schedule', account: 'Account', accountSettings: 'Account Settings',
       logout: 'Log out', totalStudents: 'Total Students', activeCourses: 'Active Courses',
       totalQuizzes: 'Total Quizzes', totalLessons: 'Total Lessons',
@@ -1912,6 +2280,10 @@ export class TeacherDashboardComponent implements OnInit {
       change: 'Change', fullName: 'Full Name', email: 'Email Address', emailCantChange: "Email cannot be changed.",
       phone: 'Phone Number', bio: 'Bio / About me', bioPlaceholder: 'Write a short bio about yourself...',
       saveBtn: 'Save Changes', saving: 'Saving...',
+      securitySectionTitle: 'Security & Access Credentials',
+      securitySectionDesc: 'Optionally update your password. Leave empty if you do not want to change it.',
+      resetPasswordOptional: 'New Password (Optional)',
+      leaveBlankIfSame: 'Leave empty if you do not want to change it',
       unsavedTitle: 'Unsaved Changes', unsavedDesc: 'You have modified your profile. Are you sure you want to discard these changes without saving?',
       stayBtn: 'No, stay here', discardBtn: 'Yes, discard', liveNow: 'Live Now',
       notificationsTitle: 'Notifications', unreadText: 'unread', noNotifications: 'No new notifications',
@@ -1922,10 +2294,22 @@ export class TeacherDashboardComponent implements OnInit {
       support: 'Help & Support',
       yourTopCourses: 'Your Top Courses',
       viewAllCourses: 'View all',
-      studentsCountText: 'students'
+      studentsCountText: 'students',
+      instructorPanel: 'Instructor Panel',
+      systemStatusOk: 'System Online',
+      clearAll: 'Clear All',
+      markAllAsRead: 'Mark all read',
+      courseDistributionChartTitle: 'Course Catalog Distribution',
+      courseDistributionDesc: 'Breakdown of free vs paid courses',
+      specificDayFilter: 'Specific Day',
+      clearDateFilter: 'Clear date filter',
+      days7: '7 Days',
+      days30: '30 Days',
+      year1: '1 Year',
+      allTime: 'All Time'
     },
     ar: {
-      brand: 'Fluency First', menu: 'القائمة الرئيسية', dashboard: 'الرئيسية', myCourses: 'إدارة الكورسات',
+      brand: 'قِمَّـة', menu: 'القائمة الرئيسية', dashboard: 'الرئيسية', myCourses: 'إدارة الكورسات',
       students: 'الطلاب', schedule: 'الجدول', account: 'الحساب', accountSettings: 'إعدادات الحساب',
       logout: 'تسجيل خروج', totalStudents: 'إجمالي الطلاب', activeCourses: 'الكورسات النشطة',
       totalQuizzes: 'إجمالي الاختبارات', totalLessons: 'إجمالي الدروس',
@@ -1950,6 +2334,10 @@ export class TeacherDashboardComponent implements OnInit {
       change: 'تغيير', fullName: 'الاسم بالكامل', email: 'البريد الإلكتروني', emailCantChange: "لا يمكن تغيير البريد الإلكتروني.",
       phone: 'رقم الهاتف', bio: 'نبذة عني', bioPlaceholder: 'اكتب نبذة مختصرة عنك...',
       saveBtn: 'حفظ التغييرات', saving: 'جاري الحفظ...',
+      securitySectionTitle: 'بيانات الأمان وكلمة المرور',
+      securitySectionDesc: 'تحديث كلمة المرور (اختياري). اترك الحقل فارغاً إذا كنت لا ترغب في تغييرها.',
+      resetPasswordOptional: 'كلمة المرور الجديدة (اختياري)',
+      leaveBlankIfSame: 'اترك الحقل فارغاً إذا كنت لا ترغب في تغييرها',
       unsavedTitle: 'تغييرات لم تُحفظ', unsavedDesc: 'لقد قمت بتعديل بياناتك. هل أنت متأكد من رغبتك في الخروج دون حفظ؟',
       stayBtn: 'لا، البقاء هنا', discardBtn: 'نعم، تجاهل التغييرات', liveNow: 'مباشر الآن',
       notificationsTitle: 'الإشعارات', unreadText: 'غير مقروء', noNotifications: 'لا توجد إشعارات جديدة',
@@ -1960,7 +2348,19 @@ export class TeacherDashboardComponent implements OnInit {
       support: 'المساعدة والدعم',
       yourTopCourses: 'أفضل كورساتك',
       viewAllCourses: 'عرض الكل',
-      studentsCountText: 'طالب'
+      studentsCountText: 'طالب',
+      instructorPanel: 'لوحة تحكم المعلم',
+      systemStatusOk: 'النظام متصل',
+      clearAll: 'مسح الكل',
+      markAllAsRead: 'تحديد الكل كمقروء',
+      courseDistributionChartTitle: 'توزيع الكورسات',
+      courseDistributionDesc: 'تفصيل الكورسات المجانية مقابل المدفوعة',
+      specificDayFilter: 'يوم محدد',
+      clearDateFilter: 'مسح فلتر اليوم',
+      days7: '7 أيام',
+      days30: '30 يوم',
+      year1: 'سنة واحدة',
+      allTime: 'كل الأوقات'
     }
   };
 
@@ -1971,7 +2371,8 @@ export class TeacherDashboardComponent implements OnInit {
     private route: ActivatedRoute,
     private langService: LanguageService,
     private signalrService: SignalrService,
-    private assignmentService: AssignmentService
+    private assignmentService: AssignmentService,
+    public themeService: ThemeService
   ) {
     this.courseForm = this.fb.group({
       title: ['', Validators.required],
@@ -2062,7 +2463,7 @@ export class TeacherDashboardComponent implements OnInit {
     if (currentVal && currentVal < nowStr) {
       this.eventForm.patchValue({ eventDate: nowStr });
       const msg = this.lang === 'ar' ? 'لا يمكن اختيار تاريخ أو وقت في الماضي.' : 'Cannot select a date or time in the past.';
-      this.showMessage(msg, 'error');
+      this.eventFormError = msg;
     }
   }
 
@@ -2085,6 +2486,7 @@ export class TeacherDashboardComponent implements OnInit {
 
   openCreateCourse() {
     this.imagePreview = null;
+    this.createCourseError = null;
     this.courseForm.reset({ isFree: false, price: 0, discountPercentage: 0 });
     this.showCreateForm = true;
     this.activeTab = 'courses';
@@ -2092,6 +2494,7 @@ export class TeacherDashboardComponent implements OnInit {
 
   cancelCreateCourse() {
     this.showCreateForm = false;
+    this.createCourseError = null;
   }
 
   openCreateEvent() {
@@ -2385,6 +2788,24 @@ export class TeacherDashboardComponent implements OnInit {
     );
   }
 
+  setChartTimeframe(tf: string) {
+    this.selectedChartTimeframe = tf;
+    this.selectedChartDate = '';
+    this.loadDashboardStats();
+  }
+
+  onChartDateChange() {
+    if (this.selectedChartDate) {
+      this.loadDashboardStats();
+    }
+  }
+
+  clearChartDate() {
+    this.selectedChartDate = '';
+    this.selectedChartTimeframe = '7days';
+    this.loadDashboardStats();
+  }
+
   onTimeframeChange() {
     this.loadDashboardStats();
   }
@@ -2394,7 +2815,12 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any>(`http://localhost:5162/api/instructor/dashboard/stats?timeframe=${this.selectedChartTimeframe}`, { headers }).subscribe({
+    let url = `http://localhost:5162/api/instructor/dashboard/stats?timeframe=${this.selectedChartTimeframe}`;
+    if (this.selectedChartDate) {
+      url += `&date=${encodeURIComponent(this.selectedChartDate)}`;
+    }
+
+    this.http.get<any>(url, { headers }).subscribe({
       next: (data) => {
         this.totalRevenue = data?.totalRevenue || 0;
         this.monthlyRevenue = data?.monthlyRevenue || 0;
@@ -2432,12 +2858,57 @@ export class TeacherDashboardComponent implements OnInit {
         if (data?.chartData) {
           this.renderChart(data.chartData);
         }
+        this.renderCourseDistributionChart();
       },
       error: () => {
         this.isLoadingDashboard = false;
         this.isLoadingTopMetrics = false;
       }
     });
+  }
+
+  renderCourseDistributionChart() {
+    setTimeout(() => {
+      const canvas = document.getElementById('teacherCourseDistributionChart') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      if (this.distributionChart) {
+        this.distributionChart.destroy();
+        this.distributionChart = null;
+      }
+      const existing = Chart.getChart(canvas);
+      if (existing) existing.destroy();
+
+      const paidCount = this.paidCoursesCount;
+      const freeCount = this.freeCoursesCount;
+
+      this.distributionChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: [this.t[this.lang].paidCourse, this.t[this.lang].freeCourse],
+          datasets: [
+            {
+              data: [paidCount, freeCount],
+              backgroundColor: ['#4F46E5', '#10B981'],
+              borderWidth: 3,
+              borderColor: '#FFFFFF',
+              hoverOffset: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 12, weight: 'bold' }, boxWidth: 12, padding: 15 }
+            }
+          }
+        }
+      });
+    }, 100);
   }
 
   renderChart(chartData: any) {
@@ -2692,50 +3163,254 @@ export class TeacherDashboardComponent implements OnInit {
     });
   }
 
-  getNotificationText(message: string): string {
-    if (!message) return '';
+  markAllNotificationsAsRead() {
+    this.notifications.forEach(n => n.isRead = true);
+    this.unreadCount = 0;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    this.http.post('http://localhost:5162/api/notifications/read-all', {}, { headers }).subscribe({
+      next: () => {},
+      error: () => {}
+    });
+  }
 
-    const parts = message.split('||');
+  getNotificationType(message: string): string {
+    if (!message) return 'SYSTEM';
+    if (message.includes('||')) {
+      const type = message.split('||')[0].trim();
+      if (type.includes('ENROLLMENT_PAID') || type.includes('PAID')) return 'ENROLLMENT_PAID';
+      if (type.includes('ENROLLMENT') || type.includes('ENROLLED')) return 'ENROLLMENT';
+      if (type.includes('ASSIGNMENT')) return 'ASSIGNMENT';
+      if (type.includes('USER') || type.includes('STUDENT') || type.includes('INSTRUCTOR')) return 'NEW_USER';
+      return type;
+    }
+    if (message.includes('paid') || message.includes('مدفوع') || message.includes('ج.م') || message.includes('EGP')) return 'ENROLLMENT_PAID';
+    if (message.includes('enrolled') || message.includes('انضم') || message.includes('اشترك')) return 'ENROLLMENT';
+    if (message.includes('assignment') || message.includes('واجب') || message.includes('تسليم')) return 'ASSIGNMENT';
+    if (message.includes('Instructor') || message.includes('Student') || message.includes('طالب') || message.includes('معلم')) return 'NEW_USER';
+    return 'SYSTEM';
+  }
+
+  getNotificationTitle(message: string): string {
+    if (!message) return '';
+    const parts = message.split('||').map(p => p.trim());
     const type = parts[0];
 
-    if (this.lang === 'en') {
-      if (type === 'NEW_LESSON') return `A new lesson has been published titled '${parts[2]}' in course '${parts[4]}'. Check it out now!`;
-      if (type === 'NEW_SCHEDULE') return `A new schedule event (${parts[1]}) titled '${parts[2]}' has been added for course '${parts[3]}'.`;
-      if (type === 'NEW_QUIZ') return `A new quiz has been published for lesson '${parts[1]}' in course '${parts[2]}'. Test your knowledge now!`;
-      if (type === 'QUIZ_FULLMARK') return `🎉 Congratulations! You earned ${parts[1]} XP for getting a full mark in the quiz. Keep going!`;
-      if (type === 'NEW_ASSIGNMENT') return `New Assignment '${parts[1]}' in course '${parts[2]}'. Due before ${parts[3]}!`;
-      if (type === 'ASSIGNMENT_SUBMITTED') return `Student ${parts[1]} submitted assignment '${parts[2]}' in course '${parts[3]}'.`;
-      if (type === 'ASSIGNMENT_GRADED') return `Assignment '${parts[1]}' has been graded. You scored ${parts[2]}/${parts[3]}.`;
+    if (type === 'NEW_QUIZ') {
+      const lessonTitle = parts[1] || '';
+      return this.lang === 'ar' ? `اختبار جديد: ${lessonTitle}` : `New Quiz: ${lessonTitle}`;
+    }
+    if (type === 'NEW_LESSON') {
+      const lessonTitle = parts[2] || parts[1] || '';
+      return this.lang === 'ar' ? `درس جديد: ${lessonTitle}` : `New Lesson: ${lessonTitle}`;
+    }
+    if (type === 'NEW_SCHEDULE') {
+      const title = parts[2] || parts[1] || '';
+      return this.lang === 'ar' ? `موعد جديد: ${title}` : `New Schedule: ${title}`;
+    }
+    if (type === 'QUIZ_FULLMARK') {
+      return this.lang === 'ar' ? '🎉 الدرجة النهائية في الكويز!' : '🎉 Full Mark in Quiz!';
+    }
+    if (type === 'STUDENT_FULLMARK') {
+      const studentName = parts[1] || '';
+      return this.lang === 'ar' ? `درجة نهائية: ${studentName}` : `Full Mark: ${studentName}`;
+    }
+    if (type === 'NEW_ASSIGNMENT') {
+      const title = parts[1] || '';
+      return this.lang === 'ar' ? `واجب جديد: ${title}` : `New Assignment: ${title}`;
+    }
+    if (type === 'ASSIGNMENT_SUBMITTED') {
+      const studentName = parts[1] || '';
+      return this.lang === 'ar' ? `تسليم واجب جديد: ${studentName}` : `Assignment Submitted: ${studentName}`;
+    }
+    if (type === 'ASSIGNMENT_GRADED') {
+      const title = parts[1] || '';
+      return this.lang === 'ar' ? `تم تصحيح الواجب: ${title}` : `Assignment Graded: ${title}`;
+    }
+    if (type === 'ENROLLMENT_PAID' || type === 'ENROLLMENT') {
+      const isPaid = type === 'ENROLLMENT_PAID';
+      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (text && text.includes(':')) {
+        return text.split(':')[0].trim();
+      }
+      if (isPaid) {
+        return this.lang === 'ar' ? 'اشتراك كورس (مدفوع)' : 'Paid Course Enrollment';
+      }
+      return this.lang === 'ar' ? 'اشتراك كورس جديد' : 'New Course Enrollment';
+    }
+    if (type === 'NEW_USER' || type === 'NEW_INSTRUCTOR' || type === 'NEW_STUDENT') {
+      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (text && text.includes(':')) {
+        return text.split(':')[0].trim();
+      }
+      return this.lang === 'ar' ? 'انضمام مستخدم جديد' : 'New User Registration';
+    }
+    if (type === 'SYSTEM') {
+      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (text && text.includes(':')) {
+        return text.split(':')[0].trim();
+      }
+      return this.lang === 'ar' ? 'إشعار من النظام' : 'System Notification';
+    }
 
-      if (message.includes('تم إضافة موعد جديد')) return message.replace('تم إضافة موعد جديد', 'A new event has been added').replace('بعنوان', 'titled').replace('لكورس', 'for course');
-      if (message.includes('50 نقطة') || message.includes('50 XP') || message.includes('الكويز')) return '🎉 Congratulations! You earned 50 XP for getting a full mark in the quiz. Keep going!';
-      if (message.includes('بدأ المعلم') && message.includes('بثاً مباشراً')) return message.replace('بدأ المعلم', 'Instructor').replace('بثاً مباشراً لكورس', 'started a live session for').replace('انضم الآن!', 'Join now!').replace('. انضم الآن!', '. Join now!');
-      if (message.includes('طالب جديد انضم')) return message.replace('طالب جديد انضم! لقد قام طالب بالاشتراك في كورس', 'New student enrolled! A student has enrolled in course').replace('طالب جديد انضم!', 'New student enrolled!');
-      if (message.includes('تم نشر درس جديد')) return message.replace('تم نشر درس جديد بعنوان', 'A new lesson has been published titled').replace('في كورس', 'in course').replace('تفقده الآن!', 'Check it out now!');
-      if (message.includes('تم نشر اختبار جديد')) return message.replace('تم نشر اختبار جديد لدرس', 'A new quiz has been published for lesson').replace('في كورس', 'in course').replace('Test your knowledge now!', 'اختبر معلوماتك الآن!');
-      if (message.includes('واجب جديد')) return message.replace('واجب جديد', 'New Assignment').replace('قم بتسليمه قبل', 'Due before');
-      return message;
+    if (message.includes('بدأ المعلم') || message.includes('started a live session')) {
+      return this.lang === 'ar' ? 'جلسة بث مباشر جديدة' : 'New Live Session';
     }
-    
-    if (this.lang === 'ar') {
-      if (type === 'NEW_LESSON') return `تم نشر درس جديد بعنوان '${parts[2]}' في كورس '${parts[4]}'. تفقده الآن!`;
-      if (type === 'NEW_SCHEDULE') return `تم إضافة موعد جديد (${parts[1]}) بعنوان '${parts[2]}' لكورس '${parts[3]}'.`;
-      if (type === 'NEW_QUIZ') return `تم نشر اختبار جديد لدرس '${parts[1]}' في كورس '${parts[2]}'. اختبر معلوماتك الآن!`;
-      if (type === 'QUIZ_FULLMARK') return `🎉 مبروك! لقد ربحت ${parts[1]} نقطة لحصولك على الدرجة النهائية في الكويز. استمر يا بطل!`;
-      if (type === 'NEW_ASSIGNMENT') return `واجب جديد '${parts[1]}' في كورس '${parts[2]}'. قم بتسليمه قبل ${parts[3]}!`;
-      if (type === 'ASSIGNMENT_SUBMITTED') return `قام الطالب ${parts[1]} بتسليم واجب '${parts[2]}' في كورس '${parts[3]}'.`;
-      if (type === 'ASSIGNMENT_GRADED') return `تم تقييم واجب '${parts[1]}'. حصلت على ${parts[2]}/${parts[3]}.`;
-      
-      if (message.includes('A new schedule event') || message.includes('A new event has been added')) return message.replace('A new schedule event', 'تم إضافة موعد جديد').replace('A new event has been added', 'تم إضافة موعد جديد').replace('titled', 'بعنوان').replace('has been added for course', 'لكورس').replace('for course', 'لكورس');
-      if (message.includes('Congratulations') && message.includes('50 XP')) return '🎉 مبروك! لقد ربحت 50 نقطة لحصولك على الدرجة النهائية في الكويز. استمر يا بطل!';
-      if (message.includes('started a live session for')) return message.replace('Instructor', 'بدأ المعلم').replace('started a live session for', 'بثاً مباشراً لكورس').replace('Join now!', 'انضم الآن!').replace('. Join now!', '. انضم الآن!');
-      if (message.includes('New student enrolled')) return message.replace('New student enrolled! A student has enrolled in course', 'طالب جديد انضم! لقد قام طالب بالاشتراك في كورس').replace('New student enrolled!', 'طالب جديد انضم!');
-      if (message.includes('A new lesson has been published')) return message.replace('A new lesson has been published titled', 'تم نشر درس جديد بعنوان').replace('in course', 'في كورس').replace('Check it out now!', 'تفقده الآن!');
-      if (message.includes('A new quiz has been published')) return message.replace('A new quiz has been published for lesson', 'تم نشر اختبار جديد لدرس').replace('in course', 'في كورس').replace('Test your knowledge now!', 'اختبر معلوماتك الآن!');
-      return message;
+    if (message.includes('طالب جديد انضم') || message.includes('New student enrolled')) {
+      return this.lang === 'ar' ? 'اشتراك طالب جديد' : 'New Student Enrollment';
     }
-    
+    if (message.includes('AI graded your task') || message.includes('تصحيح المهمة')) {
+      return this.lang === 'ar' ? 'تقييم المهمة بالذكاء الاصطناعي' : 'AI Task Evaluation';
+    }
+
+    if (parts.length >= 3) {
+      const content = this.lang === 'ar' ? parts[1] : parts[2];
+      if (content && content.includes(':')) return content.split(':')[0].trim();
+      return content || '';
+    }
+    if (parts.length === 2 && parts[1]) {
+      if (parts[1].includes(':')) return parts[1].split(':')[0].trim();
+      return parts[1];
+    }
+
+    if (message.includes(':')) {
+      return message.split(':')[0].trim();
+    }
+    return this.lang === 'ar' ? 'إشعار جديد' : 'New Notification';
+  }
+
+  getNotificationDesc(message: string): string {
+    if (!message) return '';
+    const parts = message.split('||').map(p => p.trim());
+    const type = parts[0];
+
+    if (type === 'NEW_QUIZ') {
+      const lessonTitle = parts[1] || '';
+      const courseTitle = parts[2] || '';
+      return this.lang === 'ar'
+        ? `تم نشر اختبار جديد لدرس '${lessonTitle}' في كورس '${courseTitle}'. اختبر معلوماتك الآن!`
+        : `A new quiz has been published for lesson '${lessonTitle}' in course '${courseTitle}'. Test your knowledge now!`;
+    }
+    if (type === 'NEW_LESSON') {
+      const lessonTitle = parts[2] || parts[1] || '';
+      const courseTitle = parts[4] || '';
+      return this.lang === 'ar'
+        ? `تم نشر درس جديد بعنوان '${lessonTitle}' في كورس '${courseTitle}'. تفقده الآن!`
+        : `A new lesson has been published titled '${lessonTitle}' in course '${courseTitle}'. Check it out now!`;
+    }
+    if (type === 'NEW_SCHEDULE') {
+      const eventType = parts[1] || '';
+      const title = parts[2] || '';
+      const courseTitle = parts[3] || '';
+      return this.lang === 'ar'
+        ? `تم إضافة موعد جديد (${eventType}) بعنوان '${title}' لكورس '${courseTitle}'.`
+        : `A new schedule event (${eventType}) titled '${title}' has been added for course '${courseTitle}'.`;
+    }
+    if (type === 'QUIZ_FULLMARK') {
+      const xp = parts[1] || '50';
+      return this.lang === 'ar'
+        ? `🎉 مبروك! لقد ربحت ${xp} نقطة XP لحصولك على الدرجة النهائية في الكويز. استمر يا بطل!`
+        : `🎉 Congratulations! You earned ${xp} XP for getting a full mark in the quiz. Keep going!`;
+    }
+    if (type === 'STUDENT_FULLMARK') {
+      const studentName = parts[1] || '';
+      const lessonTitle = parts[2] || '';
+      return this.lang === 'ar'
+        ? `حصل الطالب '${studentName}' على الدرجة النهائية في كويز درس '${lessonTitle}'.`
+        : `Student '${studentName}' achieved a full mark on the quiz for lesson '${lessonTitle}'.`;
+    }
+    if (type === 'NEW_ASSIGNMENT') {
+      const title = parts[1] || '';
+      const courseTitle = parts[2] || '';
+      const dueDate = parts[3] || '';
+      return this.lang === 'ar'
+        ? `تم إضافة واجب جديد '${title}' في كورس '${courseTitle}'. موعد التسليم: ${dueDate}.`
+        : `A new assignment '${title}' has been added to course '${courseTitle}'. Due before: ${dueDate}.`;
+    }
+    if (type === 'ASSIGNMENT_SUBMITTED') {
+      const studentName = parts[1] || '';
+      const title = parts[2] || '';
+      const courseTitle = parts[3] || '';
+      return this.lang === 'ar'
+        ? `قام الطالب '${studentName}' بتسليم واجب '${title}' في كورس '${courseTitle}'.`
+        : `Student '${studentName}' submitted assignment '${title}' in course '${courseTitle}'.`;
+    }
+    if (type === 'ASSIGNMENT_GRADED') {
+      const title = parts[1] || '';
+      const score = parts[2] || '0';
+      const totalScore = parts[3] || '0';
+      return this.lang === 'ar'
+        ? `تم تقييم واجبك '${title}'. نتيجتك: ${score}/${totalScore}.`
+        : `Your assignment '${title}' has been graded. You scored ${score}/${totalScore}.`;
+    }
+    if (type === 'ENROLLMENT_PAID' || type === 'ENROLLMENT' || type === 'NEW_USER' || type === 'NEW_INSTRUCTOR' || type === 'NEW_STUDENT' || type === 'SYSTEM') {
+      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (text && text.includes(':')) {
+        return text.split(':').slice(1).join(':').trim();
+      }
+      return text || '';
+    }
+
+    if (this.lang === 'en') {
+      if (message.includes('بدأ المعلم') && message.includes('بثاً مباشراً')) {
+        return message.replace('بدأ المعلم', 'Instructor').replace('بثاً مباشراً لكورس', 'started a live session for').replace('انضم الآن!', 'Join now!').replace('. انضم الآن!', '. Join now!');
+      }
+      if (message.includes('طالب جديد انضم')) {
+        return message.replace('طالب جديد انضم! لقد قام الطالب', 'New student enrolled! Student').replace('بالاشتراك في كورس', 'enrolled in course');
+      }
+      if (message.includes('Great job! AI graded your task')) {
+        return message;
+      }
+    } else {
+      if (message.includes('started a live session for')) {
+        return message.replace('Instructor', 'بدأ المعلم').replace('started a live session for', 'بثاً مباشراً لكورس').replace('Join now!', 'انضم الآن!').replace('. Join now!', '. انضم الآن!');
+      }
+      if (message.includes('New student enrolled')) {
+        return message.replace('New student enrolled! Student', 'طالب جديد انضم! لقد قام الطالب').replace('enrolled in course', 'بالاشتراك في كورس');
+      }
+    }
+
+    if (message.includes(':')) {
+      return message.split(':').slice(1).join(':').trim();
+    }
     return message;
+  }
+
+  ensureUtcDate(dateVal: any): Date {
+    if (!dateVal) return new Date();
+    if (dateVal instanceof Date) return dateVal;
+    let str = String(dateVal);
+    if (!str.endsWith('Z') && !str.includes('+') && str.includes('T')) {
+      str += 'Z';
+    }
+    return new Date(str);
+  }
+
+  formatDateTime(dateVal: any): string {
+    if (!dateVal) return '';
+    const d = this.ensureUtcDate(dateVal);
+    return d.toLocaleString(this.lang === 'ar' ? 'ar-EG' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  formatTimeAgo(dateVal: any): string {
+    if (!dateVal) return '';
+    const d = this.ensureUtcDate(dateVal);
+    const now = new Date();
+    const diffSec = Math.max(0, Math.floor((now.getTime() - d.getTime()) / 1000));
+    if (diffSec < 60) return this.lang === 'ar' ? 'الآن' : 'just now';
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return this.lang === 'ar' ? `منذ ${diffMin} دقيقة` : `${diffMin}m ago`;
+    const diffHrs = Math.floor(diffMin / 60);
+    if (diffHrs < 24) return this.lang === 'ar' ? `منذ ${diffHrs} ساعة` : `${diffHrs}h ago`;
+    const diffDays = Math.floor(diffHrs / 24);
+    return this.lang === 'ar' ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
   }
 
   startLiveSession() {
@@ -2793,19 +3468,16 @@ export class TeacherDashboardComponent implements OnInit {
       if (val.title && val.title.startsWith(' ')) {
         const msg = this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الحدث بمسافة فارغة.' : 'Event title cannot begin with a space.';
         this.eventFormError = msg;
-        this.showMessage(msg, 'error');
         return;
       }
       if (val.description && val.description.startsWith(' ')) {
         const msg = this.lang === 'ar' ? 'لا يمكن أن يبدأ وصف الحدث بمسافة فارغة.' : 'Description cannot begin with a space.';
         this.eventFormError = msg;
-        this.showMessage(msg, 'error');
         return;
       }
       if (val.eventType && val.eventType.startsWith(' ')) {
         const msg = this.lang === 'ar' ? 'لا يمكن أن يبدأ نوع الحدث بمسافة فارغة.' : 'Event type cannot begin with a space.';
         this.eventFormError = msg;
-        this.showMessage(msg, 'error');
         return;
       }
 
@@ -2813,7 +3485,6 @@ export class TeacherDashboardComponent implements OnInit {
       if (val.eventDate && val.eventDate < nowStr) {
         const msg = this.lang === 'ar' ? 'لا يمكن تحديد موعد حدث في الماضي.' : 'Cannot set an event date/time in the past.';
         this.eventFormError = msg;
-        this.showMessage(msg, 'error');
         return;
       }
 
@@ -2839,7 +3510,6 @@ export class TeacherDashboardComponent implements OnInit {
           this.isSaving = false;
           const msg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء إضافة الحدث' : 'Error adding event');
           this.eventFormError = msg;
-          this.showMessage(msg, 'error');
         }
       });
     }
@@ -2901,7 +3571,8 @@ export class TeacherDashboardComponent implements OnInit {
       bio: this.userData?.bio || '',
       profileImage: this.userData?.profileImage || '',
       specialization: this.userData?.specialization || '',
-      coverImage: this.userData?.coverImage || ''
+      coverImage: this.userData?.coverImage || '',
+      newPassword: ''
     };
     this.originalProfileData = JSON.stringify(this.editProfileData);
     this.showSettingsModal = true;
@@ -3024,12 +3695,15 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const updateModel = {
+    const updateModel: any = {
       username: this.editProfileData.fullName,
       phoneNumber: this.editProfileData.countryCode + ' ' + this.editProfileData.phone,
       bio: this.editProfileData.bio,
       specialization: this.editProfileData.specialization
     };
+    if (this.editProfileData.newPassword && this.editProfileData.newPassword.trim()) {
+      updateModel.newPassword = this.editProfileData.newPassword.trim();
+    }
 
     this.http.put('http://localhost:5162/api/user/profile', updateModel, { headers }).subscribe({
       next: () => {
@@ -3037,6 +3711,7 @@ export class TeacherDashboardComponent implements OnInit {
         this.userData.phoneNumber = updateModel.phoneNumber;
         this.userData.bio = updateModel.bio;
         this.userData.specialization = updateModel.specialization;
+        this.editProfileData.newPassword = '';
         this.originalProfileData = JSON.stringify(this.editProfileData);
         this.isSaving = false;
         this.showSettingsModal = false;
@@ -3056,9 +3731,24 @@ export class TeacherDashboardComponent implements OnInit {
     }
   }
 
+  get isDarkMode(): boolean {
+    return this.themeService.isDark;
+  }
+
+  toggleDarkMode() {
+    this.themeService.toggleTheme();
+  }
+
   getCoverImageUrl(url: string | null | undefined): string {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (!url || url.trim() === '' || url.includes('placeholder')) {
+      return 'assets/images/default-cover.jpg';
+    }
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) {
+      return url;
+    }
+    if (url.startsWith('/assets/')) {
+      return url.substring(1);
+    }
     return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
@@ -3211,13 +3901,19 @@ export class TeacherDashboardComponent implements OnInit {
                         totalScore: sub.totalScore,
                         answers: (sub.answers || []).map((a: any) => {
                           const isMcq = (a.questionType || '').toLowerCase() === 'mcq' || (a.questionType || '').toLowerCase() === 'quiz';
-                          const isCorrect = a.isCorrect !== undefined && a.isCorrect !== null
-                            ? !!a.isCorrect
-                            : (isMcq
-                                ? (a.score !== null && a.score !== undefined
-                                    ? a.score > 0
-                                    : (a.correctAnswer && a.answerText ? a.answerText.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase() : false))
-                                : null);
+                          let isCorrect: boolean | null = null;
+                          if (isMcq) {
+                            if (a.isCorrect !== undefined && a.isCorrect !== null) {
+                              isCorrect = !!a.isCorrect;
+                            } else if (a.correctAnswer && a.answerText) {
+                              isCorrect = a.answerText.trim().toLowerCase() === a.correctAnswer.trim().toLowerCase();
+                            } else if (a.score !== null && a.score !== undefined) {
+                              isCorrect = a.score > 0;
+                            } else {
+                              isCorrect = false;
+                            }
+                          }
+
                           return {
                             question: a.questionText,
                             answer: a.answerText,
@@ -3360,20 +4056,17 @@ export class TeacherDashboardComponent implements OnInit {
     if (val.title && val.title.startsWith(' ')) {
       const msg = this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الكورس بمسافة فارغة.' : 'Course title cannot begin with a space.';
       this.editCourseError = msg;
-      this.showMessage(msg, 'error');
       return;
     }
     if (val.description && val.description.startsWith(' ')) {
       const msg = this.lang === 'ar' ? 'لا يمكن أن يبدأ وصف الكورس بمسافة فارغة.' : 'Course description cannot begin with a space.';
       this.editCourseError = msg;
-      this.showMessage(msg, 'error');
       return;
     }
     if (!val.isFree) {
       if (val.price === null || val.price === undefined || val.price <= 0) {
         const msg = this.lang === 'ar' ? 'يجب أن يكون سعر الكورس المدفوع أكبر من صفر.' : 'Paid course price must be greater than zero.';
         this.editCourseError = msg;
-        this.showMessage(msg, 'error');
         return;
       }
       if (val.discountPercentage !== null && val.discountPercentage !== undefined && val.discountPercentage !== '') {
@@ -3381,7 +4074,6 @@ export class TeacherDashboardComponent implements OnInit {
         if (disc < 0 || disc > 100) {
           const msg = this.lang === 'ar' ? 'نسبة الخصم يجب أن تكون بين 0 و 100%.' : 'Discount percentage must be between 0 and 100%.';
           this.editCourseError = msg;
-          this.showMessage(msg, 'error');
           return;
         }
       }
@@ -3409,7 +4101,6 @@ export class TeacherDashboardComponent implements OnInit {
         this.isSaving = false;
         const msg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء تحديث بيانات الكورس.' : 'Error updating course details.');
         this.editCourseError = msg;
-        this.showMessage(msg, 'error');
       }
     });
   }
@@ -3418,33 +4109,35 @@ export class TeacherDashboardComponent implements OnInit {
     if (this.courseForm.valid) {
       const val = this.courseForm.value;
       if (val.title && val.title.startsWith(' ')) {
-        this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الكورس بمسافة فارغة.' : 'Course title cannot begin with a space.', 'error');
+        this.createCourseError = this.lang === 'ar' ? 'لا يمكن أن يبدأ عنوان الكورس بمسافة فارغة.' : 'Course title cannot begin with a space.';
         return;
       }
       if (val.description && val.description.startsWith(' ')) {
-        this.showMessage(this.lang === 'ar' ? 'لا يمكن أن يبدأ وصف الكورس بمسافة فارغة.' : 'Course description cannot begin with a space.', 'error');
+        this.createCourseError = this.lang === 'ar' ? 'لا يمكن أن يبدأ وصف الكورس بمسافة فارغة.' : 'Course description cannot begin with a space.';
         return;
       }
       if (!val.isFree) {
         if (val.price === null || val.price === undefined || val.price <= 0) {
-          this.showMessage(this.lang === 'ar' ? 'يجب أن يكون سعر الكورس المدفوع أكبر من صفر.' : 'Paid course price must be greater than zero.', 'error');
+          this.createCourseError = this.lang === 'ar' ? 'يجب أن يكون سعر الكورس المدفوع أكبر من صفر.' : 'Paid course price must be greater than zero.';
           return;
         }
         if (val.discountPercentage !== null && val.discountPercentage !== undefined && val.discountPercentage !== '') {
           const disc = Number(val.discountPercentage);
           if (disc < 0 || disc > 100) {
-            this.showMessage(this.lang === 'ar' ? 'نسبة الخصم يجب أن تكون بين 0 و 100%.' : 'Discount percentage must be between 0 and 100%.', 'error');
+            this.createCourseError = this.lang === 'ar' ? 'نسبة الخصم يجب أن تكون بين 0 و 100%.' : 'Discount percentage must be between 0 and 100%.';
             return;
           }
         }
       }
 
       this.isSaving = true;
+      this.createCourseError = null;
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
       this.http.post<any>('http://localhost:5162/api/course', this.courseForm.value, { headers }).subscribe({
         next: (newCourse) => {
           this.showMessage(this.t[this.lang].successMsg, 'success');
+          this.createCourseError = null;
           this.courseForm.reset();
           this.imagePreview = null;
           this.isSaving = false;
@@ -3459,12 +4152,27 @@ export class TeacherDashboardComponent implements OnInit {
             this.router.navigate(['/teacher-dashboard'], { queryParams: { tab: 'courses' } });
           }, 1500);
         },
-        error: () => {
+        error: (err: any) => {
           this.isSaving = false;
-          this.showMessage(this.t[this.lang].errorMsg, 'error');
+          this.createCourseError = err?.error?.message || this.t[this.lang].errorMsg;
         }
       });
     }
+  }
+
+  getCorrectCount(assignment: any): number {
+    if (!assignment || !assignment.answers) return 0;
+    return assignment.answers.filter((a: any) => a.type === 'mcq' && a.isCorrect === true).length;
+  }
+
+  getIncorrectCount(assignment: any): number {
+    if (!assignment || !assignment.answers) return 0;
+    return assignment.answers.filter((a: any) => a.type === 'mcq' && a.isCorrect === false).length;
+  }
+
+  getEssayCount(assignment: any): number {
+    if (!assignment || !assignment.answers) return 0;
+    return assignment.answers.filter((a: any) => a.type !== 'mcq').length;
   }
 
   logout() {

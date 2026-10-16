@@ -8,6 +8,7 @@ import { isPlatformBrowser } from '@angular/common';
 export class LanguageService {
   private currentLang = new BehaviorSubject<'en' | 'ar'>('en');
   currentLang$ = this.currentLang.asObservable();
+  language$ = this.currentLang$;
   private isBrowser: boolean;
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
@@ -39,5 +40,9 @@ export class LanguageService {
 
   get isArabic(): boolean {
     return this.currentLang.value === 'ar';
+  }
+
+  get currentLanguage(): 'en' | 'ar' {
+    return this.currentLang.value;
   }
 }

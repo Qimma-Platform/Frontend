@@ -11,15 +11,15 @@ import { LanguageService } from '../services/language.service';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
-    <div class="min-h-screen bg-slate-50 flex flex-col font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
-      <header class="bg-[#130E35] text-white px-6 py-4 flex items-center justify-between shadow-md z-10 relative">
+    <div class="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 flex flex-col font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+      <header class="bg-[#130E35] dark:bg-slate-900 border-b border-indigo-900/50 dark:border-slate-800 text-white px-6 py-4 flex items-center justify-between shadow-md z-10 relative">
         <div class="flex items-center gap-4">
           <button (click)="goBack()" class="text-slate-400 hover:text-white transition flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10">
             <span class="rtl:rotate-180 text-xl">←</span>
           </button>
           <div>
             <h1 class="text-lg font-bold">{{ t[lang].title }}</h1>
-            <p class="text-xs text-indigo-300">{{ t[lang].subtitle }}</p>
+            <p class="text-xs text-indigo-300 dark:text-indigo-400">{{ t[lang].subtitle }}</p>
           </div>
         </div>
       </header>
@@ -27,81 +27,81 @@ import { LanguageService } from '../services/language.service';
       <main class="flex-1 max-w-3xl w-full mx-auto p-6 space-y-6">
         
         <div *ngIf="isLoading" class="space-y-6">
-          <div class="h-20 bg-white rounded-3xl border border-slate-200 animate-pulse"></div>
-          <div class="h-32 bg-white rounded-3xl border border-slate-200 animate-pulse"></div>
-          <div class="h-32 bg-white rounded-3xl border border-slate-200 animate-pulse"></div>
+          <div class="h-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 animate-pulse"></div>
+          <div class="h-32 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 animate-pulse"></div>
+          <div class="h-32 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 animate-pulse"></div>
         </div>
 
-        <div *ngIf="!isLoading && attemptsCount >= maxAttempts && !isSubmitted" class="bg-white p-10 rounded-3xl shadow-lg border-2 border-rose-100 text-center max-w-md mx-auto mt-10 animate-fade-in">
-          <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-5">
+        <div *ngIf="!isLoading && attemptsCount >= maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-lg border-2 border-rose-100 dark:border-rose-900/50 text-center max-w-md mx-auto mt-10 animate-fade-in">
+          <div class="w-20 h-20 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-5">
             🔒
           </div>
-          <h2 class="text-2xl font-extrabold text-slate-800 mb-2">{{ t[lang].lockedTitle }}</h2>
-          <p class="text-slate-600 font-semibold mb-8">{{ t[lang].lockedDesc }}</p>
-          <button (click)="goBack()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition shadow-md">
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">{{ t[lang].lockedTitle }}</h2>
+          <p class="text-slate-600 dark:text-slate-300 font-semibold mb-8">{{ t[lang].lockedDesc }}</p>
+          <button (click)="goBack()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
             {{ t[lang].backBtn }}
           </button>
         </div>
 
-        <div *ngIf="!isLoading && questions.length === 0 && attemptsCount < maxAttempts" class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 text-center">
+        <div *ngIf="!isLoading && questions.length === 0 && attemptsCount < maxAttempts" class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
           <span class="text-4xl mb-4 block">🚫</span>
-          <h2 class="text-xl font-bold text-slate-800 mb-2">{{ t[lang].noQuizTitle }}</h2>
+          <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">{{ t[lang].noQuizTitle }}</h2>
           <button (click)="goBack()" class="mt-4 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition">
             {{ t[lang].backBtn }}
           </button>
         </div>
 
-        <div *ngIf="!isLoading && questions.length > 0 && attemptsCount < maxAttempts && !isSubmitted" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-6">
-          <div class="flex items-center justify-between bg-indigo-50 px-4 py-2.5 rounded-xl border border-indigo-100">
-            <span class="text-sm font-bold text-indigo-800">{{ t[lang].attemptsLeft }}:</span>
-            <span class="text-sm font-black text-indigo-600 bg-white px-3 py-1 rounded-lg shadow-sm">{{ maxAttempts - attemptsCount }} / {{ maxAttempts }}</span>
+        <div *ngIf="!isLoading && questions.length > 0 && attemptsCount < maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+          <div class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-950/40 px-4 py-2.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50">
+            <span class="text-sm font-bold text-indigo-800 dark:text-indigo-300">{{ t[lang].attemptsLeft }}:</span>
+            <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-lg shadow-sm">{{ maxAttempts - attemptsCount }} / {{ maxAttempts }}</span>
           </div>
 
-          <div *ngFor="let q of questions; let qIdx = index" class="p-5 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-4">
-            <h3 class="font-bold text-slate-800 text-lg">
-              <span class="text-indigo-600 mr-2">{{ qIdx + 1 }}.</span> {{ q.text }}
+          <div *ngFor="let q of questions; let qIdx = index" class="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 space-y-4">
+            <h3 class="font-bold text-slate-800 dark:text-white text-lg">
+              <span class="text-indigo-600 dark:text-indigo-400 mr-2">{{ qIdx + 1 }}.</span> {{ q.text }}
             </h3>
-            <div *ngIf="q.imageUrl" class="w-full max-w-sm rounded-xl overflow-hidden border border-slate-200 mt-2">
+            <div *ngIf="q.imageUrl" class="w-full max-w-sm rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 mt-2">
               <img [src]="q.imageUrl" class="w-full h-auto object-cover">
             </div>
             <div class="space-y-2 mt-4">
               <label *ngFor="let opt of q.options; let oIdx = index" 
-                     class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:bg-indigo-50"
-                     [ngClass]="userAnswers[qIdx] === oIdx ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-200 bg-white'">
-                <input type="radio" [name]="'q_' + qIdx" [value]="oIdx" [(ngModel)]="userAnswers[qIdx]" class="w-4 h-4 text-indigo-600">
-                <span class="text-sm font-semibold text-slate-700">{{ opt }}</span>
+                     class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:bg-indigo-50 dark:hover:bg-slate-750"
+                     [ngClass]="userAnswers[qIdx] === oIdx ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'">
+                <input type="radio" [name]="'q_' + qIdx" [value]="oIdx" [(ngModel)]="userAnswers[qIdx]" class="w-4 h-4 text-indigo-600 accent-indigo-600">
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ opt }}</span>
               </label>
             </div>
           </div>
 
-          <button (click)="submitQuiz()" [disabled]="!isAllAnswered()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-lg shadow-md transition">
+          <button (click)="submitQuiz()" [disabled]="!isAllAnswered()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-lg shadow-md transition">
             {{ t[lang].submitBtn }}
           </button>
         </div>
 
-        <div *ngIf="isSubmitted" class="bg-white p-8 lg:p-10 rounded-3xl shadow-sm border border-slate-200 animate-fade-in text-center">
-          <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">🎉</div>
+        <div *ngIf="isSubmitted" class="bg-white dark:bg-slate-900 p-8 lg:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 animate-fade-in text-center">
+          <div class="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/50 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">🎉</div>
           
-          <h2 class="text-2xl font-extrabold text-slate-800">{{ t[lang].resultTitle }}</h2>
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white">{{ t[lang].resultTitle }}</h2>
           <div class="flex items-baseline justify-center gap-2 my-6">
-            <span class="text-6xl font-black text-indigo-600">{{ score }}</span>
-            <span class="text-3xl font-bold text-slate-400">/ {{ questions.length }}</span>
+            <span class="text-6xl font-black text-indigo-600 dark:text-indigo-400">{{ score }}</span>
+            <span class="text-3xl font-bold text-slate-400 dark:text-slate-500">/ {{ questions.length }}</span>
           </div>
           
           <div class="text-left rtl:text-right space-y-4 mt-8">
-            <h3 class="font-bold text-slate-700 border-b border-slate-100 pb-3 mb-4">{{ t[lang].reviewAnswers }}</h3>
+            <h3 class="font-bold text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">{{ t[lang].reviewAnswers }}</h3>
             
             <div *ngFor="let q of questions; let qIdx = index" class="p-4 rounded-2xl mb-3 border"
-                 [ngClass]="userAnswers[qIdx] === q.correctIndex ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'">
+                 [ngClass]="userAnswers[qIdx] === q.correctIndex ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800'">
               
-              <p class="font-bold text-slate-800 mb-3">{{ qIdx + 1 }}. {{ q.text }}</p>
+              <p class="font-bold text-slate-800 dark:text-white mb-3">{{ qIdx + 1 }}. {{ q.text }}</p>
               
-              <div *ngIf="userAnswers[qIdx] === q.correctIndex" class="flex items-center gap-2 text-emerald-700 font-bold bg-emerald-100/50 p-2.5 rounded-xl w-fit">
+              <div *ngIf="userAnswers[qIdx] === q.correctIndex" class="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-100/50 dark:bg-emerald-900/40 p-2.5 rounded-xl w-fit">
                 <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs">✓</span>
                 {{ q.options[userAnswers[qIdx]] }}
               </div>
 
-              <div *ngIf="userAnswers[qIdx] !== q.correctIndex" class="flex items-center gap-2 text-rose-700 font-bold bg-rose-100/50 p-2.5 rounded-xl w-fit">
+              <div *ngIf="userAnswers[qIdx] !== q.correctIndex" class="flex items-center gap-2 text-rose-700 dark:text-rose-300 font-bold bg-rose-100/50 dark:bg-rose-900/40 p-2.5 rounded-xl w-fit">
                 <span class="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs">✕</span>
                 {{ q.options[userAnswers[qIdx]] }}
               </div>
@@ -109,7 +109,7 @@ import { LanguageService } from '../services/language.service';
             </div>
           </div>
 
-          <button (click)="goBack()" class="w-full py-4 mt-8 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-2xl transition shadow-md">
+          <button (click)="goBack()" class="w-full py-4 mt-8 bg-slate-800 hover:bg-slate-900 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-bold rounded-2xl transition shadow-md">
             {{ t[lang].finishBtn }}
           </button>
         </div>
