@@ -157,10 +157,10 @@ import { ThemeService } from './services/theme.service';
       </div>
 
       <!-- SIDEBAR -->
-      <aside [ngClass]="[
-               isMobileSidebarOpen ? 'translate-x-0 shadow-2xl' : 'rtl:translate-x-full ltr:-translate-x-full lg:translate-x-0',
-               isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
-               'w-72 fixed lg:static inset-y-0 start-0 z-50 lg:z-30 bg-[#130E35] text-white flex flex-col shrink-0 transition-transform duration-300 h-screen overflow-hidden'
+      <aside class="dashboard-sidebar-drawer bg-[#130E35] text-white flex flex-col shrink-0 h-screen overflow-hidden"
+             [ngClass]="[
+               isMobileSidebarOpen ? 'drawer-open' : 'drawer-closed',
+               isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'
              ]">
         
         <!-- Brand Header -->

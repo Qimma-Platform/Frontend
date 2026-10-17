@@ -47,3 +47,34 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Responsive Drawer for Dashboards (Mobile Drawer vs Desktop Sidebar) */
+@media (max-width: 1023.98px) {
+  .dashboard-sidebar-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    inset-inline-start: 0 !important;
+    width: 18rem !important;
+    z-index: 50 !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  [dir="rtl"] .dashboard-sidebar-drawer.drawer-closed {
+    transform: translateX(100%) !important;
+  }
+  [dir="ltr"] .dashboard-sidebar-drawer.drawer-closed {
+    transform: translateX(-100%) !important;
+  }
+  .dashboard-sidebar-drawer.drawer-open {
+    transform: translateX(0) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-sidebar-drawer {
+    position: static !important;
+    transform: none !important;
+    transition: width 0.3s ease !important;
+  }
+}
