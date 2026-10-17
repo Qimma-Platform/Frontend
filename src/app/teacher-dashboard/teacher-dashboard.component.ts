@@ -77,6 +77,61 @@ import Chart from 'chart.js/auto';
         </div>
       </div>
 
+      <!-- ======================================================== -->
+      <!-- MODAL: ENROLL STUDENT INTO COURSE (Teacher) -->
+      <!-- ======================================================== -->
+      <div *ngIf="showEnrollModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fade-in">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">{{ t[lang].enrollStudentModalTitle }}</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{{ getSelectedCourseTitle() }}</p>
+            </div>
+            <button (click)="showEnrollModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].selectStudentToEnroll }}</label>
+              <div *ngIf="isLoadingAvailableStudents" class="p-3 text-center text-xs text-slate-400">
+                <span class="inline-block w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin align-middle mr-1.5"></span>
+                {{ lang === 'ar' ? 'جاري تحميل قائمة الطلاب...' : 'Loading students...' }}
+              </div>
+              <select *ngIf="!isLoadingAvailableStudents" [(ngModel)]="studentIdToEnroll" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+                <option [ngValue]="null" disabled>{{ t[lang].selectStudentPlaceholder }}</option>
+                <option *ngFor="let s of availablePlatformStudents" [ngValue]="s.id">{{ s.username || s.name }} ({{ s.email }})</option>
+              </select>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+              <button (click)="showEnrollModal = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition text-sm">{{ t[lang].cancel }}</button>
+              <button (click)="submitEnrollStudent()" [disabled]="!studentIdToEnroll || isSubmittingEnroll" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm disabled:opacity-50 text-sm">
+                {{ isSubmittingEnroll ? t[lang].saving : t[lang].enrollBtn }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- MODAL: UNENROLL STUDENT CONFIRMATION (Teacher) -->
+      <!-- ======================================================== -->
+      <div *ngIf="showUnenrollModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-sm transform transition-all animate-scale-in text-center">
+          <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">{{ lang === 'ar' ? 'إلغاء اشتراك الطالب' : 'Remove Student' }}</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8">
+            {{ lang === 'ar' ? ('هل أنت متأكد من رغبتك في إزالة الطالب "' + (enrolleeToUnenroll?.studentName || '') + '" من هذا الكورس؟') : ('Are you sure you want to remove student "' + (enrolleeToUnenroll?.studentName || '') + '" from this course?') }}
+          </p>
+          <div class="flex gap-3">
+            <button (click)="showUnenrollModal = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
+            <button (click)="confirmUnenrollStudent()" [disabled]="isSubmittingEnroll" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-md disabled:opacity-50">
+              {{ isSubmittingEnroll ? t[lang].saving : (lang === 'ar' ? 'نعم، إزالة' : 'Yes, Remove') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- EDIT COURSE MODAL (Matching Add New Schedule Event style) -->
       <div *ngIf="showEditCourseModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
@@ -516,6 +571,18 @@ import Chart from 'chart.js/auto';
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
             <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].myCourses }}</span>
+          </button>
+
+          <button (click)="switchTab('enrollees')" 
+                  [ngClass]="activeTab === 'enrollees' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].enrollees">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].enrollees }}</span>
           </button>
 
           <button (click)="switchTab('students')" 
@@ -1288,7 +1355,7 @@ import Chart from 'chart.js/auto';
                         <span class="dir-ltr font-extrabold">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                       </span>
                     </div>
-                    <div class="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                       <button (click)="onViewCourse(c)" class="flex-1 py-2.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-indigo-200/50 dark:border-indigo-800/50">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
@@ -1296,7 +1363,14 @@ import Chart from 'chart.js/auto';
                         </svg>
                         <span>{{ t[lang].view }}</span>
                       </button>
-                      <button (click)="openDeleteModal(c.id)" class="flex-1 py-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-400 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-rose-200/50 dark:border-rose-800/50" [title]="t[lang].deleteCourseBtn">
+                      <button (click)="openEnrolleesForCourse(c.id)" class="px-3.5 py-2.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0" [title]="t[lang].enrollees">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>{{ t[lang].enrollees }}</span>
+                      </button>
+                      <button (click)="openDeleteModal(c.id)" class="px-3 py-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-400 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 border border-rose-200/50 dark:border-rose-800/50 shrink-0" [title]="t[lang].deleteCourseBtn">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
                         <span>{{ lang === 'ar' ? 'حذف' : 'Delete' }}</span>
                       </button>
@@ -1317,6 +1391,120 @@ import Chart from 'chart.js/auto';
 
             </div>
           </ng-container>
+
+          <!-- ======================================================== -->
+          <!-- TAB: COURSE ENROLLEES MANAGER (Teacher - Matching Image 2) -->
+          <!-- ======================================================== -->
+          <ng-container *ngIf="activeTab === 'enrollees'">
+            <div class="space-y-6 animate-fade-in">
+              
+              <!-- Header Card (Matching Image 2) -->
+              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 lg:p-8 shadow-xs">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 class="text-lg font-black text-slate-900 dark:text-white">{{ t[lang].courseEnrolleesManager }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ t[lang].courseEnrolleesDesc }}</p>
+                  </div>
+
+                  <div class="flex items-center gap-3">
+                    <select [(ngModel)]="selectedCourseIdForEnrollees" (change)="onEnrolleeCourseSelected()" 
+                            class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500">
+                      <option [ngValue]="null" disabled>{{ t[lang].selectCoursePlaceholder }}</option>
+                      <option *ngFor="let c of courses" [ngValue]="c.id">
+                        {{ c.title }} ({{ c.studentsCount || c.enrolledStudentsCount || 0 }} {{ t[lang].studentsCountSuffix }})
+                      </option>
+                    </select>
+
+                    <button *ngIf="selectedCourseIdForEnrollees" (click)="openEnrollStudentModal()" 
+                            class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-xs flex items-center gap-1.5 shrink-0">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                      <span>{{ t[lang].enrollStudent }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State: Course Not Selected -->
+              <div *ngIf="!selectedCourseIdForEnrollees" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center text-slate-400 dark:text-slate-500 font-bold border border-slate-200/80 dark:border-slate-800">
+                {{ t[lang].pleaseSelectCourse }}
+              </div>
+
+              <!-- Enrollees Table Card (Matching Image 2) -->
+              <div *ngIf="selectedCourseIdForEnrollees" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <span>{{ getSelectedEnrolleeCourseTitle() }}</span>
+                  </h4>
+                  <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-black rounded-xl">
+                    {{ courseEnrollees.length }} {{ t[lang].studentsCountSuffix }}
+                  </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-sm" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+                    <thead class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      <tr>
+                        <th class="px-6 py-4">{{ t[lang].student }}</th>
+                        <th class="px-6 py-4">{{ t[lang].email }}</th>
+                        <th class="px-6 py-4">{{ t[lang].phone }}</th>
+                        <th class="px-6 py-4">{{ t[lang].xpPoints }}</th>
+                        <th class="px-6 py-4">{{ t[lang].enrolledAt }}</th>
+                        <th class="px-6 py-4 text-center">{{ t[lang].actions }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                      <tr *ngIf="isLoadingEnrollees" class="text-center">
+                        <td colspan="6" class="px-6 py-12 text-slate-400 dark:text-slate-500 font-bold">
+                          <span class="inline-block w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin align-middle mr-2"></span>
+                          {{ lang === 'ar' ? 'جاري تحميل قائمة الطلاب...' : 'Loading enrollees...' }}
+                        </td>
+                      </tr>
+                      <tr *ngIf="!isLoadingEnrollees && courseEnrollees.length === 0" class="text-center">
+                        <td colspan="6" class="px-6 py-12 text-slate-400 dark:text-slate-500 font-bold">
+                          {{ t[lang].noEnrolleesForCourse }}
+                        </td>
+                      </tr>
+                      <tr *ngFor="let en of courseEnrollees" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                        <td class="px-6 py-4">
+                          <div class="flex items-center gap-3">
+                            <img [src]="en.profileImage ? (en.profileImage.startsWith('http') ? en.profileImage : 'https://qimma.runasp.net' + en.profileImage) : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + en.studentName)" 
+                                 class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
+                            <div>
+                              <p class="font-bold text-slate-900 dark:text-white">{{ en.studentName }}</p>
+                              <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono">ID: #{{ en.studentId }}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono text-xs">{{ en.email }}</td>
+                        <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono text-xs">{{ en.phoneNumber || '—' }}</td>
+                        <td class="px-6 py-4 font-bold text-amber-600 dark:text-amber-400">⚡ {{ en.totalXP || 0 }} XP</td>
+                        <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">{{ formatDateTime(en.enrolledAt) }}</td>
+                        <td class="px-6 py-4 text-center">
+                          <button (click)="openUnenrollConfirm(en)" 
+                                  class="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-bold transition flex items-center gap-1.5 mx-auto">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>{{ t[lang].unenrollBtn }}</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </ng-container>
+
           <ng-container *ngIf="activeTab === 'students'">
             
             <div *ngIf="studentViewMode === 'select-course'" class="animate-fade-in">
@@ -2189,6 +2377,18 @@ export class TeacherDashboardComponent implements OnInit {
   showDeleteModal = false;
   courseToDeleteId: number | null = null;
   
+  // Course Enrollees Management
+  selectedCourseIdForEnrollees: number | null = null;
+  courseEnrollees: any[] = [];
+  availablePlatformStudents: any[] = [];
+  isLoadingEnrollees = false;
+  isLoadingAvailableStudents = false;
+  showEnrollModal = false;
+  studentIdToEnroll: number | null = null;
+  isSubmittingEnroll = false;
+  showUnenrollModal = false;
+  enrolleeToUnenroll: any = null;
+  
   isLoading = true;
   isLoadingDashboard = true; 
   isLoadingTopMetrics = true;
@@ -2357,7 +2557,24 @@ export class TeacherDashboardComponent implements OnInit {
       days7: '7 Days',
       days30: '30 Days',
       year1: '1 Year',
-      allTime: 'All Time'
+      allTime: 'All Time',
+      enrollees: 'Enrollees',
+      courseEnrolleesManager: 'Course Enrollees Manager',
+      courseEnrolleesDesc: 'View and manage real-time active students enrolled in any selected course.',
+      selectCoursePlaceholder: 'Select a Course...',
+      studentsCountSuffix: 'students',
+      enrollStudent: '+ Enroll Student',
+      pleaseSelectCourse: 'Please select a course to view and manage its enrolled students.',
+      student: 'STUDENT',
+      xpPoints: 'XP POINTS',
+      enrolledAt: 'ENROLLED DATE',
+      actions: 'ACTIONS',
+      noEnrolleesForCourse: 'No students enrolled in this course yet.',
+      unenrollBtn: 'Remove Student',
+      enrollStudentModalTitle: 'Enroll Student into Course',
+      selectStudentToEnroll: 'Select Student',
+      selectStudentPlaceholder: 'Choose a student from the platform...',
+      enrollBtn: 'Enroll Student'
     },
     ar: {
       brand: 'قِمَّـة', menu: 'القائمة الرئيسية', dashboard: 'الرئيسية', myCourses: 'إدارة الكورسات',
@@ -2411,7 +2628,24 @@ export class TeacherDashboardComponent implements OnInit {
       days7: '7 أيام',
       days30: '30 يوم',
       year1: 'سنة واحدة',
-      allTime: 'كل الأوقات'
+      allTime: 'كل الأوقات',
+      enrollees: 'الطلاب المسجلين',
+      courseEnrolleesManager: 'إدارة الطلاب المسجلين بالكورس',
+      courseEnrolleesDesc: 'عرض وإدارة الطلاب المسجلين فعلياً في أي كورس محدد في الوقت الحقيقي.',
+      selectCoursePlaceholder: 'اختر الكورس...',
+      studentsCountSuffix: 'طلاب',
+      enrollStudent: '+ إضافة طالب',
+      pleaseSelectCourse: 'يرجى اختيار أحد الكورسات لعرض وإدارة الطلاب المسجلين به.',
+      student: 'الطالب',
+      xpPoints: 'نقاط XP',
+      enrolledAt: 'تاريخ التسجيل',
+      actions: 'الإجراءات',
+      noEnrolleesForCourse: 'لا يوجد طلاب مسجلون في هذا الكورس حتى الآن.',
+      unenrollBtn: 'إلغاء الاشتراك',
+      enrollStudentModalTitle: 'تسجيل طالب في الكورس',
+      selectStudentToEnroll: 'اختر الطالب',
+      selectStudentPlaceholder: 'اختر طالباً من المنصة...',
+      enrollBtn: 'تسجيل الطالب'
     }
   };
 
@@ -2483,6 +2717,17 @@ export class TeacherDashboardComponent implements OnInit {
          this.fetchSchedule();
       }
 
+      if (tab === 'enrollees') {
+         if (params['courseId']) {
+           this.selectedCourseIdForEnrollees = +params['courseId'];
+         }
+         if (!this.selectedCourseIdForEnrollees && this.courses.length > 0) {
+           this.selectedCourseIdForEnrollees = this.courses[0].id;
+         }
+         this.loadCourseEnrollees();
+         this.loadAvailableStudents();
+      }
+
       if (this.courses.length === 0) {
          this.loadMyCourses();
       }
@@ -2523,6 +2768,13 @@ export class TeacherDashboardComponent implements OnInit {
     this.searchQuery = '';
     if (tab === 'students') {
        this.router.navigate(['/teacher-dashboard'], { queryParams: { tab: tab, view: 'select-course' } });
+    } else if (tab === 'enrollees') {
+       if (!this.selectedCourseIdForEnrollees && this.courses.length > 0) {
+         this.selectedCourseIdForEnrollees = this.courses[0].id;
+       }
+       this.router.navigate(['/teacher-dashboard'], { queryParams: { tab: tab } });
+       this.loadCourseEnrollees();
+       this.loadAvailableStudents();
     } else {
        this.router.navigate(['/teacher-dashboard'], { queryParams: { tab: tab } });
     }
@@ -4292,6 +4544,122 @@ export class TeacherDashboardComponent implements OnInit {
   getEssayCount(assignment: any): number {
     if (!assignment || !assignment.answers) return 0;
     return assignment.answers.filter((a: any) => a.type !== 'mcq').length;
+  }
+
+  // ==========================================
+  // COURSE ENROLLEES MANAGEMENT (Image 2)
+  // ==========================================
+  openEnrolleesForCourse(courseId: number) {
+    this.selectedCourseIdForEnrollees = courseId;
+    this.activeTab = 'enrollees';
+    this.router.navigate(['/teacher-dashboard'], { queryParams: { tab: 'enrollees', courseId } });
+    this.loadCourseEnrollees();
+    this.loadAvailableStudents();
+  }
+
+  onEnrolleeCourseSelected() {
+    this.loadCourseEnrollees();
+  }
+
+  getSelectedEnrolleeCourseTitle(): string {
+    if (!this.selectedCourseIdForEnrollees) return '';
+    const course = this.courses.find(c => c.id === this.selectedCourseIdForEnrollees);
+    return course ? course.title : '';
+  }
+
+  loadCourseEnrollees() {
+    if (!this.selectedCourseIdForEnrollees) return;
+    this.isLoadingEnrollees = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.get<any[]>(`https://qimma.runasp.net/api/instructor/dashboard/courses/${this.selectedCourseIdForEnrollees}/enrollees`, { headers }).subscribe({
+      next: (res) => {
+        this.courseEnrollees = res || [];
+        this.isLoadingEnrollees = false;
+      },
+      error: () => {
+        this.isLoadingEnrollees = false;
+        this.showMessage(this.lang === 'ar' ? 'فشل تحميل قائمة الطلاب المسجلين' : 'Failed to load enrollees', 'error');
+      }
+    });
+  }
+
+  loadAvailableStudents() {
+    if (this.availablePlatformStudents.length > 0) return;
+    this.isLoadingAvailableStudents = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.get<any[]>('https://qimma.runasp.net/api/instructor/dashboard/students/available', { headers }).subscribe({
+      next: (res) => {
+        this.availablePlatformStudents = res || [];
+        this.isLoadingAvailableStudents = false;
+      },
+      error: () => {
+        this.isLoadingAvailableStudents = false;
+      }
+    });
+  }
+
+  openEnrollStudentModal() {
+    this.studentIdToEnroll = null;
+    this.showEnrollModal = true;
+    this.loadAvailableStudents();
+  }
+
+  submitEnrollStudent() {
+    if (!this.selectedCourseIdForEnrollees || !this.studentIdToEnroll) return;
+    this.isSubmittingEnroll = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.post(`https://qimma.runasp.net/api/instructor/dashboard/courses/${this.selectedCourseIdForEnrollees}/enroll`, 
+      { studentId: this.studentIdToEnroll }, 
+      { headers }
+    ).subscribe({
+      next: () => {
+        this.isSubmittingEnroll = false;
+        this.showEnrollModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم تسجيل الطالب في الكورس بنجاح' : 'Student enrolled successfully.', 'success');
+        this.loadCourseEnrollees();
+        this.loadMyCourses();
+        this.loadDashboardStats();
+      },
+      error: (err) => {
+        this.isSubmittingEnroll = false;
+        const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء تسجيل الطالب' : 'Error enrolling student');
+        this.showMessage(errMsg, 'error');
+      }
+    });
+  }
+
+  openUnenrollConfirm(enrollee: any) {
+    this.enrolleeToUnenroll = enrollee;
+    this.showUnenrollModal = true;
+  }
+
+  confirmUnenrollStudent() {
+    if (!this.selectedCourseIdForEnrollees || !this.enrolleeToUnenroll) return;
+    this.isSubmittingEnroll = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.delete(`https://qimma.runasp.net/api/instructor/dashboard/courses/${this.selectedCourseIdForEnrollees}/enroll/${this.enrolleeToUnenroll.studentId}`, { headers }).subscribe({
+      next: () => {
+        this.isSubmittingEnroll = false;
+        this.showUnenrollModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم إلغاء اشتراك الطالب بنجاح' : 'Student removed successfully.', 'success');
+        this.loadCourseEnrollees();
+        this.loadMyCourses();
+        this.loadDashboardStats();
+      },
+      error: (err) => {
+        this.isSubmittingEnroll = false;
+        const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء إلغاء اشتراك الطالب' : 'Error removing student');
+        this.showMessage(errMsg, 'error');
+      }
+    });
   }
 
   logout() {

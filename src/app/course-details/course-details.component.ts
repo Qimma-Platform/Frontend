@@ -175,14 +175,22 @@ import { PaymentService } from '../services/payment.service';
             </div>
             <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wider">{{ t[lang].coursePrice }}</h3>
             <p class="text-4xl font-black text-slate-900 dark:text-white mb-6 flex justify-center items-center gap-1">
-              {{ course?.price || '0' }} <span class="text-base text-slate-500 dark:text-slate-400 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+              <ng-container *ngIf="course?.isFree">
+                {{ lang === 'ar' ? 'مجاني' : 'Free' }}
+              </ng-container>
+              <ng-container *ngIf="!course?.isFree">
+                {{ getEffectivePrice() }} <span class="text-base text-slate-500 dark:text-slate-400 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                <span *ngIf="course?.discountPercentage > 0" class="text-sm line-through text-slate-400 font-medium ml-2 mr-2">
+                  {{ course?.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}
+                </span>
+              </ng-container>
             </p>
-            <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-2xl transition shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-70 flex justify-center items-center gap-2">
+            <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-bold rounded-xl transition shadow-md shadow-indigo-600/20 disabled:opacity-70 flex justify-center items-center gap-2 cursor-pointer">
               <svg *ngIf="isProcessingPayment" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ isProcessingPayment ? t[lang].processingPayment : t[lang].buyNow }}
+              {{ isProcessingPayment ? t[lang].processingPayment : (course?.isFree ? (lang === 'ar' ? 'ابدأ التعلم الآن' : 'Start Learning Now') : t[lang].buyNow) }}
             </button>
           </div>
         </div>
@@ -306,6 +314,168 @@ import { PaymentService } from '../services/payment.service';
         </div>
       </div>
 
+      <!-- ======================================================== -->
+      <!-- PAYMENT METHODS MODAL (InstaPay, Vodafone Cash, Paymob) -->
+      <!-- ======================================================== -->
+      <div *ngIf="showPaymentModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 animate-fade-in" (click)="closePaymentModal()">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-scale-in text-start" (click)="$event.stopPropagation()">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <h3 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>💳</span>
+                <span>{{ lang === 'ar' ? 'اختر وسيلة الدفع المناسبة' : 'Choose Payment Method' }}</span>
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {{ course?.title }} • <strong class="text-indigo-600 dark:text-indigo-400">{{ getEffectivePrice() }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</strong>
+              </p>
+            </div>
+            <button (click)="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
+          </div>
+
+          <!-- Method Selector Tabs -->
+          <div class="grid grid-cols-3 gap-2 my-5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
+            <button (click)="selectedPaymentMethod = 'instapay'"
+                    [ngClass]="selectedPaymentMethod === 'instapay' ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
+                    class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+              <span class="text-base">⚡</span>
+              <span>{{ lang === 'ar' ? 'إنستاباي' : 'InstaPay' }}</span>
+            </button>
+            <button (click)="selectedPaymentMethod = 'vodafone'"
+                    [ngClass]="selectedPaymentMethod === 'vodafone' ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
+                    class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+              <span class="text-base">🔴</span>
+              <span>{{ lang === 'ar' ? 'فودافون كاش' : 'Vodafone' }}</span>
+            </button>
+            <button (click)="selectedPaymentMethod = 'paymob'"
+                    [ngClass]="selectedPaymentMethod === 'paymob' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
+                    class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
+              <span class="text-base">💳</span>
+              <span>Paymob</span>
+            </button>
+          </div>
+
+          <!-- Content: InstaPay -->
+          <div *ngIf="selectedPaymentMethod === 'instapay'" class="space-y-4 animate-fade-in">
+            <div class="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/70 dark:border-purple-900/50">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider block mb-1">
+                    {{ lang === 'ar' ? 'رقم التحويل عبر إنستاباي' : 'InstaPay Transfer Number' }}
+                  </span>
+                  <p class="text-2xl font-black font-mono text-purple-900 dark:text-purple-200 tracking-wider dir-ltr select-all">01212196331</p>
+                </div>
+                <button (click)="copyToClipboard('01212196331')" 
+                        class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>{{ copiedNumber ? (lang === 'ar' ? 'تم النسخ!' : 'Copied!') : (lang === 'ar' ? 'نسخ' : 'Copy') }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <p class="font-bold text-slate-800 dark:text-slate-200">{{ lang === 'ar' ? 'تعليمات تفعيل الكورس:' : 'Activation Instructions:' }}</p>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
+                <p>{{ lang === 'ar' ? 'قم بالتحويل أولاً عبر تطبيق إنستاباي إلى الرقم أعلاه (01212196331) بالمبلغ المطلوب (' + getEffectivePrice() + ' ج.م).' : 'Transfer ' + getEffectivePrice() + ' EGP via InstaPay to the number above (01212196331).' }}</p>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-[11px] shrink-0">2</span>
+                <p>{{ lang === 'ar' ? 'التقط سكرين شوت (لقطة شاشة) واضحة لعملية التحويل الناجحة.' : 'Take a clear screenshot of the successful transfer receipt.' }}</p>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-[11px] shrink-0">3</span>
+                <p>{{ lang === 'ar' ? 'أرسل اسمك والبريد الإلكتروني المسجلين بالمنصة مع سكرين شوت التحويل إلى رقم الواتساب: 01020653195 لتفعيل حسابك فوراً.' : 'Send your name & registered email along with the receipt screenshot to WhatsApp: 01020653195 for instant activation.' }}</p>
+              </div>
+            </div>
+
+            <a [href]="getWhatsAppUrl('instapay')" target="_blank" 
+               class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
+              </svg>
+              <span>{{ lang === 'ar' ? 'إرسال السكرين شوت عبر واتساب' : 'Send Screenshot via WhatsApp' }}</span>
+            </a>
+          </div>
+
+          <!-- Content: Vodafone Cash -->
+          <div *ngIf="selectedPaymentMethod === 'vodafone'" class="space-y-4 animate-fade-in">
+            <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-900/50">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider block mb-1">
+                    {{ lang === 'ar' ? 'رقم التحويل عبر فودافون كاش' : 'Vodafone Cash Transfer Number' }}
+                  </span>
+                  <p class="text-2xl font-black font-mono text-rose-900 dark:text-rose-200 tracking-wider dir-ltr select-all">01020653195</p>
+                </div>
+                <button (click)="copyToClipboard('01020653195')" 
+                        class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>{{ copiedNumber ? (lang === 'ar' ? 'تم النسخ!' : 'Copied!') : (lang === 'ar' ? 'نسخ' : 'Copy') }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <p class="font-bold text-slate-800 dark:text-slate-200">{{ lang === 'ar' ? 'تعليمات تفعيل الكورس:' : 'Activation Instructions:' }}</p>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
+                <p>{{ lang === 'ar' ? 'قم بالتحويل أولاً عبر فودافون كاش إلى الرقم أعلاه (01020653195) بالمبلغ المطلوب (' + getEffectivePrice() + ' ج.م).' : 'Transfer ' + getEffectivePrice() + ' EGP via Vodafone Cash to the number above (01020653195).' }}</p>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 flex items-center justify-center font-bold text-[11px] shrink-0">2</span>
+                <p>{{ lang === 'ar' ? 'التقط سكرين شوت (لقطة شاشة) واضحة لرسالة أو إشعار التحويل الناجح.' : 'Take a clear screenshot of the transfer message or confirmation.' }}</p>
+              </div>
+              <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span class="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 flex items-center justify-center font-bold text-[11px] shrink-0">3</span>
+                <p>{{ lang === 'ar' ? 'أرسل اسمك والبريد الإلكتروني المسجلين بالمنصة مع سكرين شوت التحويل إلى رقم الواتساب: 01020653195 لتفعيل حسابك فوراً.' : 'Send your name & registered email along with the receipt screenshot to WhatsApp: 01020653195 for instant activation.' }}</p>
+              </div>
+            </div>
+
+            <a [href]="getWhatsAppUrl('vodafone')" target="_blank" 
+               class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
+              </svg>
+              <span>{{ lang === 'ar' ? 'إرسال السكرين شوت عبر واتساب' : 'Send Screenshot via WhatsApp' }}</span>
+            </a>
+          </div>
+
+          <!-- Content: Paymob -->
+          <div *ngIf="selectedPaymentMethod === 'paymob'" class="space-y-4 animate-fade-in">
+            <div class="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-900/50 text-center">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-indigo-600/30">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+              </div>
+              <h4 class="font-extrabold text-sm text-slate-900 dark:text-white mb-1">
+                {{ lang === 'ar' ? 'الدفع الإلكتروني الفوري' : 'Instant Online Payment' }}
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                {{ lang === 'ar' ? 'ادفع بأمان بواسطة الفيزا أو الماستركارد أو كروت ميزة أو المحافظ الإلكترونية. سيتم فتح الكورس تلقائياً وفوراً في حسابك فور إتمام العملية.' : 'Pay securely via Credit Card, Debit Card, Meeza, or Mobile Wallets. Instant automatic enrollment upon completion.' }}
+              </p>
+            </div>
+
+            <button (click)="payWithPaymob()" [disabled]="isProcessingPayment" 
+                    class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-50">
+              <span *ngIf="isProcessingPayment" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>{{ isProcessingPayment ? (lang === 'ar' ? 'جاري التحويل...' : 'Redirecting...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   `
 })
@@ -317,6 +487,12 @@ export class CourseDetailsComponent implements OnInit {
   isLoading = true;
   isUploadingVideo = false;
   videoSourceType: 'upload' | 'url' = 'upload';
+
+  showPaymentModal = false;
+  selectedPaymentMethod: 'instapay' | 'vodafone' | 'paymob' = 'instapay';
+  copiedNumber = false;
+  userName = '';
+  userEmail = '';
 
   message = '';
   messageType: 'success' | 'error' = 'success';
@@ -413,6 +589,20 @@ export class CourseDetailsComponent implements OnInit {
       this.courseId = +params['id'];
       this.loadCourseData();
     });
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      this.http.get<any>('https://qimma.runasp.net/api/user/profile', { headers }).subscribe({
+        next: (profile) => {
+          if (profile) {
+            this.userName = profile.username || profile.name || '';
+            this.userEmail = profile.email || '';
+          }
+        },
+        error: () => {}
+      });
+    }
 
     this.minDate = this.getLocalDateTimeString();
   }
@@ -695,7 +885,48 @@ export class CourseDetailsComponent implements OnInit {
     });
   }
 
+  getEffectivePrice(): number {
+    if (!this.course) return 0;
+    if (this.course.isFree) return 0;
+    if (this.course.discountPercentage > 0) {
+      return Math.round(this.course.price - (this.course.price * this.course.discountPercentage / 100));
+    }
+    return this.course.price || 0;
+  }
+
   enrollInCourse() {
+    if (this.course?.isFree) {
+      this.payWithPaymob();
+    } else {
+      this.showPaymentModal = true;
+    }
+  }
+
+  closePaymentModal() {
+    this.showPaymentModal = false;
+    this.copiedNumber = false;
+  }
+
+  copyToClipboard(num: string) {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(num);
+      this.copiedNumber = true;
+      setTimeout(() => this.copiedNumber = false, 2500);
+    }
+  }
+
+  getWhatsAppUrl(method: 'instapay' | 'vodafone'): string {
+    const methodText = method === 'instapay' ? (this.lang === 'ar' ? 'إنستاباي' : 'InstaPay') : (this.lang === 'ar' ? 'فودافون كاش' : 'Vodafone Cash');
+    const courseTitle = this.course?.title || '';
+    const name = this.userName || '';
+    const email = this.userEmail || '';
+    const text = this.lang === 'ar'
+      ? `مرحباً، قمت بتحويل رسوم الاشتراك لكورس "${courseTitle}" عبر ${methodText}.%0Aالاسم: ${name}%0Aالبريد الإلكتروني: ${email}%0A(مرفق سكرين شوت التحويل)`
+      : `Hello, I transferred the enrollment fee for course "${courseTitle}" via ${methodText}.%0AName: ${name}%0AEmail: ${email}%0A(Transfer screenshot attached)`;
+    return `https://wa.me/201020653195?text=${text}`;
+  }
+
+  payWithPaymob() {
     this.isProcessingPayment = true;
     this.paymentService.checkoutCourse(this.courseId).subscribe({
       next: (response: any) => {
@@ -704,7 +935,7 @@ export class CourseDetailsComponent implements OnInit {
         if (url) {
           window.open(url, '_blank');
         } else {
-          this.showMessage('رابط الدفع غير موجود في الاستجابة', 'error');
+          this.showMessage(this.lang === 'ar' ? 'رابط الدفع غير موجود في الاستجابة' : 'Checkout URL not found', 'error');
         }
       },
       error: () => {
