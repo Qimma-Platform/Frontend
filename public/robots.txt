@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /browse
+Allow: /course-catalog
+Allow: /login
+
+Disallow: /student-dashboard
+Disallow: /teacher-dashboard
+Disallow: /admin-dashboard
+Disallow: /reset-password
+Disallow: /learn/
+
+Sitemap: https://qimma-academy.vercel.app/sitemap.xml

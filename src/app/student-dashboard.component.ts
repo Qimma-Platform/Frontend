@@ -150,31 +150,47 @@ import { ThemeService } from './services/theme.service';
         </div>
       </div>
 
-      <!-- SIDEBAR: STRICTLY FIXED AND DOES NOT SCROLL WITH PAGE -->
-      <aside [ngClass]="isSidebarCollapsed ? 'w-20' : 'w-72'" 
-             class="bg-[#130E35] text-white flex flex-col shrink-0 transition-all duration-300 relative z-30 shadow-2xl h-screen overflow-hidden">
+      <!-- Mobile Backdrop Overlay -->
+      <div *ngIf="isMobileSidebarOpen" 
+           (click)="isMobileSidebarOpen = false" 
+           class="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden animate-fade-in cursor-pointer">
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside [ngClass]="[
+               isMobileSidebarOpen ? 'translate-x-0 shadow-2xl' : 'rtl:translate-x-full ltr:-translate-x-full lg:translate-x-0',
+               isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+               'w-72 fixed lg:static inset-y-0 start-0 z-50 lg:z-30 bg-[#130E35] text-white flex flex-col shrink-0 transition-transform duration-300 h-screen overflow-hidden'
+             ]">
         
         <!-- Brand Header -->
         <div class="h-20 flex items-center px-6 border-b border-white/10 gap-3 justify-between shrink-0">
-          <div (click)="switchTab('dashboard')" class="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-90 transition group" *ngIf="!isSidebarCollapsed" title="Qimma Dashboard">
+          <div (click)="switchTab('dashboard')" class="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-90 transition group" *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" title="Qimma Dashboard">
             <img src="assets/images/qimma-round.jpg" alt="Qimma Logo" class="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-indigo-500/30 shrink-0 border border-white/20">
             <div>
               <h1 class="font-black text-lg leading-tight tracking-wide text-white group-hover:text-indigo-300 transition">{{ t[lang].brand }}</h1>
               <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">{{ t[lang].studentPortal }}</p>
             </div>
           </div>
+          <!-- Desktop Toggle -->
           <button (click)="toggleSidebar()" 
-                  class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition shrink-0"
+                  class="hidden lg:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 items-center justify-center text-slate-300 hover:text-white transition shrink-0"
                   [title]="isSidebarCollapsed ? (lang === 'ar' ? 'توسيع القائمة' : 'Expand Sidebar') : (lang === 'ar' ? 'طي القائمة' : 'Collapse Sidebar')">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path *ngIf="!isSidebarCollapsed" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
               <path *ngIf="isSidebarCollapsed" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
             </svg>
           </button>
+          <!-- Mobile Close -->
+          <button (click)="isMobileSidebarOpen = false" 
+                  aria-label="Close menu"
+                  class="lg:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-base font-bold shrink-0 transition cursor-pointer">
+            ✕
+          </button>
         </div>
 
         <!-- Student Profile Pill -->
-        <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
+        <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">
           <div class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
               <img *ngIf="userData?.profileImage" [src]="'https://qimma.runasp.net' + userData.profileImage" class="w-full h-full object-cover">
@@ -195,7 +211,7 @@ import { ThemeService } from './services/theme.service';
           <button (click)="switchTab('dashboard')" 
                   [ngClass]="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].dashboard">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="9" rx="1"></rect>
@@ -203,25 +219,25 @@ import { ThemeService } from './services/theme.service';
               <rect x="14" y="12" width="7" height="9" rx="1"></rect>
               <rect x="3" y="16" width="7" height="5" rx="1"></rect>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].dashboard }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].dashboard }}</span>
           </button>
 
           <button (click)="switchTab('browse')" 
                   [ngClass]="activeTab === 'browse' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].browseCourses">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].browseCourses }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].browseCourses }}</span>
           </button>
 
           <button (click)="switchTab('schedule')" 
                   [ngClass]="activeTab === 'schedule' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].schedule">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -229,44 +245,44 @@ import { ThemeService } from './services/theme.service';
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].schedule }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].schedule }}</span>
           </button>
 
           <button (click)="switchTab('assignments')" 
                   [ngClass]="activeTab === 'assignments' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].assignments">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
               <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
               <path d="M9 14l2 2 4-4"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].assignments }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].assignments }}</span>
           </button>
 
           <button (click)="switchTab('support')" 
                   [ngClass]="activeTab === 'support' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].support">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
               <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].support }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].support }}</span>
           </button>
 
           <button (click)="openSettings()" 
                   [ngClass]="(activeTab === 'settings' || showSettingsModal) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].accountSettings">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].accountSettings }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].accountSettings }}</span>
           </button>
         </nav>
 
@@ -274,33 +290,35 @@ import { ThemeService } from './services/theme.service';
         <div class="p-4 border-t border-white/10 shrink-0">
           <button (click)="logout()" 
                   class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-xs transition"
-                  [class.justify-center]="isSidebarCollapsed"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
                   [title]="t[lang].logout">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].logout }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].logout }}</span>
           </button>
         </div>
       </aside>
 
       <!-- Main Content Wrapper -->
       <div class="flex-1 h-screen flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-        <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-6 lg:px-10 flex items-center justify-between shrink-0 shadow-sm z-10">
-          <div class="flex items-center gap-3">
-            <button (click)="toggleSidebar()" class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
+        <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 lg:px-10 flex items-center justify-between shrink-0 shadow-sm z-10">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button (click)="isMobileSidebarOpen = !isMobileSidebarOpen" 
+                    aria-label="Toggle navigation menu"
+                    class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 cursor-pointer">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             </button>
-            <h2 class="text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+            <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
               {{ getTabTitle() }}
             </h2>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>{{ t[lang].systemStatusOk }}</span>
             </span>
@@ -1276,6 +1294,7 @@ export class StudentDashboardComponent implements OnInit {
 
   currentTeacherProfile: any = null;
   isSidebarCollapsed: boolean = false;
+  isMobileSidebarOpen: boolean = false;
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
@@ -1588,6 +1607,7 @@ export class StudentDashboardComponent implements OnInit {
 
   switchTab(tab: 'dashboard' | 'browse' | 'schedule' | 'assignments' | 'teacherProfile' | 'support' | 'settings') {
     this.searchQuery = '';
+    this.isMobileSidebarOpen = false;
     this.router.navigate([], { queryParams: { tab: tab } });
   }
 
@@ -2311,6 +2331,7 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   openSettings() {
+    this.isMobileSidebarOpen = false;
     this.editProfileData = {
       fullName: this.userData?.username || '',
       email: this.userData?.email || '',

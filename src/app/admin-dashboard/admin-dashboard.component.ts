@@ -131,30 +131,47 @@ interface AdminNotification {
         <span class="text-sm tracking-wide">{{ toastMessage }}</span>
       </div>
 
-      <!-- SIDEBAR: STRICTLY FIXED AND DOES NOT SCROLL WITH PAGE -->
-      <aside [ngClass]="isSidebarCollapsed ? 'w-20' : 'w-72'" 
-             class="bg-[#130E35] text-white flex flex-col shrink-0 transition-all duration-300 relative z-30 shadow-2xl h-screen overflow-hidden">
+      <!-- Mobile Backdrop Overlay -->
+      <div *ngIf="isMobileSidebarOpen" 
+           (click)="isMobileSidebarOpen = false" 
+           class="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden animate-fade-in cursor-pointer">
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside [ngClass]="[
+               isMobileSidebarOpen ? 'translate-x-0 shadow-2xl' : 'rtl:translate-x-full ltr:-translate-x-full lg:translate-x-0',
+               isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+               'w-72 fixed lg:static inset-y-0 start-0 z-50 lg:z-30 bg-[#130E35] text-white flex flex-col shrink-0 transition-transform duration-300 h-screen overflow-hidden'
+             ]">
         
         <!-- Brand Header -->
         <div class="h-20 flex items-center px-6 border-b border-white/10 gap-3 justify-between shrink-0">
-          <div (click)="switchTab('overview')" class="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-90 transition group" *ngIf="!isSidebarCollapsed" title="Qimma Dashboard">
+          <div (click)="switchTab('overview')" class="flex items-center gap-3 overflow-hidden cursor-pointer hover:opacity-90 transition group" *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" title="Qimma Dashboard">
             <img src="assets/images/qimma-round.jpg" alt="Qimma Logo" class="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-indigo-500/30 shrink-0 border border-white/20">
             <div>
               <h1 class="font-black text-lg leading-tight tracking-wide text-white group-hover:text-indigo-300 transition">{{ lang === 'ar' ? 'قِمَّـة' : 'Qimma' }}</h1>
               <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">{{ t[lang].adminPanel }}</p>
             </div>
           </div>
+          <!-- Desktop Toggle -->
           <button (click)="toggleSidebar()" 
-                  class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition shrink-0">
+                  class="hidden lg:flex w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 items-center justify-center text-slate-300 hover:text-white transition shrink-0"
+                  [title]="isSidebarCollapsed ? (lang === 'ar' ? 'توسيع القائمة' : 'Expand Sidebar') : (lang === 'ar' ? 'طي القائمة' : 'Collapse Sidebar')">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path *ngIf="!isSidebarCollapsed" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
               <path *ngIf="isSidebarCollapsed" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
             </svg>
           </button>
+          <!-- Mobile Close -->
+          <button (click)="isMobileSidebarOpen = false" 
+                  aria-label="Close menu"
+                  class="lg:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-base font-bold shrink-0 transition cursor-pointer">
+            ✕
+          </button>
         </div>
 
         <!-- Admin Profile Pill -->
-        <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
+        <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">
           <div (click)="switchTab('settings')" class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition" [title]="t[lang].accountSettings">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
               <img *ngIf="adminProfile?.profileImage" [src]="'https://qimma.runasp.net' + adminProfile!.profileImage" class="w-full h-full object-cover">
@@ -176,77 +193,91 @@ interface AdminNotification {
           <!-- 1. Overview Tab -->
           <button (click)="switchTab('overview')" 
                   [ngClass]="activeTab === 'overview' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].overview">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="9" rx="1"></rect>
               <rect x="14" y="3" width="7" height="5" rx="1"></rect>
               <rect x="14" y="12" width="7" height="9" rx="1"></rect>
               <rect x="3" y="16" width="7" height="5" rx="1"></rect>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].overview }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].overview }}</span>
           </button>
 
           <!-- 2. Students Tab -->
           <button (click)="switchTab('students')" 
                   [ngClass]="activeTab === 'students' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].students">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
               <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].students }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].students }}</span>
           </button>
 
           <!-- 3. Instructors Tab -->
           <button (click)="switchTab('instructors')" 
                   [ngClass]="activeTab === 'instructors' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].instructors">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].instructors }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].instructors }}</span>
           </button>
 
           <!-- 4. Courses Tab (Grouped by Instructor view first) -->
           <button (click)="switchTab('courses', { courseView: 'instructors' })" 
                   [ngClass]="activeTab === 'courses' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].courses">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].courses }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].courses }}</span>
           </button>
 
           <!-- 5. Course Enrollees Tab -->
           <button (click)="switchTab('enrollees')" 
                   [ngClass]="activeTab === 'enrollees' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].courseEnrollees">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].courseEnrollees }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].courseEnrollees }}</span>
           </button>
 
           <!-- 6. Paid Students Tab (New requirement 5) -->
           <button (click)="switchTab('paid-students')" 
                   [ngClass]="activeTab === 'paid-students' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].paidStudents">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
               <line x1="1" y1="10" x2="23" y2="10"></line>
             </svg>
-            <span *ngIf="!isSidebarCollapsed" class="truncate">{{ t[lang].paidStudents }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].paidStudents }}</span>
           </button>
 
           <!-- 7. Audit Logs Tab -->
           <button (click)="switchTab('logs')" 
                   [ngClass]="activeTab === 'logs' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].auditLogs">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
@@ -254,18 +285,20 @@ interface AdminNotification {
               <line x1="16" y1="17" x2="8" y2="17"></line>
               <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].auditLogs }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].auditLogs }}</span>
           </button>
 
           <!-- 8. Account Settings Tab (New requirement 8) -->
           <button (click)="switchTab('settings')" 
                   [ngClass]="activeTab === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].accountSettings">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].accountSettings }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].accountSettings }}</span>
           </button>
 
         </nav>
@@ -273,13 +306,15 @@ interface AdminNotification {
         <!-- Bottom Actions (Log Out directly placed below sections like teacher/student dashboard, NO language switcher here) -->
         <div class="p-4 border-t border-white/10 shrink-0">
           <button (click)="logout()" 
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-xs transition">
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-xs transition"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].logout">
             <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            <span *ngIf="!isSidebarCollapsed">{{ t[lang].logout }}</span>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen">{{ t[lang].logout }}</span>
           </button>
         </div>
       </aside>
@@ -288,12 +323,21 @@ interface AdminNotification {
       <div class="flex-1 h-screen flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
         
         <!-- TOP APP BAR -->
-        <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-6 lg:px-10 flex items-center justify-between shrink-0 shadow-sm z-10">
-          <div class="flex items-center gap-3">
-            <h2 class="text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+        <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 lg:px-10 flex items-center justify-between shrink-0 shadow-sm z-10">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button (click)="isMobileSidebarOpen = !isMobileSidebarOpen" 
+                    aria-label="Toggle navigation menu"
+                    class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
               {{ getTabTitle() }}
             </h2>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>{{ t[lang].systemStatusOk }}</span>
             </span>
@@ -322,13 +366,13 @@ interface AdminNotification {
 
             <!-- Language Switcher in Header -->
             <button (click)="toggleLanguage()" 
-                    class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition flex items-center gap-2">
-              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    class="px-2.5 sm:px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="2" y1="12" x2="22" y2="12"></line>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
               </svg>
-              <span>{{ lang === 'ar' ? 'English' : 'العربية' }}</span>
+              <span>{{ lang === 'ar' ? 'EN' : 'عربي' }}</span>
             </button>
 
             <!-- NOTIFICATION BELL (Req 5) -->
@@ -2180,6 +2224,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   apiUrl = 'https://qimma.runasp.net/api/admin';
   lang: 'en' | 'ar' = 'en';
   isSidebarCollapsed = false;
+  isMobileSidebarOpen = false;
   activeTab = 'overview';
   isLoading = false;
   isSubmitting = false;
@@ -2910,6 +2955,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   // NAVIGATION FLOW OPTIMIZATION (Req 2 & Req 7):
   switchTab(tab: string, extraParams: any = {}) {
+    this.isMobileSidebarOpen = false;
     this.clearAllSearches();
     if (tab !== 'enrollees' || !extraParams.courseId) {
       this.selectedCourseIdForEnrollees = null;

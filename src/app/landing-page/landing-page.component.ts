@@ -29,22 +29,22 @@ interface FeaturedCourse {
       <!-- 1. STICKY HEADER & NAVBAR WITH ACTIVE UNDERLINE -->
       <!-- ========================================== -->
       <header class="sticky top-0 z-50 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2">
           
           <!-- Brand Logo -->
-          <a routerLink="/" class="flex items-center gap-3 group cursor-pointer">
-            <img src="assets/images/qimma-round.jpg" alt="Qimma Logo" 
-                 class="w-11 h-11 rounded-2xl object-cover shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-all duration-300 border border-indigo-200 dark:border-indigo-900/60">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-2xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+          <a routerLink="/" class="flex items-center gap-2.5 sm:gap-3 group cursor-pointer shrink-0">
+            <img src="assets/images/qimma-round.jpg" alt="Qimma Logo" width="40" height="40"
+                 class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl object-cover shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-all duration-300 border border-indigo-200 dark:border-indigo-900/60 shrink-0">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors whitespace-nowrap">
                   {{ lang === 'ar' ? '(قِمَّـة)' : 'Qimmah' }}
                 </span>
-                <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
+                <span class="hidden md:inline-flex px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
                   {{ lang === 'ar' ? 'منصة ذكية' : 'Smart Platform' }}
                 </span>
               </div>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-wide">
+              <p class="hidden sm:block text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-wide truncate">
                 {{ lang === 'ar' ? 'بداية جديدة نحو التميّز' : 'A New Beginning Toward Excellence' }}
               </p>
             </div>
@@ -75,12 +75,13 @@ interface FeaturedCourse {
           </nav>
 
           <!-- Controls: Dark Mode, Language, Auth -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
             <!-- Dark Mode Toggle Button -->
             <button (click)="toggleTheme()" 
+                    [attr.aria-label]="isDark ? 'Light mode' : 'Dark mode'"
                     [title]="isDark ? (lang === 'ar' ? 'الوضع النهاري' : 'Light Mode') : (lang === 'ar' ? 'الوضع الليلي' : 'Dark Mode')"
-                    class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-amber-400 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-xs cursor-pointer">
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-amber-400 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center shadow-xs cursor-pointer shrink-0">
               <svg *ngIf="isDark" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -99,44 +100,48 @@ interface FeaturedCourse {
 
             <!-- Language Switcher Toggle -->
             <button (click)="toggleLanguage()" 
-                    class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition flex items-center gap-2 cursor-pointer">
-              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    [attr.aria-label]="lang === 'ar' ? 'Switch to English' : 'التحويل للعربية'"
+                    class="h-9 sm:h-10 px-2.5 sm:px-3.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition flex items-center gap-1.5 cursor-pointer shrink-0">
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="2" y1="12" x2="22" y2="12"></line>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
               </svg>
-              <span>{{ lang === 'ar' ? 'English' : 'العربية' }}</span>
+              <span class="hidden sm:inline">{{ lang === 'ar' ? 'English' : 'العربية' }}</span>
+              <span class="sm:hidden font-mono">{{ lang === 'ar' ? 'EN' : 'عربي' }}</span>
             </button>
 
             <!-- Logged In / Guest CTAs -->
-            <div *ngIf="isLoggedIn" class="flex items-center gap-2">
+            <div *ngIf="isLoggedIn" class="flex items-center gap-2 shrink-0">
               <a [routerLink]="userDashboardRoute" 
-                 class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition flex items-center gap-2">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 class="h-9 sm:h-10 px-3 sm:px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="3" width="7" height="7"></rect>
                   <rect x="14" y="3" width="7" height="7"></rect>
                   <rect x="14" y="14" width="7" height="7"></rect>
                   <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
-                <span>{{ lang === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}</span>
+                <span class="hidden xs:inline">{{ lang === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}</span>
               </a>
             </div>
 
-            <div *ngIf="!isLoggedIn" class="flex items-center gap-2">
+            <div *ngIf="!isLoggedIn" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <a routerLink="/login" 
-                 class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold text-xs transition shadow-xs">
-                {{ lang === 'ar' ? 'تسجيل الدخول' : 'Log In' }}
+                 class="h-9 sm:h-10 px-3 sm:px-4 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold text-xs transition shadow-xs flex items-center justify-center shrink-0 whitespace-nowrap">
+                {{ lang === 'ar' ? 'دخول' : 'Log In' }}
               </a>
 
               <a [routerLink]="['/login']" [queryParams]="{ tab: 'signup' }"
-                 class="hidden sm:inline-flex px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition-all">
-                {{ lang === 'ar' ? 'إنشاء حساب جديد' : 'Create an Account' }}
+                 class="hidden sm:inline-flex h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition-all items-center justify-center shrink-0 whitespace-nowrap">
+                {{ lang === 'ar' ? 'إنشاء حساب' : 'Sign Up' }}
               </a>
             </div>
 
             <!-- Mobile Drawer Button -->
-            <button (click)="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button (click)="mobileMenuOpen = !mobileMenuOpen" 
+                    [attr.aria-label]="mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'"
+                    class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 <path *ngIf="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
