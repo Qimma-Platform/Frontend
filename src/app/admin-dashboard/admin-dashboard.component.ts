@@ -2026,6 +2026,37 @@ interface AdminNotification {
       </div>
 
       <!-- ======================================================== -->
+      <!-- MODAL: CROP ADMIN AVATAR -->
+      <!-- ======================================================== -->
+      <div *ngIf="showCropModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center animate-scale-in">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">{{ lang === 'ar' ? 'تعديل الصورة الشخصية' : 'Crop Profile Picture' }}</h3>
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700 max-w-full"
+               [style.width.px]="300"
+               [style.height.px]="300"
+               (mousedown)="startDrag($event)" (mousemove)="onDrag($event)"
+               (touchstart)="startDrag($event)" (touchmove)="onDrag($event)">
+             <img [src]="cropImageSrc" class="pointer-events-none absolute top-1/2 left-1/2 max-w-none"
+                  [style.transform]="'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + zoom + ')'"
+                  [style.width.px]="baseImageW" [style.height.px]="baseImageH">
+          </div>
+          <div class="w-full mt-6 px-4">
+            <div class="flex justify-between items-center mb-2">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
+              <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ (zoom * 100) | number:'1.0-0' }}%</span>
+            </div>
+            <input type="range" min="1" max="3" step="0.05" [(ngModel)]="zoom" class="w-full accent-indigo-600">
+          </div>
+          <div class="flex gap-3 mt-8 w-full">
+            <button (click)="showCropModal = false; isUploadingAvatar = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition text-sm">{{ t[lang].cancel }}</button>
+            <button (click)="applyCrop()" [disabled]="isUploadingAvatar" class="flex-1 py-3 bg-[#130E35] dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg disabled:opacity-50 text-sm">
+              {{ isUploadingAvatar ? (lang === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : (lang === 'ar' ? 'تطبيق' : 'Apply') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
       <!-- MODAL: CONFIRM DELETE (REUSABLE, without emojis) -->
       <!-- ======================================================== -->
       <div *ngIf="showConfirmModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
@@ -2206,6 +2237,19 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   // Cover image uploading state (Req 7B)
   isUploadingCover = false;
+
+  // Admin avatar crop modal states
+  showCropModal = false;
+  cropImageSrc: string | null = null;
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+  isDragging = false;
+  startX = 0;
+  startY = 0;
+  baseImageW = 0;
+  baseImageH = 0;
+  isUploadingAvatar = false;
 
   // Timeframe filter for Paid Students (Req 1)
   paidStudentsTimeframe: '7d' | '30d' | '1y' | 'all' = 'all';
@@ -2910,6 +2954,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   getCoverImageUrl(url: string | null | undefined): string {
     if (!url || url.trim() === '' || url.includes('placeholder')) return 'assets/images/default-cover.jpg';
+    if (url.includes('localhost:5162')) {
+      url = url.replace('http://localhost:5162', 'https://qimma.runasp.net');
+    }
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) return url;
     if (url.startsWith('/assets/')) return url.substring(1);
     return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
@@ -3907,27 +3954,93 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
 
+  startDrag(e: MouseEvent | TouchEvent) {
+    this.isDragging = true;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    this.startX = clientX - this.panX;
+    this.startY = clientY - this.panY;
+  }
+
+  onDrag(e: MouseEvent | TouchEvent) {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    this.panX = clientX - this.startX;
+    this.panY = clientY - this.startY;
+  }
+
   onAdminAvatarSelected(event: any) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
+    if (file.size > 1024 * 1024) {
+      this.showToast(this.lang === 'ar' ? 'حجم الصورة الشخصية يتجاوز الحد الأقصى (1 ميجابايت)' : 'Profile picture exceeds maximum size (1 MB)', 'error');
+      event.target.value = '';
+      return;
+    }
+    event.target.value = '';
 
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.cropImageSrc = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.max(300 / img.width, 300 / img.height);
+        this.baseImageW = img.width * ratio;
+        this.baseImageH = img.height * ratio;
+        this.zoom = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.showCropModal = true;
+      };
+      img.src = this.cropImageSrc;
+    };
+    reader.readAsDataURL(file);
+  }
 
-    this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
-      next: (res: any) => {
-        if (this.adminProfile) {
-          this.adminProfile.profileImage = res.profileImage;
-        }
-        this.showToast(this.lang === 'ar' ? 'تم تحديث الصورة الشخصية بنجاح' : 'Profile picture updated successfully', 'success');
-      },
-      error: () => {
-        this.showToast(this.lang === 'ar' ? 'فشل رفع الصورة' : 'Failed to upload profile picture', 'error');
-      }
-    });
+  applyCrop() {
+    this.isUploadingAvatar = true;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const scaleMultiplier = 600 / 300;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.scale(this.zoom * scaleMultiplier, this.zoom * scaleMultiplier);
+      ctx.translate(this.panX, this.panY);
+      ctx.drawImage(img, -this.baseImageW / 2, -this.baseImageH / 2, this.baseImageW, this.baseImageH);
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const formData = new FormData();
+        formData.append('file', new File([blob], 'admin_avatar.jpg', { type: 'image/jpeg' }));
+        const token = localStorage.getItem('token');
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+        this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
+          next: (res: any) => {
+            if (this.adminProfile) {
+              this.adminProfile.profileImage = res.profileImage;
+            }
+            this.showCropModal = false;
+            this.isUploadingAvatar = false;
+            this.showToast(this.lang === 'ar' ? 'تم تحديث الصورة الشخصية بنجاح' : 'Profile picture updated successfully', 'success');
+          },
+          error: () => {
+            this.isUploadingAvatar = false;
+            this.showToast(this.lang === 'ar' ? 'فشل رفع الصورة' : 'Failed to upload profile picture', 'error');
+          }
+        });
+      }, 'image/jpeg', 0.9);
+    };
+    img.src = this.cropImageSrc as string;
   }
 
   // ==========================================

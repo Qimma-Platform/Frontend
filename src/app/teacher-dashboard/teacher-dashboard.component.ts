@@ -25,10 +25,14 @@ import Chart from 'chart.js/auto';
       <!-- Settings & Other Modals -->
       <div *ngIf="showCropModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 animate-fade-in">
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center">
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">{{ lang === 'ar' ? 'تعديل الصورة' : 'Crop Image' }}</h3>
-          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700"
-               [style.width.px]="300"
-               [style.height.px]="300"
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">
+            {{ cropType === 'avatar' ? (lang === 'ar' ? 'تعديل الصورة الشخصية' : 'Crop Profile Picture') :
+               (cropType === 'cover' ? (lang === 'ar' ? 'تعديل صورة الغلاف' : 'Crop Cover Image') :
+               (lang === 'ar' ? 'تعديل غلاف الكورس' : 'Crop Course Cover')) }}
+          </h3>
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700 max-w-full"
+               [style.width.px]="cropContainerWidth"
+               [style.height.px]="cropContainerHeight"
                (mousedown)="startDrag($event)" (mousemove)="onDrag($event)"
                (touchstart)="startDrag($event)" (touchmove)="onDrag($event)">
              <img [src]="cropImageSrc" class="pointer-events-none absolute top-1/2 left-1/2 max-w-none"
@@ -36,7 +40,10 @@ import Chart from 'chart.js/auto';
                   [style.width.px]="baseImageW" [style.height.px]="baseImageH">
           </div>
           <div class="w-full mt-6 px-4">
-            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
+            <div class="flex justify-between items-center mb-2">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
+              <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ (zoom * 100) | number:'1.0-0' }}%</span>
+            </div>
             <input type="range" min="1" max="3" step="0.05" [(ngModel)]="zoom" class="w-full accent-indigo-600">
           </div>
           <div class="flex gap-3 mt-8 w-full">
@@ -2214,6 +2221,9 @@ export class TeacherDashboardComponent implements OnInit {
   showNotificationsDropdown: boolean = false;
 
   showCropModal = false;
+  cropType: 'avatar' | 'cover' | 'courseCover' | 'editCourseCover' = 'avatar';
+  cropContainerWidth = 300;
+  cropContainerHeight = 300;
   cropImageSrc: string | null = null;
   zoom = 1;
   panX = 0;
@@ -3613,6 +3623,9 @@ export class TeacherDashboardComponent implements OnInit {
       this.cropImageSrc = e.target?.result as string;
       const img = new Image();
       img.onload = () => {
+        this.cropType = 'avatar';
+        this.cropContainerWidth = 300;
+        this.cropContainerHeight = 300;
         const ratio = Math.max(300 / img.width, 300 / img.height);
         this.baseImageW = img.width * ratio;
         this.baseImageH = img.height * ratio;
@@ -3635,17 +3648,25 @@ export class TeacherDashboardComponent implements OnInit {
       return;
     }
     event.target.value = '';
-    const formData = new FormData();
-    formData.append('file', file);
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.post('https://qimma.runasp.net/api/user/upload-cover', formData, { headers }).subscribe({
-      next: (res: any) => {
-        this.editProfileData.coverImage = res.coverImage;
-        this.userData.coverImage = res.coverImage;
-      },
-      error: () => this.showMessage(this.lang === 'ar' ? 'فشل رفع الغلاف' : 'Cover upload failed', 'error')
-    });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.cropImageSrc = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        this.cropType = 'cover';
+        this.cropContainerWidth = 380;
+        this.cropContainerHeight = 160;
+        const ratio = Math.max(380 / img.width, 160 / img.height);
+        this.baseImageW = img.width * ratio;
+        this.baseImageH = img.height * ratio;
+        this.zoom = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.showCropModal = true;
+      };
+      img.src = this.cropImageSrc;
+    };
+    reader.readAsDataURL(file);
   }
 
   startDrag(e: MouseEvent | TouchEvent) {
@@ -3670,29 +3691,70 @@ export class TeacherDashboardComponent implements OnInit {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 600;
-      canvas.height = 600;
+      let outW = 600;
+      let outH = 600;
+
+      if (this.cropType === 'cover') {
+        outW = 1140;
+        outH = 480;
+      } else if (this.cropType === 'courseCover' || this.cropType === 'editCourseCover') {
+        outW = 800;
+        outH = 450;
+      }
+
+      canvas.width = outW;
+      canvas.height = outH;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+
+      const scaleMultiplier = outW / this.cropContainerWidth;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.scale(this.zoom * 2, this.zoom * 2);
+      ctx.scale(this.zoom * scaleMultiplier, this.zoom * scaleMultiplier);
       ctx.translate(this.panX, this.panY);
       ctx.drawImage(img, -this.baseImageW / 2, -this.baseImageH / 2, this.baseImageW, this.baseImageH);
+
+      if (this.cropType === 'courseCover') {
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        this.imagePreview = compressed;
+        this.courseForm.patchValue({ coverImageUrl: compressed });
+        this.showCropModal = false;
+        this.isUploadingImage = false;
+        return;
+      }
+
+      if (this.cropType === 'editCourseCover') {
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        this.editCourseImagePreview = compressed;
+        this.editCourseForm.patchValue({ coverImageUrl: compressed });
+        this.showCropModal = false;
+        this.isUploadingImage = false;
+        return;
+      }
+
+      const isAvatar = this.cropType === 'avatar';
+      const endpoint = isAvatar ? 'https://qimma.runasp.net/api/user/upload-avatar' : 'https://qimma.runasp.net/api/user/upload-cover';
+      const fileName = isAvatar ? 'avatar.jpg' : 'cover.jpg';
 
       canvas.toBlob((blob) => {
         if (!blob) return;
         const formData = new FormData();
-        formData.append('file', new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+        formData.append('file', new File([blob], fileName, { type: 'image/jpeg' }));
         const token = localStorage.getItem('token');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-        this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
+        this.http.post(endpoint, formData, { headers }).subscribe({
           next: (res: any) => {
-            this.editProfileData.profileImage = res.profileImage;
-            this.userData.profileImage = res.profileImage;
+            if (isAvatar) {
+              this.editProfileData.profileImage = res.profileImage;
+              this.userData.profileImage = res.profileImage;
+            } else {
+              this.editProfileData.coverImage = res.coverImage;
+              this.userData.coverImage = res.coverImage;
+            }
             this.showCropModal = false;
             this.isUploadingImage = false;
+            this.showMessage(this.lang === 'ar' ? 'تم تحديث الصورة بنجاح' : 'Image updated successfully', 'success');
           },
           error: () => {
             this.isUploadingImage = false;
@@ -3757,6 +3819,9 @@ export class TeacherDashboardComponent implements OnInit {
     if (!url || url.trim() === '' || url.includes('placeholder')) {
       return 'assets/images/default-cover.jpg';
     }
+    if (url.includes('localhost:5162')) {
+      url = url.replace('http://localhost:5162', 'https://qimma.runasp.net');
+    }
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) {
       return url;
     }
@@ -3768,41 +3833,32 @@ export class TeacherDashboardComponent implements OnInit {
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const img = new Image();
-        img.onload = () => {
-          const maxDim = 1200;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressed = canvas.toDataURL('image/jpeg', 0.85);
-            this.imagePreview = compressed;
-            this.courseForm.patchValue({ coverImageUrl: compressed });
-          } else {
-            this.imagePreview = e.target.result;
-            this.courseForm.patchValue({ coverImageUrl: e.target.result });
-          }
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 1024 * 1024) {
+      this.showMessage(this.lang === 'ar' ? 'حجم غلاف الكورس يتجاوز الحد الأقصى (1 ميجابايت)' : 'Course cover exceeds maximum size (1 MB)', 'error');
+      event.target.value = '';
+      return;
     }
+    event.target.value = '';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.cropImageSrc = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        this.cropType = 'courseCover';
+        this.cropContainerWidth = 380;
+        this.cropContainerHeight = 214;
+        const ratio = Math.max(380 / img.width, 214 / img.height);
+        this.baseImageW = img.width * ratio;
+        this.baseImageH = img.height * ratio;
+        this.zoom = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.showCropModal = true;
+      };
+      img.src = this.cropImageSrc;
+    };
+    reader.readAsDataURL(file);
   }
 
   onViewCourse(course: any) {
@@ -4027,41 +4083,32 @@ export class TeacherDashboardComponent implements OnInit {
 
   onEditFileSelected(event: any) {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const img = new Image();
-        img.onload = () => {
-          const maxDim = 1200;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-            this.editCourseImagePreview = compressedBase64;
-            this.editCourseForm.patchValue({ coverImageUrl: compressedBase64 });
-          } else {
-            this.editCourseImagePreview = e.target.result;
-            this.editCourseForm.patchValue({ coverImageUrl: e.target.result });
-          }
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 1024 * 1024) {
+      this.showMessage(this.lang === 'ar' ? 'حجم غلاف الكورس يتجاوز الحد الأقصى (1 ميجابايت)' : 'Course cover exceeds maximum size (1 MB)', 'error');
+      event.target.value = '';
+      return;
     }
+    event.target.value = '';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.cropImageSrc = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        this.cropType = 'editCourseCover';
+        this.cropContainerWidth = 380;
+        this.cropContainerHeight = 214;
+        const ratio = Math.max(380 / img.width, 214 / img.height);
+        this.baseImageW = img.width * ratio;
+        this.baseImageH = img.height * ratio;
+        this.zoom = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.showCropModal = true;
+      };
+      img.src = this.cropImageSrc;
+    };
+    reader.readAsDataURL(file);
   }
 
   saveCourseEdit() {

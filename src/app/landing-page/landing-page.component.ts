@@ -801,6 +801,9 @@ export class LandingPageComponent implements OnInit {
 
   getCoverImageUrl(url: string | undefined): string {
     if (!url) return 'assets/images/qimma-banner.jpg';
+    if (url.includes('localhost:5162')) {
+      url = url.replace('http://localhost:5162', 'https://qimma.runasp.net');
+    }
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('assets/')) return url;
     return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }

@@ -1420,6 +1420,9 @@ export class StudentDashboardComponent implements OnInit {
     if (!url || url.trim() === '' || url.includes('placeholder')) {
       return 'assets/images/default-cover.jpg';
     }
+    if (url.includes('localhost:5162')) {
+      url = url.replace('http://localhost:5162', 'https://qimma.runasp.net');
+    }
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) {
       return url;
     }
@@ -1515,12 +1518,24 @@ export class StudentDashboardComponent implements OnInit {
   loadAssignments() {
     this.assignmentService.getStudentAssignments().subscribe({
       next: (data: any) => {
-        const pendingArr = data.pending || data.Pending || [];
-        const missedArr = data.missed || data.Missed || [];
-        const completedArr = data.completed || data.Completed || [];
+        const pendingArr: any[] = data.pending || data.Pending || [];
+        const missedArr: any[] = data.missed || data.Missed || [];
+        const completedArr: any[] = data.completed || data.Completed || [];
 
-        this.pendingAssignments = pendingArr;
-        this.missedAssignments = missedArr;
+        const now = Date.now();
+        const finalPending: any[] = [];
+        const finalMissed: any[] = [...missedArr];
+
+        for (const a of pendingArr) {
+          if (a.dueDate && new Date(a.dueDate).getTime() < now) {
+            finalMissed.push(a);
+          } else {
+            finalPending.push(a);
+          }
+        }
+
+        this.pendingAssignments = finalPending;
+        this.missedAssignments = finalMissed;
         this.completedAssignments = completedArr.map((c: any) => ({
           ...c,
           title: c.assignmentTitle || c.title,

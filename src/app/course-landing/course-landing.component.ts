@@ -188,10 +188,10 @@ export class CourseLandingComponent implements OnInit {
       this.http.post<any>(`https://qimma.runasp.net/api/payment/checkout/${this.courseId}`, {}, { headers }).subscribe({
         next: (response) => {
           const checkoutUrl = response.checkoutUrl || response.CheckoutUrl;
+          this.isEnrolling = false;
           if (checkoutUrl) {
-            window.location.replace(checkoutUrl);
+            window.open(checkoutUrl, '_blank');
           } else {
-            this.isEnrolling = false;
             this.showMessage(this.t[this.lang].errorMsg, 'error');
           }
         },
@@ -213,6 +213,9 @@ export class CourseLandingComponent implements OnInit {
 
   getCoverImageUrl(url: string | null | undefined): string {
     if (!url || url.trim() === '' || url.includes('placeholder')) return 'assets/images/default-cover.jpg';
+    if (url.includes('localhost:5162')) {
+      url = url.replace('http://localhost:5162', 'https://qimma.runasp.net');
+    }
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) return url;
     if (url.startsWith('/assets/')) return url.substring(1);
     return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;

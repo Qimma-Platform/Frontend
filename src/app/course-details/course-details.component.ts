@@ -700,10 +700,10 @@ export class CourseDetailsComponent implements OnInit {
     this.paymentService.checkoutCourse(this.courseId).subscribe({
       next: (response: any) => {
         const url = response.checkoutUrl || response.CheckoutUrl;
+        this.isProcessingPayment = false;
         if (url) {
-          window.location.href = url;
+          window.open(url, '_blank');
         } else {
-          this.isProcessingPayment = false;
           this.showMessage('رابط الدفع غير موجود في الاستجابة', 'error');
         }
       },
