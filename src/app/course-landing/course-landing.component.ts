@@ -145,6 +145,11 @@ export class CourseLandingComponent implements OnInit {
     if (token) {
       this.http.get<any[]>('https://qimma.runasp.net/api/course/my-courses', { headers }).subscribe({
         next: (myCourses) => {
+          if (myCourses) {
+            try {
+              localStorage.setItem('enrolled_course_ids', JSON.stringify(myCourses.map((c: any) => c.id)));
+            } catch {}
+          }
           if (myCourses && myCourses.some(mc => mc.id === this.courseId)) {
             // Already enrolled - skip landing/subscription flow
             this.router.navigate(['/learn', this.courseId], { replaceUrl: true });
@@ -174,6 +179,13 @@ export class CourseLandingComponent implements OnInit {
       this.http.post(`https://qimma.runasp.net/api/course/enroll/${this.courseId}`, {}, { headers }).subscribe({
         next: () => {
           this.showMessage(this.t[this.lang].successMsg, 'success');
+          try {
+            const cached = JSON.parse(localStorage.getItem('enrolled_course_ids') || '[]');
+            if (!cached.includes(this.courseId)) {
+              cached.push(this.courseId);
+              localStorage.setItem('enrolled_course_ids', JSON.stringify(cached));
+            }
+          } catch {}
           setTimeout(() => this.router.navigate(['/dashboard'], { replaceUrl: true }), 1500);
         },
         error: () => {

@@ -25,17 +25,30 @@ import { ThemeService } from './services/theme.service';
       <div *ngIf="showCropModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 animate-fade-in">
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-lg shadow-2xl flex flex-col items-center">
           <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">{{ lang === 'ar' ? 'تعديل الصورة' : 'Crop Image' }}</h3>
-          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700"
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700 select-none max-w-full"
                [style.width.px]="300" [style.height.px]="300"
                (mousedown)="startDrag($event)" (mousemove)="onDrag($event)"
-               (touchstart)="startDrag($event)" (touchmove)="onDrag($event)">
+               (touchstart)="startDrag($event)" (touchmove)="onDrag($event)"
+               (wheel)="onWheelZoom($event)">
              <img [src]="cropImageSrc" class="pointer-events-none absolute top-1/2 left-1/2 max-w-none"
                   [style.transform]="'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + zoom + ')'"
                   [style.width.px]="baseImageW" [style.height.px]="baseImageH">
           </div>
           <div class="w-full mt-6 px-4">
-            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
-            <input type="range" min="1" max="3" step="0.05" [(ngModel)]="zoom" class="w-full accent-indigo-600">
+            <div class="flex justify-between items-center mb-2">
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom In / Out' }}</label>
+              <div class="flex items-center gap-1.5">
+                <button type="button" (click)="zoomOut()" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold flex items-center justify-center text-sm transition" [title]="lang === 'ar' ? 'تصغير' : 'Zoom Out'">－</button>
+                <button type="button" (click)="resetZoom()" class="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 transition" [title]="lang === 'ar' ? 'إعادة ضبط' : 'Reset Zoom'">{{ (zoom * 100) | number:'1.0-0' }}%</button>
+                <button type="button" (click)="zoomIn()" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold flex items-center justify-center text-sm transition" [title]="lang === 'ar' ? 'تكبير' : 'Zoom In'">＋</button>
+              </div>
+            </div>
+            <input type="range" min="0.1" max="5" step="0.02" [(ngModel)]="zoom" class="w-full accent-indigo-600 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1">
+              <span>{{ lang === 'ar' ? 'تصغير (10%)' : 'Zoom Out (10%)' }}</span>
+              <span>100%</span>
+              <span>{{ lang === 'ar' ? 'تكبير (500%)' : 'Zoom In (500%)' }}</span>
+            </div>
           </div>
           <div class="flex gap-3 mt-8 w-full">
             <button (click)="showCropModal = false; isUploadingImage = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition">{{ t[lang].cancel }}</button>
@@ -2187,7 +2200,6 @@ export class StudentDashboardComponent implements OnInit {
 
     this.http.get<any>(`https://qimma.runasp.net/api/user/teacher/${instructorId}`, { headers }).subscribe({
       next: (data) => {
-        data.courses = data.courses.filter((c: any) => !this.myCourses.some(mc => mc.id === c.id));
         this.currentTeacherProfile = data;
         this.isLoadingProfile = false;
       },
@@ -2264,8 +2276,24 @@ export class StudentDashboardComponent implements OnInit {
 
   get filteredTeacherCourses() {
     if (!this.currentTeacherProfile || !this.currentTeacherProfile.courses) return [];
-    if (!this.searchQuery) return this.currentTeacherProfile.courses;
-    return this.currentTeacherProfile.courses.filter((c: any) =>
+
+    const enrolledIds = new Set<number>();
+    if (this.myCourses && this.myCourses.length > 0) {
+      this.myCourses.forEach((c: any) => enrolledIds.add(Number(c.id)));
+    }
+    try {
+      const cached = JSON.parse(localStorage.getItem('enrolled_course_ids') || '[]');
+      if (Array.isArray(cached)) {
+        cached.forEach((id: any) => enrolledIds.add(Number(id)));
+      }
+    } catch {}
+
+    const unEnrolledCourses = this.currentTeacherProfile.courses.filter(
+      (c: any) => !enrolledIds.has(Number(c.id))
+    );
+
+    if (!this.searchQuery) return unEnrolledCourses;
+    return unEnrolledCourses.filter((c: any) =>
       c.title.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
   }
@@ -2357,6 +2385,26 @@ export class StudentDashboardComponent implements OnInit {
     this.panY = clientY - this.startY;
   }
 
+  zoomIn() {
+    this.zoom = Math.min(5.0, Number((this.zoom + 0.15).toFixed(2)));
+  }
+
+  zoomOut() {
+    this.zoom = Math.max(0.1, Number((this.zoom - 0.15).toFixed(2)));
+  }
+
+  resetZoom() {
+    this.zoom = 1;
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  onWheelZoom(event: WheelEvent) {
+    event.preventDefault();
+    const delta = event.deltaY < 0 ? 0.08 : -0.08;
+    this.zoom = Math.min(Math.max(Number((this.zoom + delta).toFixed(2)), 0.1), 5.0);
+  }
+
   applyCrop() {
     this.isUploadingImage = true;
     const img = new Image();
@@ -2368,9 +2416,8 @@ export class StudentDashboardComponent implements OnInit {
       if (!ctx) return;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.translate(canvas.width / 2 + (this.panX * 2), canvas.height / 2 + (this.panY * 2));
       ctx.scale(this.zoom * 2, this.zoom * 2);
-      ctx.translate(this.panX, this.panY);
       ctx.drawImage(img, -this.baseImageW / 2, -this.baseImageH / 2, this.baseImageW, this.baseImageH);
 
       canvas.toBlob((blob) => {
@@ -2476,6 +2523,10 @@ export class StudentDashboardComponent implements OnInit {
 
         const finalCertificates = JSON.parse(localStorage.getItem('earned_certificates') || '[]');
         this.completedCoursesCount = finalCertificates.filter((id: number) => this.myCourses.some(c => c.id === id)).length;
+
+        try {
+          localStorage.setItem('enrolled_course_ids', JSON.stringify(this.myCourses.map(c => c.id)));
+        } catch {}
 
         const enrolledIds = this.myCourses.map(c => c.id.toString());
         this.signalrService.registerStudent(enrolledIds);

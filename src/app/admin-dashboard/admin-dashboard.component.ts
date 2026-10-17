@@ -2031,21 +2031,31 @@ interface AdminNotification {
       <div *ngIf="showCropModal" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 animate-fade-in">
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center animate-scale-in">
           <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">{{ lang === 'ar' ? 'تعديل الصورة الشخصية' : 'Crop Profile Picture' }}</h3>
-          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700 max-w-full"
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-800 rounded-2xl cursor-move touch-none border-2 border-slate-200 dark:border-slate-700 max-w-full select-none"
                [style.width.px]="300"
                [style.height.px]="300"
                (mousedown)="startDrag($event)" (mousemove)="onDrag($event)"
-               (touchstart)="startDrag($event)" (touchmove)="onDrag($event)">
+               (touchstart)="startDrag($event)" (touchmove)="onDrag($event)"
+               (wheel)="onWheelZoom($event)">
              <img [src]="cropImageSrc" class="pointer-events-none absolute top-1/2 left-1/2 max-w-none"
                   [style.transform]="'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + zoom + ')'"
                   [style.width.px]="baseImageW" [style.height.px]="baseImageH">
           </div>
           <div class="w-full mt-6 px-4">
             <div class="flex justify-between items-center mb-2">
-              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom' }}</label>
-              <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ (zoom * 100) | number:'1.0-0' }}%</span>
+              <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'تكبير / تصغير' : 'Zoom In / Out' }}</label>
+              <div class="flex items-center gap-1.5">
+                <button type="button" (click)="zoomOut()" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold flex items-center justify-center text-sm transition" [title]="lang === 'ar' ? 'تصغير' : 'Zoom Out'">－</button>
+                <button type="button" (click)="resetZoom()" class="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 transition" [title]="lang === 'ar' ? 'إعادة ضبط' : 'Reset Zoom'">{{ (zoom * 100) | number:'1.0-0' }}%</button>
+                <button type="button" (click)="zoomIn()" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold flex items-center justify-center text-sm transition" [title]="lang === 'ar' ? 'تكبير' : 'Zoom In'">＋</button>
+              </div>
             </div>
-            <input type="range" min="1" max="3" step="0.05" [(ngModel)]="zoom" class="w-full accent-indigo-600">
+            <input type="range" min="0.1" max="5" step="0.02" [(ngModel)]="zoom" class="w-full accent-indigo-600 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1">
+              <span>{{ lang === 'ar' ? 'تصغير (10%)' : 'Zoom Out (10%)' }}</span>
+              <span>100%</span>
+              <span>{{ lang === 'ar' ? 'تكبير (500%)' : 'Zoom In (500%)' }}</span>
+            </div>
           </div>
           <div class="flex gap-3 mt-8 w-full">
             <button (click)="showCropModal = false; isUploadingAvatar = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition text-sm">{{ t[lang].cancel }}</button>
@@ -3971,6 +3981,26 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     this.panY = clientY - this.startY;
   }
 
+  zoomIn() {
+    this.zoom = Math.min(5.0, Number((this.zoom + 0.15).toFixed(2)));
+  }
+
+  zoomOut() {
+    this.zoom = Math.max(0.1, Number((this.zoom - 0.15).toFixed(2)));
+  }
+
+  resetZoom() {
+    this.zoom = 1;
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  onWheelZoom(event: WheelEvent) {
+    event.preventDefault();
+    const delta = event.deltaY < 0 ? 0.08 : -0.08;
+    this.zoom = Math.min(Math.max(Number((this.zoom + delta).toFixed(2)), 0.1), 5.0);
+  }
+
   onAdminAvatarSelected(event: any) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -4013,9 +4043,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       const scaleMultiplier = 600 / 300;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.translate(canvas.width / 2 + (this.panX * scaleMultiplier), canvas.height / 2 + (this.panY * scaleMultiplier));
       ctx.scale(this.zoom * scaleMultiplier, this.zoom * scaleMultiplier);
-      ctx.translate(this.panX, this.panY);
       ctx.drawImage(img, -this.baseImageW / 2, -this.baseImageH / 2, this.baseImageW, this.baseImageH);
 
       canvas.toBlob((blob) => {
