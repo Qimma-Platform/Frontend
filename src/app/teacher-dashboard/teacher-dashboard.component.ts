@@ -176,7 +176,10 @@ import Chart from 'chart.js/auto';
           <div class="space-y-4">
             <!-- Cover image preview & change (Req 2) -->
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'صورة الغلاف للملف الشخصي' : 'Profile Cover Image' }}</label>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'صورة الغلاف للملف الشخصي' : 'Profile Cover Image' }}</label>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{{ lang === 'ar' ? 'الحد الأقصى: 1 ميجابايت' : 'Max: 1 MB' }}</span>
+              </div>
               <div class="relative group rounded-2xl overflow-hidden h-28 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
                 <img [src]="getCoverImageUrl(editProfileData.coverImage)" (error)="$any($event.target).src='assets/images/default-cover.jpg'" class="w-full h-full object-cover">
                 <label class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-xs font-bold gap-2">
@@ -198,6 +201,7 @@ import Chart from 'chart.js/auto';
               <div class="min-w-0">
                 <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ editProfileData.fullName || 'Teacher' }}</h4>
                 <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ editProfileData.email }}</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ lang === 'ar' ? 'الحد الأقصى للصورة: 1 ميجابايت' : 'Max: 1 MB' }}</p>
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/50 rounded-lg mt-1 inline-block">{{ editProfileData.specialization || t[lang].teacher }}</span>
               </div>
             </div>
@@ -3598,6 +3602,11 @@ export class TeacherDashboardComponent implements OnInit {
   onAvatarSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
+    if (file.size > 1024 * 1024) {
+      this.showMessage(this.lang === 'ar' ? 'حجم الصورة الشخصية يتجاوز الحد الأقصى (1 ميجابايت)' : 'Profile image exceeds maximum size (1 MB)', 'error');
+      event.target.value = '';
+      return;
+    }
     event.target.value = '';
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -3620,6 +3629,11 @@ export class TeacherDashboardComponent implements OnInit {
   onCoverSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
+    if (file.size > 1024 * 1024) {
+      this.showMessage(this.lang === 'ar' ? 'حجم صورة الغلاف يتجاوز الحد الأقصى (1 ميجابايت)' : 'Cover image exceeds maximum size (1 MB)', 'error');
+      event.target.value = '';
+      return;
+    }
     event.target.value = '';
     const formData = new FormData();
     formData.append('file', file);

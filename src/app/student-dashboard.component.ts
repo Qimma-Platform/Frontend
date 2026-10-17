@@ -84,6 +84,7 @@ import { ThemeService } from './services/theme.service';
               <div class="min-w-0">
                 <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ editProfileData.fullName || 'Student' }}</h4>
                 <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ editProfileData.email }}</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ lang === 'ar' ? 'الحد الأقصى للصورة: 1 ميجابايت' : 'Max size: 1 MB' }}</p>
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-lg mt-1 inline-block">{{ t[lang].studentRole }}</span>
               </div>
             </div>
@@ -2300,6 +2301,11 @@ export class StudentDashboardComponent implements OnInit {
   onAvatarSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
+    if (file.size > 1024 * 1024) {
+      this.showMessage(this.lang === 'ar' ? 'حجم الصورة يتجاوز الحد الأقصى المسموح به (1 ميجابايت).' : 'Image size exceeds the maximum allowed limit (1 MB).', 'error');
+      event.target.value = '';
+      return;
+    }
     event.target.value = '';
     const reader = new FileReader();
     reader.onload = (e) => {

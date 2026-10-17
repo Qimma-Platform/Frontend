@@ -42,6 +42,7 @@ import { LanguageService } from '../services/language.service';
               <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">{{ profileData.username }}</h3>
               <p class="text-sm text-slate-500 dark:text-slate-400">{{ profileData.email }}</p>
               <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1">Role: {{ profileData.role === '1' ? 'Teacher' : 'Student' }}</p>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">{{ lang === 'ar' ? 'الحد الأقصى للصورة: 1 ميجابايت' : 'Max image size: 1 MB' }}</p>
             </div>
           </div>
 
@@ -98,6 +99,11 @@ export class SettingsComponent implements OnInit {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
+      if (file.size > 1024 * 1024) {
+        this.showMessage(this.lang === 'ar' ? 'حجم الصورة يتجاوز الحد الأقصى المسموح به (1 ميجابايت)' : 'Image size exceeds maximum limit (1 MB)', 'error');
+        event.target.value = '';
+        return;
+      }
       const formData = new FormData();
       formData.append('file', file);
 
