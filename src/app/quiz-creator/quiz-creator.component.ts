@@ -189,7 +189,7 @@ export class QuizCreatorComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any>(`http://localhost:5162/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
+    this.http.get<any>(`https://qimma.runasp.net/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
       next: (res) => {
         if (res.questions && res.questions.length > 0) {
           this.isEditMode = true;
@@ -269,7 +269,7 @@ export class QuizCreatorComponent implements OnInit {
   confirmDeleteQuiz() {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.delete(`http://localhost:5162/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
       next: () => {
         this.showMessage(this.t[this.lang].deletedMsg, 'success');
         this.clearAllStudentAttemptsForThisLesson();
@@ -314,7 +314,7 @@ export class QuizCreatorComponent implements OnInit {
       questions: this.questions
     };
 
-    this.http.post('http://localhost:5162/api/quiz/create', quizData, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/quiz/create', quizData, { headers }).subscribe({
       next: () => {
         this.formError = '';
         this.showMessage(this.t[this.lang].successMsg, 'success');

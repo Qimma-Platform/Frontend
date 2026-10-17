@@ -546,7 +546,7 @@ export class LoginComponent implements OnInit {
     return this.reqLength && this.reqCase && this.reqNumber && this.reqSpecial;
   }
 
-  private apiUrl = 'http://localhost:5162/api/auth'; 
+  private apiUrl = 'https://qimma.runasp.net/api/auth'; 
 
   content: any = {
     ar: {

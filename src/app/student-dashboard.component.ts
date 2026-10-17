@@ -75,7 +75,7 @@ import { ThemeService } from './services/theme.service';
           <div class="space-y-4">
             <div class="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div class="relative group shrink-0">
-                <img [src]="editProfileData.profileImage ? 'http://localhost:5162' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 dark:border-indigo-900 shadow-sm">
+                <img [src]="editProfileData.profileImage ? 'https://qimma.runasp.net' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 dark:border-indigo-900 shadow-sm">
                 <label class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-[11px] font-bold">
                   {{ t[lang].change }}
                   <input type="file" (change)="onAvatarSelected($event)" accept="image/*" class="hidden">
@@ -163,7 +163,7 @@ import { ThemeService } from './services/theme.service';
         <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
           <div class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
-              <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+              <img *ngIf="userData?.profileImage" [src]="'https://qimma.runasp.net' + userData.profileImage" class="w-full h-full object-cover">
               <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'S').substring(0,1).toUpperCase() }}</span>
             </div>
             <div class="min-w-0 flex-1">
@@ -431,7 +431,7 @@ import { ThemeService } from './services/theme.service';
             <!-- Student Profile Indicator in Header (Image 2) -->
             <div class="flex items-center gap-3 pl-2 cursor-pointer" (click)="openSettings()" [ngClass]="lang === 'ar' ? 'pr-2 pl-0 border-r border-slate-200 dark:border-slate-700' : 'pl-2 border-l border-slate-200 dark:border-slate-700'">
               <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-200 dark:border-indigo-800/60 overflow-hidden shadow-xs">
-                <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+                <img *ngIf="userData?.profileImage" [src]="'https://qimma.runasp.net' + userData.profileImage" class="w-full h-full object-cover">
                 <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'S').substring(0,1).toUpperCase() }}</span>
               </div>
               <div class="hidden sm:block">
@@ -608,7 +608,7 @@ import { ThemeService } from './services/theme.service';
             <div *ngIf="!isLoadingTeachers" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                <div *ngFor="let teacher of filteredTeachers; trackBy: trackById" (click)="viewTeacherProfile(teacher.id, $event)" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-slate-700 transition-all cursor-pointer group p-6 flex flex-col items-center text-center">
                   <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-50 dark:border-slate-800 mb-4 group-hover:scale-105 transition-transform bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <img *ngIf="teacher.profileImage" [src]="'http://localhost:5162' + teacher.profileImage" class="w-full h-full object-cover">
+                    <img *ngIf="teacher.profileImage" [src]="'https://qimma.runasp.net' + teacher.profileImage" class="w-full h-full object-cover">
                     <span *ngIf="!teacher.profileImage" class="text-4xl font-bold text-indigo-300">{{ teacher.username.substring(0,2) | uppercase }}</span>
                   </div>
                   <h3 class="font-extrabold text-xl text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{{ teacher.username }}</h3>
@@ -1065,7 +1065,7 @@ import { ThemeService } from './services/theme.service';
               <div class="max-w-5xl mx-auto px-6 lg:px-8 relative">
                  <div class="relative -mt-24 mb-10 flex flex-col sm:flex-row items-center sm:items-end gap-6">
                     <div class="w-48 h-48 rounded-3xl border-4 border-white dark:border-slate-800 shadow-2xl overflow-hidden bg-white dark:bg-slate-800 shrink-0 flex items-center justify-center">
-                       <img *ngIf="currentTeacherProfile.teacher.profileImage" [src]="'http://localhost:5162' + currentTeacherProfile.teacher.profileImage" class="w-full h-full object-cover">
+                       <img *ngIf="currentTeacherProfile.teacher.profileImage" [src]="'https://qimma.runasp.net' + currentTeacherProfile.teacher.profileImage" class="w-full h-full object-cover">
                        <span *ngIf="!currentTeacherProfile.teacher.profileImage" class="text-6xl font-bold text-indigo-300">{{ currentTeacherProfile.teacher.username.substring(0,2) | uppercase }}</span>
                     </div>
                     <div class="text-center sm:text-start pb-4">
@@ -1425,7 +1425,7 @@ export class StudentDashboardComponent implements OnInit {
     if (url.startsWith('/assets/')) {
       return url.substring(1);
     }
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   ngOnInit() {
@@ -1751,7 +1751,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>('http://localhost:5162/api/notifications', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/notifications', { headers }).subscribe({
       next: (data) => {
         this.notifications = data.map(n => {
           const dateStr = n.createdAt.endsWith('Z') ? n.createdAt : n.createdAt + 'Z';
@@ -1860,7 +1860,7 @@ export class StudentDashboardComponent implements OnInit {
     if (notif.isRead) return;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.post(`http://localhost:5162/api/notifications/${notif.id}/read`, {}, { headers }).subscribe({
+    this.http.post(`https://qimma.runasp.net/api/notifications/${notif.id}/read`, {}, { headers }).subscribe({
       next: () => {
         notif.isRead = true;
         this.unreadCount = Math.max(0, this.unreadCount - 1);
@@ -1873,7 +1873,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.delete(`http://localhost:5162/api/notifications/${id}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/notifications/${id}`, { headers }).subscribe({
       next: () => {
         const notif = this.notifications.find(n => n.id === id);
         if (notif && !notif.isRead) {
@@ -1888,7 +1888,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.delete('http://localhost:5162/api/notifications/all', { headers }).subscribe({
+    this.http.delete('https://qimma.runasp.net/api/notifications/all', { headers }).subscribe({
       next: () => {
         this.notifications = [];
         this.unreadCount = 0;
@@ -1901,7 +1901,7 @@ export class StudentDashboardComponent implements OnInit {
     this.unreadCount = 0;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.post('http://localhost:5162/api/notifications/read-all', {}, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/notifications/read-all', {}, { headers }).subscribe({
       next: () => {},
       error: () => {}
     });
@@ -2169,7 +2169,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any>(`http://localhost:5162/api/user/teacher/${instructorId}`, { headers }).subscribe({
+    this.http.get<any>(`https://qimma.runasp.net/api/user/teacher/${instructorId}`, { headers }).subscribe({
       next: (data) => {
         data.courses = data.courses.filter((c: any) => !this.myCourses.some(mc => mc.id === c.id));
         this.currentTeacherProfile = data;
@@ -2187,7 +2187,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>('http://localhost:5162/api/user/teachers', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/user/teachers', { headers }).subscribe({
       next: (data) => {
         this.teachers = data;
         this.isLoadingTeachers = false;
@@ -2204,7 +2204,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>('http://localhost:5162/api/schedule/student', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/schedule/student', { headers }).subscribe({
       next: (data) => {
         this.events = data.map(e => {
           const d = e.eventDate.endsWith('Z') ? e.eventDate : e.eventDate + 'Z';
@@ -2358,7 +2358,7 @@ export class StudentDashboardComponent implements OnInit {
         formData.append('file', new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
         const token = localStorage.getItem('token');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-        this.http.post('http://localhost:5162/api/user/upload-avatar', formData, { headers }).subscribe({
+        this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
           next: (res: any) => {
             this.editProfileData.profileImage = res.profileImage;
             this.userData.profileImage = res.profileImage;
@@ -2387,7 +2387,7 @@ export class StudentDashboardComponent implements OnInit {
     if (this.editProfileData.newPassword && this.editProfileData.newPassword.trim() !== '') {
       updateModel.newPassword = this.editProfileData.newPassword.trim();
     }
-    this.http.put('http://localhost:5162/api/user/profile', updateModel, { headers }).subscribe({
+    this.http.put('https://qimma.runasp.net/api/user/profile', updateModel, { headers }).subscribe({
       next: () => {
         this.userData.username = this.editProfileData.fullName;
         this.userData.phoneNumber = updateModel.phoneNumber;
@@ -2413,7 +2413,7 @@ export class StudentDashboardComponent implements OnInit {
   fetchUserProfile() {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get('http://localhost:5162/api/user/profile', { headers }).subscribe({
+    this.http.get('https://qimma.runasp.net/api/user/profile', { headers }).subscribe({
       next: (data: any) => this.userData = data,
       error: () => this.logout()
     });
@@ -2425,7 +2425,7 @@ export class StudentDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>('http://localhost:5162/api/course/my-courses', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/course/my-courses', { headers }).subscribe({
       next: (data: any[]) => {
         if (!data || data.length === 0) {
           this.myCourses = [];

@@ -194,7 +194,7 @@ export class QuizSolverComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any>(`http://localhost:5162/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
+    this.http.get<any>(`https://qimma.runasp.net/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
       next: (res) => {
         if (res.questions) {
           this.questions = res.questions;
@@ -235,7 +235,7 @@ export class QuizSolverComponent implements OnInit {
       totalQuestions: this.questions.length
     };
 
-    this.http.post('http://localhost:5162/api/quiz/submit-score', scoreData, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/quiz/submit-score', scoreData, { headers }).subscribe({
       next: (res: any) => {
          console.log('Score updated successfully', res);
       },

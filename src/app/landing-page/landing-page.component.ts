@@ -763,7 +763,7 @@ export class LandingPageComponent implements OnInit {
       }
     ];
 
-    this.http.get<any[]>('http://localhost:5162/api/course').subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/course').subscribe({
       next: (courses) => {
         if (courses && courses.length > 0) {
           // Dynamic sorting: Highest rating first, then total students count
@@ -802,7 +802,7 @@ export class LandingPageComponent implements OnInit {
   getCoverImageUrl(url: string | undefined): string {
     if (!url) return 'assets/images/qimma-banner.jpg';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('assets/')) return url;
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   handleImageError(event: any) {

@@ -157,7 +157,7 @@ interface AdminNotification {
         <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
           <div (click)="switchTab('settings')" class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition" [title]="t[lang].accountSettings">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
-              <img *ngIf="adminProfile?.profileImage" [src]="'http://localhost:5162' + adminProfile!.profileImage" class="w-full h-full object-cover">
+              <img *ngIf="adminProfile?.profileImage" [src]="'https://qimma.runasp.net' + adminProfile!.profileImage" class="w-full h-full object-cover">
               <span *ngIf="!adminProfile?.profileImage">{{ (adminProfile?.username || 'A').substring(0,1).toUpperCase() }}</span>
             </div>
             <div class="min-w-0 flex-1">
@@ -430,7 +430,7 @@ interface AdminNotification {
             <!-- Admin Profile Indicator -->
             <div (click)="switchTab('settings')" class="flex items-center gap-3 pl-2 cursor-pointer hover:opacity-80 transition" [title]="t[lang].accountSettings" [ngClass]="lang === 'ar' ? 'pr-2 pl-0 border-r border-slate-200 dark:border-slate-800' : 'pl-2 border-l border-slate-200 dark:border-slate-800'">
               <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-200 dark:border-indigo-800/60 overflow-hidden shadow-xs">
-                <img *ngIf="adminProfile?.profileImage" [src]="'http://localhost:5162' + adminProfile!.profileImage" class="w-full h-full object-cover">
+                <img *ngIf="adminProfile?.profileImage" [src]="'https://qimma.runasp.net' + adminProfile!.profileImage" class="w-full h-full object-cover">
                 <span *ngIf="!adminProfile?.profileImage">{{ (adminProfile?.username || 'A').substring(0,1).toUpperCase() }}</span>
               </div>
               <div class="hidden sm:block">
@@ -762,7 +762,7 @@ interface AdminNotification {
                     <tr *ngFor="let s of students" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                          <img [src]="s.profileImage ? 'http://localhost:5162' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.username)" 
+                          <img [src]="s.profileImage ? 'https://qimma.runasp.net' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.username)" 
                                class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                           <div>
                             <p class="font-bold text-slate-900 dark:text-white">{{ s.username }}</p>
@@ -860,7 +860,7 @@ interface AdminNotification {
                     <tr *ngFor="let inst of instructors" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                          <img [src]="inst.profileImage ? 'http://localhost:5162' + inst.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + inst.username)" 
+                          <img [src]="inst.profileImage ? 'https://qimma.runasp.net' + inst.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + inst.username)" 
                                class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                           <div>
                             <p class="font-bold text-slate-900 dark:text-white">{{ inst.username }}</p>
@@ -955,7 +955,7 @@ interface AdminNotification {
                      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                   <div>
                     <div class="flex items-center gap-4 mb-4">
-                      <img [src]="inst.profileImage ? 'http://localhost:5162' + inst.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + inst.username)" 
+                      <img [src]="inst.profileImage ? 'https://qimma.runasp.net' + inst.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + inst.username)" 
                            class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                       <div class="min-w-0 flex-1">
                         <h4 class="font-extrabold text-base text-slate-900 dark:text-white truncate">{{ inst.username }}</h4>
@@ -1332,7 +1332,7 @@ interface AdminNotification {
                     <tr *ngFor="let en of enrollees" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                          <img [src]="en.profileImage ? 'http://localhost:5162' + en.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + en.studentName)" 
+                          <img [src]="en.profileImage ? 'https://qimma.runasp.net' + en.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + en.studentName)" 
                                class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                           <div>
                             <p class="font-bold text-slate-900 dark:text-white">{{ en.studentName }}</p>
@@ -1483,7 +1483,7 @@ interface AdminNotification {
                     <tr *ngFor="let ps of filteredPaidStudents" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                          <img [src]="ps.profileImage ? 'http://localhost:5162' + ps.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + ps.studentName)" 
+                          <img [src]="ps.profileImage ? 'https://qimma.runasp.net' + ps.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + ps.studentName)" 
                                class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                           <div>
                             <p class="font-bold text-slate-900 dark:text-white">{{ ps.studentName }}</p>
@@ -1635,7 +1635,7 @@ interface AdminNotification {
               <div class="flex items-center gap-4 pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
                 <div class="relative group shrink-0">
                   <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900/50 shadow-sm flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 font-black text-indigo-600 dark:text-indigo-400 text-2xl">
-                    <img *ngIf="adminProfile?.profileImage" [src]="'http://localhost:5162' + adminProfile!.profileImage" class="w-full h-full object-cover">
+                    <img *ngIf="adminProfile?.profileImage" [src]="'https://qimma.runasp.net' + adminProfile!.profileImage" class="w-full h-full object-cover">
                     <span *ngIf="!adminProfile?.profileImage">{{ (adminProfile?.username || 'A').substring(0,1).toUpperCase() }}</span>
                   </div>
                   <label class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-[11px] font-bold text-center px-1">
@@ -2136,7 +2136,7 @@ interface AdminNotification {
   `
 })
 export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  apiUrl = 'http://localhost:5162/api/admin';
+  apiUrl = 'https://qimma.runasp.net/api/admin';
   lang: 'en' | 'ar' = 'en';
   isSidebarCollapsed = false;
   activeTab = 'overview';
@@ -2889,7 +2889,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     const formData = new FormData();
     formData.append('file', file);
 
-    this.http.post<{ url?: string; coverImageUrl?: string }>('http://localhost:5162/api/admin/upload-course-cover', formData, {
+    this.http.post<{ url?: string; coverImageUrl?: string }>('https://qimma.runasp.net/api/admin/upload-course-cover', formData, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('token') || ''}`
       })
@@ -2912,7 +2912,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     if (!url || url.trim() === '' || url.includes('placeholder')) return 'assets/images/default-cover.jpg';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) return url;
     if (url.startsWith('/assets/')) return url.substring(1);
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   getSelectedCourseInstructorName(): string {
@@ -3917,7 +3917,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post('http://localhost:5162/api/user/upload-avatar', formData, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
       next: (res: any) => {
         if (this.adminProfile) {
           this.adminProfile.profileImage = res.profileImage;
@@ -4248,7 +4248,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     this.isLoadingLessons = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get<any[]>(`http://localhost:5162/api/course/${courseId}/lessons`, { headers }).subscribe({
+    this.http.get<any[]>(`https://qimma.runasp.net/api/course/${courseId}/lessons`, { headers }).subscribe({
       next: (data) => {
         this.adminCourseLessons = data || [];
         this.isLoadingLessons = false;
@@ -4313,7 +4313,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post<{ videoUrl: string }>('http://localhost:5162/api/course/upload-video', formData, { headers }).subscribe({
+    this.http.post<{ videoUrl: string }>('https://qimma.runasp.net/api/course/upload-video', formData, { headers }).subscribe({
       next: (res) => {
         this.lessonForm.patchValue({ videoUrl: res.videoUrl });
         this.isUploadingLessonVideo = false;
@@ -4334,7 +4334,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     const payload = this.lessonForm.value;
 
     if (this.isEditingLesson && this.selectedLessonId) {
-      this.http.put(`http://localhost:5162/api/course/${this.selectedCourseForLessons.id}/lessons/${this.selectedLessonId}`, payload, { headers }).subscribe({
+      this.http.put(`https://qimma.runasp.net/api/course/${this.selectedCourseForLessons.id}/lessons/${this.selectedLessonId}`, payload, { headers }).subscribe({
         next: () => {
           this.isSubmitting = false;
           this.closeLessonModal();
@@ -4347,7 +4347,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
         }
       });
     } else {
-      this.http.post(`http://localhost:5162/api/course/${this.selectedCourseForLessons.id}/lessons`, payload, { headers }).subscribe({
+      this.http.post(`https://qimma.runasp.net/api/course/${this.selectedCourseForLessons.id}/lessons`, payload, { headers }).subscribe({
         next: () => {
           this.isSubmitting = false;
           this.closeLessonModal();
@@ -4372,7 +4372,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     this.isSubmitting = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.delete(`http://localhost:5162/api/course/${this.selectedCourseForLessons.id}/lessons/${this.lessonToDelete.id}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/course/${this.selectedCourseForLessons.id}/lessons/${this.lessonToDelete.id}`, { headers }).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.showDeleteLessonModal = false;
@@ -4406,7 +4406,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     if (!url) return '';
     const trimmed = url.trim();
     if (trimmed.startsWith('http')) return trimmed;
-    const base = 'http://localhost:5162';
+    const base = 'https://qimma.runasp.net';
     const rawUrl = `${base}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
     return encodeURI(decodeURI(rawUrl));
   }

@@ -19,7 +19,7 @@ export class NotificationService {
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       
-      .withUrl('https://localhost:7225/hubs/notifications', {
+      .withUrl('https://qimma.runasp.net/hubs/notifications', {
         accessTokenFactory: () => token 
       })
       .withAutomaticReconnect()

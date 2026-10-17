@@ -411,7 +411,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
           try { this.ytPlayer.destroy(); } catch (_) {}
           this.ytPlayer = null;
         }
-        const baseUrl = 'http://localhost:5162';
+        const baseUrl = 'https://qimma.runasp.net';
         const rawUrl = trimmed.startsWith('http') ? trimmed : `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
         this.videoUrl = encodeURI(decodeURI(rawUrl));
       }
@@ -637,7 +637,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get(`http://localhost:5162/api/quiz/lesson/${lessonId}`, { headers }).subscribe({
+    this.http.get(`https://qimma.runasp.net/api/quiz/lesson/${lessonId}`, { headers }).subscribe({
       next: (quiz: any) => {
         this.hasQuiz = quiz && quiz.questions && quiz.questions.length > 0;
       },
@@ -664,7 +664,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post(`http://localhost:5162/api/course/${this.courseId}/rate`, this.selectedRating, { headers }).subscribe();
+    this.http.post(`https://qimma.runasp.net/api/course/${this.courseId}/rate`, this.selectedRating, { headers }).subscribe();
 
     this.showRatingModal = false;
     this.executeLessonCompletion();
@@ -674,7 +674,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post(`http://localhost:5162/api/course/lesson/${this.currentLesson.id}/complete`, {}, { headers }).subscribe({
+    this.http.post(`https://qimma.runasp.net/api/course/lesson/${this.currentLesson.id}/complete`, {}, { headers }).subscribe({
       next: () => {
         this.saveCompletedAndRedirect(this.currentLesson.id);
       },

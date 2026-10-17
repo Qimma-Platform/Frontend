@@ -72,7 +72,7 @@ import { LanguageService } from '../services/language.service';
                   <!-- الصورة والاسم -->
                   <div class="flex items-center gap-3">
                     <div class="relative">
-                      <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.username)" 
+                      <img [src]="student.profileImage ? 'https://qimma.runasp.net' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.username)" 
                            class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm">
                       <!-- تاج لصاحب المركز الأول -->
                       <span *ngIf="i === 0" class="absolute -top-3 -right-2 text-xl drop-shadow-sm">👑</span>
@@ -134,7 +134,7 @@ export class LeaderboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
-    this.http.get<any[]>('http://localhost:5162/api/user/leaderboard', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/user/leaderboard', { headers }).subscribe({
       next: (data) => {
         this.topStudents = data;
         this.isLoading = false;

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CourseService {
-  private apiUrl = 'http://localhost:5162/api/course';
+  private apiUrl = 'https://qimma.runasp.net/api/course';
 
   constructor(private http: HttpClient) { }
 

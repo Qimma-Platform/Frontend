@@ -466,7 +466,7 @@ export class CourseDetailsComponent implements OnInit {
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-      this.http.post('http://localhost:5162/api/course/upload-video', formData, { headers }).subscribe({
+      this.http.post('https://qimma.runasp.net/api/course/upload-video', formData, { headers }).subscribe({
         next: (res: any) => {
           this.lessonForm.patchValue({ videoUrl: res.videoUrl });
           this.isUploadingVideo = false;
@@ -493,7 +493,7 @@ export class CourseDetailsComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.assignmentError = '';
-    this.http.get<any[]>(`http://localhost:5162/api/assignments/lesson/${lessonId}`, { headers }).subscribe({
+    this.http.get<any[]>(`https://qimma.runasp.net/api/assignments/lesson/${lessonId}`, { headers }).subscribe({
       next: (assignments) => {
         if (assignments && assignments.length > 0) {
           const assignment = assignments[0];
@@ -655,7 +655,7 @@ export class CourseDetailsComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post('http://localhost:5162/api/assignments', payload, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/assignments', payload, { headers }).subscribe({
       next: () => {
         this.localAssignmentsCache[this.selectedLessonIdForAssignment!] = JSON.parse(JSON.stringify(this.assignmentData));
         this.isSavingAssignment = false;
@@ -679,7 +679,7 @@ export class CourseDetailsComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.isDeletingAssignment = true;
-    this.http.delete(`http://localhost:5162/api/assignments/lesson/${this.selectedLessonIdForAssignment}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/assignments/lesson/${this.selectedLessonIdForAssignment}`, { headers }).subscribe({
       next: () => {
         delete this.localAssignmentsCache[this.selectedLessonIdForAssignment!];
         this.isDeletingAssignment = false;

@@ -18,7 +18,7 @@ export class SignalrService {
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       // FIXED: Point directly to the local API endpoint instead of the dead ngrok tunnel
-      .withUrl('http://localhost:5162/liveHub')
+      .withUrl('https://qimma.runasp.net/liveHub')
       .withAutomaticReconnect()
       .build();
 

@@ -32,7 +32,7 @@ import { LanguageService } from '../services/language.service';
           <!-- قسم صورة البروفايل -->
           <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
             <div class="relative group">
-              <img [src]="profileData.profileImage ? 'http://localhost:5162' + profileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + profileData.username)" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 dark:border-slate-700 shadow-md">
+              <img [src]="profileData.profileImage ? 'https://qimma.runasp.net' + profileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + profileData.username)" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-50 dark:border-slate-700 shadow-md">
               <label class="absolute inset-0 bg-slate-900/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-xs font-bold">
                 📷 {{ t[lang].change }}
                 <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
@@ -89,7 +89,7 @@ export class SettingsComponent implements OnInit {
   loadProfile() {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get('http://localhost:5162/api/user/profile', { headers }).subscribe({
+    this.http.get('https://qimma.runasp.net/api/user/profile', { headers }).subscribe({
       next: (res: any) => { this.profileData = res; },
       error: () => {}
     });
@@ -104,7 +104,7 @@ export class SettingsComponent implements OnInit {
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-      this.http.post('http://localhost:5162/api/user/upload-avatar', formData, { headers }).subscribe({
+      this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
         next: (res: any) => {
           this.profileData.profileImage = res.profileImage;
           this.showMessage(this.lang === 'ar' ? 'تم رفع الصورة بنجاح' : 'Avatar uploaded successfully', 'success');
@@ -126,7 +126,7 @@ export class SettingsComponent implements OnInit {
       phoneNumber: this.profileData.phoneNumber
     };
 
-    this.http.put('http://localhost:5162/api/user/profile', updateModel, { headers }).subscribe({
+    this.http.put('https://qimma.runasp.net/api/user/profile', updateModel, { headers }).subscribe({
       next: () => {
         this.isSaving = false;
         this.showMessage(this.t[this.lang].success, 'success');

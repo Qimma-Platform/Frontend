@@ -257,7 +257,7 @@ export class AdminLoginComponent implements OnInit {
     this.isLoading = true;
 
     const payload = { ...this.loginForm.value, isAdminPortal: true };
-    this.http.post('http://localhost:5162/api/auth/login', payload).subscribe({
+    this.http.post('https://qimma.runasp.net/api/auth/login', payload).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         const role = String(res.role || '').toLowerCase();
@@ -311,7 +311,7 @@ export class AdminLoginComponent implements OnInit {
     if (this.forgotForm.invalid) return;
     this.isSending = true;
 
-    this.http.post('http://localhost:5162/api/auth/forgot-password', this.forgotForm.value).subscribe({
+    this.http.post('https://qimma.runasp.net/api/auth/forgot-password', this.forgotForm.value).subscribe({
       next: () => {
         this.isSending = false;
         this.showToast(

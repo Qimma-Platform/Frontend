@@ -143,7 +143,7 @@ export class CourseLandingComponent implements OnInit {
     const headers = token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : undefined;
 
     if (token) {
-      this.http.get<any[]>('http://localhost:5162/api/course/my-courses', { headers }).subscribe({
+      this.http.get<any[]>('https://qimma.runasp.net/api/course/my-courses', { headers }).subscribe({
         next: (myCourses) => {
           if (myCourses && myCourses.some(mc => mc.id === this.courseId)) {
             // Already enrolled - skip landing/subscription flow
@@ -171,7 +171,7 @@ export class CourseLandingComponent implements OnInit {
     if (this.course.isFree) {
       this.isEnrolling = true;
 
-      this.http.post(`http://localhost:5162/api/course/enroll/${this.courseId}`, {}, { headers }).subscribe({
+      this.http.post(`https://qimma.runasp.net/api/course/enroll/${this.courseId}`, {}, { headers }).subscribe({
         next: () => {
           this.showMessage(this.t[this.lang].successMsg, 'success');
           setTimeout(() => this.router.navigate(['/dashboard'], { replaceUrl: true }), 1500);
@@ -185,7 +185,7 @@ export class CourseLandingComponent implements OnInit {
       this.isEnrolling = true;
       this.showMessage(this.t[this.lang].warningPay, 'warning');
 
-      this.http.post<any>(`http://localhost:5162/api/payment/checkout/${this.courseId}`, {}, { headers }).subscribe({
+      this.http.post<any>(`https://qimma.runasp.net/api/payment/checkout/${this.courseId}`, {}, { headers }).subscribe({
         next: (response) => {
           const checkoutUrl = response.checkoutUrl || response.CheckoutUrl;
           if (checkoutUrl) {
@@ -215,7 +215,7 @@ export class CourseLandingComponent implements OnInit {
     if (!url || url.trim() === '' || url.includes('placeholder')) return 'assets/images/default-cover.jpg';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) return url;
     if (url.startsWith('/assets/')) return url.substring(1);
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   showMessage(msg: string, type: 'success' | 'error' | 'warning') {

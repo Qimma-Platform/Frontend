@@ -161,7 +161,7 @@ export class CourseCatalogComponent implements OnInit {
   fetchUserProfile() {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get('http://localhost:5162/api/user/profile', { headers }).subscribe({
+    this.http.get('https://qimma.runasp.net/api/user/profile', { headers }).subscribe({
       next: (data: any) => this.userData = data
     });
   }
@@ -215,7 +215,7 @@ export class CourseCatalogComponent implements OnInit {
     if (!url || url.trim() === '' || url.includes('placeholder')) return 'assets/images/default-cover.jpg';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('assets/')) return url;
     if (url.startsWith('/assets/')) return url.substring(1);
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   logout() {

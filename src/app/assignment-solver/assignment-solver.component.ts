@@ -113,7 +113,7 @@ export class AssignmentSolverComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
-    this.http.get<any>(`http://localhost:5162/api/assignments/${this.assignmentId}`, { headers }).subscribe({
+    this.http.get<any>(`https://qimma.runasp.net/api/assignments/${this.assignmentId}`, { headers }).subscribe({
       next: (data) => {
         this.assignment = data;
         if (data?.dueDate) {
@@ -170,7 +170,7 @@ export class AssignmentSolverComponent implements OnInit {
       })
     };
 
-    this.http.post('http://localhost:5162/api/assignments/submit', payload, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/assignments/submit', payload, { headers }).subscribe({
       next: () => {
         this.showMessage(this.t[this.lang].success, 'success');
         setTimeout(() => this.goBack(), 1500);

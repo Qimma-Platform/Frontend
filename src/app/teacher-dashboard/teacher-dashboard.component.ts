@@ -189,7 +189,7 @@ import Chart from 'chart.js/auto';
 
             <div class="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div class="relative group shrink-0">
-                <img [src]="editProfileData.profileImage ? 'http://localhost:5162' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 dark:border-indigo-900 shadow-sm">
+                <img [src]="editProfileData.profileImage ? 'https://qimma.runasp.net' + editProfileData.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + editProfileData.fullName)" class="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-100 dark:border-indigo-900 shadow-sm">
                 <label class="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white text-[11px] font-bold">
                   {{ t[lang].change }}
                   <input type="file" (change)="onAvatarSelected($event)" accept="image/*" class="hidden">
@@ -440,7 +440,7 @@ import Chart from 'chart.js/auto';
         <div class="p-4 border-b border-white/10 shrink-0" *ngIf="!isSidebarCollapsed">
           <div class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shrink-0 overflow-hidden font-bold">
-              <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+              <img *ngIf="userData?.profileImage" [src]="'https://qimma.runasp.net' + userData.profileImage" class="w-full h-full object-cover">
               <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'T').substring(0,1).toUpperCase() }}</span>
             </div>
             <div class="min-w-0 flex-1">
@@ -713,7 +713,7 @@ import Chart from 'chart.js/auto';
             <!-- Instructor Profile Indicator in Header (Image 2) -->
             <div class="flex items-center gap-3 pl-2 cursor-pointer" (click)="openSettings()" [ngClass]="lang === 'ar' ? 'pr-2 pl-0 border-r border-slate-200 dark:border-slate-700' : 'pl-2 border-l border-slate-200 dark:border-slate-700'">
               <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-200 dark:border-indigo-800/60 overflow-hidden shadow-xs">
-                <img *ngIf="userData?.profileImage" [src]="'http://localhost:5162' + userData.profileImage" class="w-full h-full object-cover">
+                <img *ngIf="userData?.profileImage" [src]="'https://qimma.runasp.net' + userData.profileImage" class="w-full h-full object-cover">
                 <span *ngIf="!userData?.profileImage">{{ (userData?.username || 'T').substring(0,1).toUpperCase() }}</span>
               </div>
               <div class="hidden sm:block">
@@ -1359,7 +1359,7 @@ import Chart from 'chart.js/auto';
               <div *ngIf="!isLoadingAllStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <div *ngFor="let s of filteredAllPlatformStudents; trackBy: trackById" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition flex flex-col justify-between group">
                   <div class="flex items-start gap-3.5 mb-3">
-                    <img [src]="s.profileImage ? 'http://localhost:5162' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
+                    <img [src]="s.profileImage ? 'https://qimma.runasp.net' + s.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + s.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                     <div class="min-w-0 flex-1">
                       <h4 class="font-extrabold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{{ s.name }}</h4>
                       <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5" *ngIf="s.email">{{ s.email }}</p>
@@ -1407,7 +1407,7 @@ import Chart from 'chart.js/auto';
 
               <div *ngIf="!isLoadingStudents" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div *ngFor="let student of filteredStudents; trackBy: trackById" (click)="selectStudentDetails(student)" class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition cursor-pointer flex items-center gap-3.5 group">
-                  <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-100 dark:border-slate-700 shrink-0">
+                  <img [src]="student.profileImage ? 'https://qimma.runasp.net' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-100 dark:border-slate-700 shrink-0">
                   <div class="flex-1 min-w-0">
                     <p class="font-bold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{{ student.name }}</p>
                     <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">{{ t[lang].viewResults }}</p>
@@ -1431,7 +1431,7 @@ import Chart from 'chart.js/auto';
                     <span class="rtl:rotate-180">←</span>
                   </button>
                   <div class="flex items-center gap-3">
-                    <img [src]="selectedStudent?.profileImage ? 'http://localhost:5162' + selectedStudent.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedStudent?.name)" class="w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 object-cover">
+                    <img [src]="selectedStudent?.profileImage ? 'https://qimma.runasp.net' + selectedStudent.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedStudent?.name)" class="w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 object-cover">
                     <div>
                       <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">{{ selectedStudent?.name }}</h2>
                       <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">{{ selectedCourse?.title }}</p>
@@ -1757,7 +1757,7 @@ import Chart from 'chart.js/auto';
 
                   <div *ngIf="!isLoadingStudentsForLive" class="flex-1 overflow-y-auto space-y-2 pr-1">
                     <div *ngFor="let student of enrolledStudentsForLive; trackBy: trackById" class="p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100/70 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-3">
-                      <img [src]="student.profileImage ? 'http://localhost:5162' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
+                      <img [src]="student.profileImage ? 'https://qimma.runasp.net' + student.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + student.name)" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
                       <div class="min-w-0 flex-1">
                         <p class="font-bold text-slate-800 dark:text-white text-xs truncate">{{ student.name }}</p>
                         <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">
@@ -2605,7 +2605,7 @@ export class TeacherDashboardComponent implements OnInit {
     this.isLoadingAllStudents = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get<any[]>('http://localhost:5162/api/user/students', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/user/students', { headers }).subscribe({
       next: (data) => {
         this.allPlatformStudents = data || [];
         this.isLoadingAllStudents = false;
@@ -2622,7 +2622,7 @@ export class TeacherDashboardComponent implements OnInit {
     this.isLoadingStudentsForLive = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get<any[]>(`http://localhost:5162/api/quiz/course/${course.id}/students`, { headers }).subscribe({
+    this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/course/${course.id}/students`, { headers }).subscribe({
       next: (data) => {
         this.enrolledStudentsForLive = data || [];
         this.isLoadingStudentsForLive = false;
@@ -2815,7 +2815,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    let url = `http://localhost:5162/api/instructor/dashboard/stats?timeframe=${this.selectedChartTimeframe}`;
+    let url = `https://qimma.runasp.net/api/instructor/dashboard/stats?timeframe=${this.selectedChartTimeframe}`;
     if (this.selectedChartDate) {
       url += `&date=${encodeURIComponent(this.selectedChartDate)}`;
     }
@@ -3048,7 +3048,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>('http://localhost:5162/api/notifications', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/notifications', { headers }).subscribe({
       next: (data) => {
         const filteredData = data.filter(n => {
           const msg = n.message || '';
@@ -3127,7 +3127,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.post(`http://localhost:5162/api/notifications/${notif.id}/read`, {}, { headers }).subscribe({
+    this.http.post(`https://qimma.runasp.net/api/notifications/${notif.id}/read`, {}, { headers }).subscribe({
       next: () => {
         notif.isRead = true;
         this.unreadCount = Math.max(0, this.unreadCount - 1);
@@ -3140,7 +3140,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.delete(`http://localhost:5162/api/notifications/${id}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/notifications/${id}`, { headers }).subscribe({
       next: () => {
         const notif = this.notifications.find(n => n.id === id);
         if (notif && !notif.isRead) {
@@ -3155,7 +3155,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.delete('http://localhost:5162/api/notifications/all', { headers }).subscribe({
+    this.http.delete('https://qimma.runasp.net/api/notifications/all', { headers }).subscribe({
       next: () => {
         this.notifications = [];
         this.unreadCount = 0;
@@ -3168,7 +3168,7 @@ export class TeacherDashboardComponent implements OnInit {
     this.unreadCount = 0;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.post('http://localhost:5162/api/notifications/read-all', {}, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/notifications/read-all', {}, { headers }).subscribe({
       next: () => {},
       error: () => {}
     });
@@ -3447,7 +3447,7 @@ export class TeacherDashboardComponent implements OnInit {
     this.isLoading = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get<any[]>('http://localhost:5162/api/schedule/teacher', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/schedule/teacher', { headers }).subscribe({
       next: (data) => {
         this.events = (data || []).map(e => {
           const d = e.eventDate.endsWith('Z') ? e.eventDate : e.eventDate + 'Z';
@@ -3497,7 +3497,7 @@ export class TeacherDashboardComponent implements OnInit {
       if (!payload.eventDate.includes('Z')) {
         payload.eventDate = new Date(payload.eventDate).toISOString();
       }
-      this.http.post('http://localhost:5162/api/schedule', payload, { headers }).subscribe({
+      this.http.post('https://qimma.runasp.net/api/schedule', payload, { headers }).subscribe({
         next: () => {
           this.showEventForm = false;
           this.eventForm.reset({ eventType: '' });
@@ -3518,7 +3518,7 @@ export class TeacherDashboardComponent implements OnInit {
   deleteEvent(id: number) {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.delete(`http://localhost:5162/api/schedule/${id}`, { headers }).subscribe({
+    this.http.delete(`https://qimma.runasp.net/api/schedule/${id}`, { headers }).subscribe({
       next: () => {
         this.events = this.events.filter(e => e.id !== id);
         this.showMessage(this.lang === 'ar' ? 'تم حذف الحدث' : 'Event deleted', 'success');
@@ -3554,7 +3554,7 @@ export class TeacherDashboardComponent implements OnInit {
   fetchUserProfile() {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.get('http://localhost:5162/api/user/profile', { headers }).subscribe({
+    this.http.get('https://qimma.runasp.net/api/user/profile', { headers }).subscribe({
       next: (data: any) => {
         this.userData = data;
       },
@@ -3625,7 +3625,7 @@ export class TeacherDashboardComponent implements OnInit {
     formData.append('file', file);
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.post('http://localhost:5162/api/user/upload-cover', formData, { headers }).subscribe({
+    this.http.post('https://qimma.runasp.net/api/user/upload-cover', formData, { headers }).subscribe({
       next: (res: any) => {
         this.editProfileData.coverImage = res.coverImage;
         this.userData.coverImage = res.coverImage;
@@ -3673,7 +3673,7 @@ export class TeacherDashboardComponent implements OnInit {
         formData.append('file', new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
         const token = localStorage.getItem('token');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-        this.http.post('http://localhost:5162/api/user/upload-avatar', formData, { headers }).subscribe({
+        this.http.post('https://qimma.runasp.net/api/user/upload-avatar', formData, { headers }).subscribe({
           next: (res: any) => {
             this.editProfileData.profileImage = res.profileImage;
             this.userData.profileImage = res.profileImage;
@@ -3705,7 +3705,7 @@ export class TeacherDashboardComponent implements OnInit {
       updateModel.newPassword = this.editProfileData.newPassword.trim();
     }
 
-    this.http.put('http://localhost:5162/api/user/profile', updateModel, { headers }).subscribe({
+    this.http.put('https://qimma.runasp.net/api/user/profile', updateModel, { headers }).subscribe({
       next: () => {
         this.userData.username = this.editProfileData.fullName;
         this.userData.phoneNumber = updateModel.phoneNumber;
@@ -3749,7 +3749,7 @@ export class TeacherDashboardComponent implements OnInit {
     if (url.startsWith('/assets/')) {
       return url.substring(1);
     }
-    return `http://localhost:5162${url.startsWith('/') ? '' : '/'}${url}`;
+    return `https://qimma.runasp.net${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   onFileSelected(event: any) {
@@ -3800,7 +3800,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
-    this.http.get<any[]>('http://localhost:5162/api/course/instructor-courses', { headers }).subscribe({
+    this.http.get<any[]>('https://qimma.runasp.net/api/course/instructor-courses', { headers }).subscribe({
       next: (data: any[]) => {
         this.courses = data || [];
         if ((!this.topCourses || this.topCourses.length === 0) && this.courses.length > 0) {
@@ -3832,7 +3832,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>(`http://localhost:5162/api/quiz/course/${courseId}/students`, { headers }).subscribe({
+    this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/course/${courseId}/students`, { headers }).subscribe({
       next: (data) => {
         this.enrolledStudents = data || [];
         this.isLoadingStudents = false;
@@ -3849,7 +3849,7 @@ export class TeacherDashboardComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any[]>(`http://localhost:5162/api/course/${courseId}/lessons`, { headers }).subscribe({
+    this.http.get<any[]>(`https://qimma.runasp.net/api/course/${courseId}/lessons`, { headers }).subscribe({
       next: (lessons) => {
         const groups = new Map<number, any>();
         
@@ -3863,7 +3863,7 @@ export class TeacherDashboardComponent implements OnInit {
           });
         });
 
-        this.http.get<any[]>(`http://localhost:5162/api/quiz/course/${courseId}/student/${studentId}/results`, { headers }).subscribe({
+        this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/course/${courseId}/student/${studentId}/results`, { headers }).subscribe({
           next: (quizData) => {
             (quizData || []).forEach(item => {
               const lessonGroup = Array.from(groups.values()).find(g => g.lessonId === item.lessonId || g.lessonTitle === item.lessonTitle);
@@ -3872,7 +3872,7 @@ export class TeacherDashboardComponent implements OnInit {
               }
             });
 
-            this.http.get<any[]>(`http://localhost:5162/api/assignments/course/${courseId}`, { headers }).subscribe({
+            this.http.get<any[]>(`https://qimma.runasp.net/api/assignments/course/${courseId}`, { headers }).subscribe({
               next: (allAssignments) => {
                 
                 this.assignmentService.getSubmissionsForGrading(courseId, studentId).subscribe({
@@ -3974,7 +3974,7 @@ export class TeacherDashboardComponent implements OnInit {
     if (this.courseToDeleteId) {
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-      this.http.delete(`http://localhost:5162/api/course/${this.courseToDeleteId}`, { headers }).subscribe({
+      this.http.delete(`https://qimma.runasp.net/api/course/${this.courseToDeleteId}`, { headers }).subscribe({
         next: () => {
           this.showMessage(this.t[this.lang].deleteSuccessMsg, 'success');
           this.loadMyCourses();
@@ -4085,7 +4085,7 @@ export class TeacherDashboardComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     const payload = this.editCourseForm.value;
-    this.http.put<any>(`http://localhost:5162/api/course/${this.selectedCourseToEdit.id}`, payload, { headers }).subscribe({
+    this.http.put<any>(`https://qimma.runasp.net/api/course/${this.selectedCourseToEdit.id}`, payload, { headers }).subscribe({
       next: (updatedCourse) => {
         this.isSaving = false;
         this.editCourseError = null;
@@ -4134,7 +4134,7 @@ export class TeacherDashboardComponent implements OnInit {
       this.createCourseError = null;
       const token = localStorage.getItem('token');
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-      this.http.post<any>('http://localhost:5162/api/course', this.courseForm.value, { headers }).subscribe({
+      this.http.post<any>('https://qimma.runasp.net/api/course', this.courseForm.value, { headers }).subscribe({
         next: (newCourse) => {
           this.showMessage(this.t[this.lang].successMsg, 'success');
           this.createCourseError = null;

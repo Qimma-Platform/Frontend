@@ -8,7 +8,7 @@ import { BehaviorSubject, tap } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
   
-  private apiUrl = 'https://localhost:7225/api/auth'; 
+  private apiUrl = 'https://qimma.runasp.net/api/auth'; 
 
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();

@@ -317,7 +317,7 @@ export class ResetPasswordComponent implements OnInit {
         payload.email = emailVal;
       }
 
-      this.http.post<any>('http://localhost:5162/api/auth/reset-password', payload).subscribe({
+      this.http.post<any>('https://qimma.runasp.net/api/auth/reset-password', payload).subscribe({
         next: (res) => {
           this.isSubmitting = false;
           if (res?.isAdmin === true) {
