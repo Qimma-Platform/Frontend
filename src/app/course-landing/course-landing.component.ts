@@ -15,7 +15,7 @@ import { LanguageService } from '../services/language.service';
            [ngClass]="{
              'bg-emerald-600 border border-emerald-400/30 shadow-emerald-600/30': messageType === 'success', 
              'bg-rose-600 border border-rose-400/30 shadow-rose-600/30': messageType === 'error', 
-             'bg-amber-500 border border-amber-300/40 shadow-amber-500/40': messageType === 'warning'
+             'bg-indigo-600 border border-indigo-400/30 shadow-indigo-600/30': messageType === 'warning'
            }" 
            class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-2xl shadow-2xl text-white font-extrabold transition-all flex items-center gap-3 text-sm">
         <span *ngIf="messageType === 'warning'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0"></span>
@@ -277,8 +277,8 @@ import { LanguageService } from '../services/language.service';
             </div>
 
             <!-- Prominent Redirect Notice inside the modal -->
-            <div *ngIf="isEnrolling" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center justify-center gap-2.5 animate-pulse shadow-sm">
-              <span class="w-4 h-4 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
+            <div *ngIf="isEnrolling" class="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-2.5 animate-pulse shadow-sm">
+              <span class="w-4 h-4 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
               <span>{{ t[lang].warningPay }}</span>
             </div>
 
