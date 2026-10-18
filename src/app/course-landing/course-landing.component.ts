@@ -11,7 +11,16 @@ import { LanguageService } from '../services/language.service';
   imports: [CommonModule, HttpClientModule],
   template: `
     <div class="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
-      <div *ngIf="message" [ngClass]="{'bg-emerald-500': messageType === 'success', 'bg-rose-500': messageType === 'error', 'bg-amber-500': messageType === 'warning'}" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-xl shadow-xl text-white font-bold transition-all flex items-center gap-3">
+      <div *ngIf="message" 
+           [ngClass]="{
+             'bg-emerald-600 border border-emerald-400/30 shadow-emerald-600/30': messageType === 'success', 
+             'bg-rose-600 border border-rose-400/30 shadow-rose-600/30': messageType === 'error', 
+             'bg-amber-500 border border-amber-300/40 shadow-amber-500/40': messageType === 'warning'
+           }" 
+           class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-2xl shadow-2xl text-white font-extrabold transition-all flex items-center gap-3 text-sm">
+        <span *ngIf="messageType === 'warning'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0"></span>
+        <svg *ngIf="messageType === 'success'" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <svg *ngIf="messageType === 'error'" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <span>{{ message }}</span>
       </div>
 
@@ -267,10 +276,16 @@ import { LanguageService } from '../services/language.service';
               </p>
             </div>
 
+            <!-- Prominent Redirect Notice inside the modal -->
+            <div *ngIf="isEnrolling" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center justify-center gap-2.5 animate-pulse shadow-sm">
+              <span class="w-4 h-4 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
+              <span>{{ t[lang].warningPay }}</span>
+            </div>
+
             <button (click)="payWithPaymob()" [disabled]="isEnrolling" 
                     class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-50">
               <span *ngIf="isEnrolling" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ isEnrolling ? (lang === 'ar' ? 'جاري التحويل...' : 'Redirecting...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
+              <span>{{ isEnrolling ? (lang === 'ar' ? 'جاري التحويل لبوابة Paymob...' : 'Redirecting to Paymob...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
             </button>
           </div>
 

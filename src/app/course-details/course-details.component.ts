@@ -15,11 +15,16 @@ import { PaymentService } from '../services/payment.service';
     <div class="bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen pb-12 font-sans relative" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
       
       <div *ngIf="message" 
-           [ngClass]="{'bg-emerald-50 text-emerald-700 border-emerald-200': messageType === 'success', 'bg-rose-50 text-rose-700 border-rose-200': messageType === 'error'}"
-           class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[200] px-6 py-3 rounded-xl shadow-lg border text-sm font-bold flex items-center gap-3 animate-fade-in transition-all">
-        <span *ngIf="messageType === 'success'">✅</span>
-        <span *ngIf="messageType === 'error'">❌</span>
-        {{ message }}
+           [ngClass]="{
+             'bg-emerald-600 border border-emerald-400/30 shadow-emerald-600/30 text-white': messageType === 'success', 
+             'bg-rose-600 border border-rose-400/30 shadow-rose-600/30 text-white': messageType === 'error',
+             'bg-amber-500 border border-amber-300/40 shadow-amber-500/40 text-white': messageType === 'warning'
+           }"
+           class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-2xl shadow-2xl text-sm font-extrabold flex items-center gap-3 animate-fade-in transition-all">
+        <span *ngIf="messageType === 'warning'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0"></span>
+        <svg *ngIf="messageType === 'success'" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <svg *ngIf="messageType === 'error'" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>{{ message }}</span>
       </div>
 
       <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
@@ -481,10 +486,16 @@ import { PaymentService } from '../services/payment.service';
               </p>
             </div>
 
+            <!-- Prominent Redirect Notice inside the modal -->
+            <div *ngIf="isProcessingPayment" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center justify-center gap-2.5 animate-pulse shadow-sm">
+              <span class="w-4 h-4 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin shrink-0"></span>
+              <span>{{ lang === 'ar' ? 'جاري تحويلك لبوابة الدفع...' : 'Redirecting to payment gateway...' }}</span>
+            </div>
+
             <button (click)="payWithPaymob()" [disabled]="isProcessingPayment" 
                     class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-50">
               <span *ngIf="isProcessingPayment" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ isProcessingPayment ? (lang === 'ar' ? 'جاري التحويل...' : 'Redirecting...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
+              <span>{{ isProcessingPayment ? (lang === 'ar' ? 'جاري التحويل لبوابة Paymob...' : 'Redirecting to Paymob...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
             </button>
           </div>
 
@@ -510,7 +521,7 @@ export class CourseDetailsComponent implements OnInit {
   userEmail = '';
 
   message = '';
-  messageType: 'success' | 'error' = 'success';
+  messageType: 'success' | 'error' | 'warning' = 'success';
   showDeleteModal = false;
   lessonToDeleteId: number | null = null;
   editingLessonId: number | null = null;
@@ -655,7 +666,7 @@ export class CourseDetailsComponent implements OnInit {
     });
   }
 
-  showMessage(msg: string, type: 'success' | 'error' = 'success') {
+  showMessage(msg: string, type: 'success' | 'error' | 'warning' = 'success') {
     this.message = msg;
     this.messageType = type;
     setTimeout(() => this.message = '', 3500);
@@ -943,12 +954,13 @@ export class CourseDetailsComponent implements OnInit {
 
   payWithPaymob() {
     this.isProcessingPayment = true;
+    this.showMessage(this.lang === 'ar' ? 'جاري تحويلك لبوابة الدفع...' : 'Redirecting to payment gateway...', 'warning');
     this.paymentService.checkoutCourse(this.courseId).subscribe({
       next: (response: any) => {
         const url = response.checkoutUrl || response.CheckoutUrl;
         this.isProcessingPayment = false;
         if (url) {
-          window.open(url, '_blank');
+          window.location.href = url;
         } else {
           this.showMessage(this.lang === 'ar' ? 'رابط الدفع غير موجود في الاستجابة' : 'Checkout URL not found', 'error');
         }
