@@ -109,11 +109,18 @@ import { LanguageService } from '../services/language.service';
           <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
               <h3 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>💳</span>
+                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
                 <span>{{ lang === 'ar' ? 'اختر وسيلة الدفع المناسبة' : 'Choose Payment Method' }}</span>
               </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {{ course?.title }} • <strong class="text-indigo-600 dark:text-indigo-400">{{ getEffectivePrice() }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</strong>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                <bdi class="font-bold text-slate-700 dark:text-slate-300">{{ course?.title }}</bdi>
+                <span class="text-slate-400">•</span>
+                <span class="font-extrabold text-indigo-600 dark:text-indigo-400" dir="ltr">
+                  {{ getEffectivePrice() }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}
+                </span>
               </p>
             </div>
             <button (click)="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
@@ -124,19 +131,27 @@ import { LanguageService } from '../services/language.service';
             <button (click)="selectedPaymentMethod = 'instapay'"
                     [ngClass]="selectedPaymentMethod === 'instapay' ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
                     class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
-              <span class="text-base">⚡</span>
+              <svg class="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
               <span>{{ lang === 'ar' ? 'إنستاباي' : 'InstaPay' }}</span>
             </button>
             <button (click)="selectedPaymentMethod = 'vodafone'"
                     [ngClass]="selectedPaymentMethod === 'vodafone' ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
                     class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
-              <span class="text-base">🔴</span>
+              <svg class="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
               <span>{{ lang === 'ar' ? 'فودافون كاش' : 'Vodafone' }}</span>
             </button>
             <button (click)="selectedPaymentMethod = 'paymob'"
                     [ngClass]="selectedPaymentMethod === 'paymob' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm font-black' : 'text-slate-600 dark:text-slate-400 font-semibold'"
                     class="py-2.5 px-2 rounded-xl text-xs transition flex flex-col sm:flex-row items-center justify-center gap-1.5">
-              <span class="text-base">💳</span>
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
               <span>Paymob</span>
             </button>
           </div>
@@ -180,7 +195,7 @@ import { LanguageService } from '../services/language.service';
             </div>
 
             <a [href]="getWhatsAppUrl('instapay')" target="_blank" 
-               class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4">
+               class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 mt-4">
               <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
               </svg>
@@ -227,7 +242,7 @@ import { LanguageService } from '../services/language.service';
             </div>
 
             <a [href]="getWhatsAppUrl('vodafone')" target="_blank" 
-               class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4">
+               class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 mt-4">
               <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
               </svg>

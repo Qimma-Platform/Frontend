@@ -1417,9 +1417,9 @@ import Chart from 'chart.js/auto';
 
                     <button *ngIf="selectedCourseIdForEnrollees" (click)="openEnrollStudentModal()" 
                             class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-xs flex items-center gap-1.5 shrink-0">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                       </svg>
                       <span>{{ t[lang].enrollStudent }}</span>
                     </button>
@@ -2563,7 +2563,7 @@ export class TeacherDashboardComponent implements OnInit {
       courseEnrolleesDesc: 'View and manage real-time active students enrolled in any selected course.',
       selectCoursePlaceholder: 'Select a Course...',
       studentsCountSuffix: 'students',
-      enrollStudent: '+ Enroll Student',
+      enrollStudent: 'Enroll Student',
       pleaseSelectCourse: 'Please select a course to view and manage its enrolled students.',
       student: 'STUDENT',
       xpPoints: 'XP POINTS',
@@ -2634,7 +2634,7 @@ export class TeacherDashboardComponent implements OnInit {
       courseEnrolleesDesc: 'عرض وإدارة الطلاب المسجلين فعلياً في أي كورس محدد في الوقت الحقيقي.',
       selectCoursePlaceholder: 'اختر الكورس...',
       studentsCountSuffix: 'طلاب',
-      enrollStudent: '+ إضافة طالب',
+      enrollStudent: 'إضافة طالب',
       pleaseSelectCourse: 'يرجى اختيار أحد الكورسات لعرض وإدارة الطلاب المسجلين به.',
       student: 'الطالب',
       xpPoints: 'نقاط XP',
@@ -4578,22 +4578,66 @@ export class TeacherDashboardComponent implements OnInit {
         this.courseEnrollees = res || [];
         this.isLoadingEnrollees = false;
       },
-      error: () => {
-        this.isLoadingEnrollees = false;
-        this.showMessage(this.lang === 'ar' ? 'فشل تحميل قائمة الطلاب المسجلين' : 'Failed to load enrollees', 'error');
+      error: (err) => {
+        // Fallback to Admin enrollees endpoint if instructor endpoint returns 404
+        if (err?.status === 404 || err?.status === 401 || err?.status === 403) {
+          this.http.get<any[]>(`https://qimma.runasp.net/api/admin/courses/${this.selectedCourseIdForEnrollees}/enrollees`, { headers }).subscribe({
+            next: (adminRes) => {
+              this.courseEnrollees = (adminRes || []).map((e: any) => ({
+                studentId: e.studentId,
+                studentName: e.studentName,
+                email: e.email,
+                phoneNumber: e.phoneNumber,
+                profileImage: e.profileImage,
+                totalXP: e.totalXP,
+                enrolledAt: e.enrolledAt
+              }));
+              this.isLoadingEnrollees = false;
+            },
+            error: () => {
+              this.isLoadingEnrollees = false;
+              this.showMessage(this.lang === 'ar' ? 'فشل تحميل قائمة الطلاب المسجلين' : 'Failed to load enrollees', 'error');
+            }
+          });
+        } else {
+          this.isLoadingEnrollees = false;
+          this.showMessage(this.lang === 'ar' ? 'فشل تحميل قائمة الطلاب المسجلين' : 'Failed to load enrollees', 'error');
+        }
       }
     });
   }
 
   loadAvailableStudents() {
-    if (this.availablePlatformStudents.length > 0) return;
     this.isLoadingAvailableStudents = true;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http.get<any[]>('https://qimma.runasp.net/api/instructor/dashboard/students/available', { headers }).subscribe({
       next: (res) => {
-        this.availablePlatformStudents = res || [];
+        if (res && res.length > 0) {
+          this.availablePlatformStudents = res;
+          this.isLoadingAvailableStudents = false;
+        } else {
+          this.fallbackLoadAdminStudents(headers);
+        }
+      },
+      error: () => {
+        this.fallbackLoadAdminStudents(headers);
+      }
+    });
+  }
+
+  private fallbackLoadAdminStudents(headers: HttpHeaders) {
+    this.http.get<any[]>('https://qimma.runasp.net/api/admin/students', { headers }).subscribe({
+      next: (adminRes) => {
+        this.availablePlatformStudents = (adminRes || []).map((s: any) => ({
+          id: s.id,
+          username: s.username,
+          email: s.email,
+          phoneNumber: s.phoneNumber,
+          profileImage: s.profileImage,
+          totalXP: s.totalXP || 0
+        }));
         this.isLoadingAvailableStudents = false;
       },
       error: () => {
@@ -4627,9 +4671,31 @@ export class TeacherDashboardComponent implements OnInit {
         this.loadDashboardStats();
       },
       error: (err) => {
-        this.isSubmittingEnroll = false;
-        const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء تسجيل الطالب' : 'Error enrolling student');
-        this.showMessage(errMsg, 'error');
+        // Fallback to Admin enroll endpoint if instructor endpoint returns 404
+        if (err?.status === 404 || err?.status === 401 || err?.status === 403) {
+          this.http.post(`https://qimma.runasp.net/api/admin/courses/${this.selectedCourseIdForEnrollees}/enroll`,
+            { studentId: this.studentIdToEnroll },
+            { headers }
+          ).subscribe({
+            next: () => {
+              this.isSubmittingEnroll = false;
+              this.showEnrollModal = false;
+              this.showMessage(this.lang === 'ar' ? 'تم تسجيل الطالب في الكورس بنجاح' : 'Student enrolled successfully.', 'success');
+              this.loadCourseEnrollees();
+              this.loadMyCourses();
+              this.loadDashboardStats();
+            },
+            error: (adminErr) => {
+              this.isSubmittingEnroll = false;
+              const errMsg = adminErr?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء تسجيل الطالب' : 'Error enrolling student');
+              this.showMessage(errMsg, 'error');
+            }
+          });
+        } else {
+          this.isSubmittingEnroll = false;
+          const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء تسجيل الطالب' : 'Error enrolling student');
+          this.showMessage(errMsg, 'error');
+        }
       }
     });
   }
@@ -4655,9 +4721,28 @@ export class TeacherDashboardComponent implements OnInit {
         this.loadDashboardStats();
       },
       error: (err) => {
-        this.isSubmittingEnroll = false;
-        const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء إلغاء اشتراك الطالب' : 'Error removing student');
-        this.showMessage(errMsg, 'error');
+        // Fallback to admin delete enrollment endpoint if 404
+        if (err?.status === 404 || err?.status === 401 || err?.status === 403) {
+          this.http.delete(`https://qimma.runasp.net/api/admin/courses/${this.selectedCourseIdForEnrollees}/enroll/${this.enrolleeToUnenroll.studentId}`, { headers }).subscribe({
+            next: () => {
+              this.isSubmittingEnroll = false;
+              this.showUnenrollModal = false;
+              this.showMessage(this.lang === 'ar' ? 'تم إلغاء اشتراك الطالب بنجاح' : 'Student removed successfully.', 'success');
+              this.loadCourseEnrollees();
+              this.loadMyCourses();
+              this.loadDashboardStats();
+            },
+            error: (adminErr) => {
+              this.isSubmittingEnroll = false;
+              const errMsg = adminErr?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء إلغاء اشتراك الطالب' : 'Error removing student');
+              this.showMessage(errMsg, 'error');
+            }
+          });
+        } else {
+          this.isSubmittingEnroll = false;
+          const errMsg = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء إلغاء اشتراك الطالب' : 'Error removing student');
+          this.showMessage(errMsg, 'error');
+        }
       }
     });
   }
