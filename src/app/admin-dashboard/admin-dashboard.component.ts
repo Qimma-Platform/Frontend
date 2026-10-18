@@ -450,14 +450,14 @@ interface AdminNotification {
                       </svg>
                     </div>
 
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 text-start" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
                       <p class="text-xs font-bold text-slate-900 dark:text-white leading-snug break-words">
-                        {{ getNotificationTitle(notif.message) }}
+                        <bdi>{{ getNotificationTitle(notif.message) }}</bdi>
                       </p>
                       <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed break-words" *ngIf="getNotificationDesc(notif.message)">
-                        {{ getNotificationDesc(notif.message) }}
+                        <bdi>{{ getNotificationDesc(notif.message) }}</bdi>
                       </p>
-                      <div class="flex items-center gap-2 mt-1">
+                      <div class="flex items-center gap-2 mt-1" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
                         <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ formatTimeAgo(notif.createdAt) }}</span>
                         <span class="text-[10px] text-slate-300 dark:text-slate-600">•</span>
                         <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ formatDateTime(notif.createdAt) }}</span>
@@ -4168,14 +4168,125 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
 
+  containsArabic(text: string): boolean {
+    return /[\u0600-\u06FF]/.test(text || '');
+  }
+
+  translateLegacyNotification(message: string, targetLang: 'ar' | 'en'): string {
+    if (!message) return '';
+
+    // Live session notification
+    if (message.includes('بدأ المعلم') || message.includes('started a live session')) {
+      if (targetLang === 'en') {
+        return message
+          .replace(/بدأ المعلم/g, 'Instructor')
+          .replace(/بثاً مباشراً لكورس/g, 'started a live session for course')
+          .replace(/انضم الآن!?/g, 'Join now!')
+          .replace(/\. انضم الآن!?/g, '. Join now!');
+      } else {
+        return message
+          .replace(/Instructor/g, 'بدأ المعلم')
+          .replace(/started a live session for course/g, 'بثاً مباشراً لكورس')
+          .replace(/Join now!?/g, 'انضم الآن!')
+          .replace(/\. Join now!?/g, '. انضم الآن!');
+      }
+    }
+
+    // Extract student & course inside quotes: 'Student' ... 'Course'
+    const quotes = [...message.matchAll(/'([^']+)'/g)].map(m => m[1]);
+    const student = quotes[0] || '';
+    const course = quotes[1] || '';
+
+    // Amount: بمبلغ 108.00 ج.م or for 108.00 EGP
+    const amountMatch = message.match(/(?:بمبلغ|for)\s*([\d\.]+)\s*(?:ج\.م|EGP)/i);
+    const amount = amountMatch ? amountMatch[1] : '';
+
+    // Profit: أرباحك: 86.40 ج.م or profit: 86.40 EGP
+    const profitMatch = message.match(/(?:أرباحك|profit):\s*([\d\.]+)\s*(?:ج\.م|EGP)/i);
+    const profit = profitMatch ? profitMatch[1] : '';
+
+    // Platform share & instructor share:
+    const platformMatch = message.match(/نسبة المنصة:\s*([\d\.]+)\s*ج\.م/);
+    const platformShare = platformMatch ? platformMatch[1] : '';
+    const instShareMatch = message.match(/نسبة المعلم:\s*([\d\.]+)\s*ج\.م/);
+    const instShare = instShareMatch ? instShareMatch[1] : '';
+
+    const isAdminEnroll = message.includes('المشرف') || message.includes('Admin');
+
+    if (student && course) {
+      if (targetLang === 'en') {
+        if (platformShare && instShare) {
+          return `Student '${student}' enrolled in course '${course}' for ${amount} EGP (Platform: ${platformShare} EGP, Instructor: ${instShare} EGP).`;
+        }
+        if (isAdminEnroll) {
+          return `Admin enrolled student '${student}' in course '${course}'${amount ? ' for ' + amount + ' EGP' : ''}${profit ? ' (Instructor profit: ' + profit + ' EGP)' : ''}.`;
+        }
+        if (profit) {
+          return `Student '${student}' was enrolled in course '${course}'${amount ? ' for ' + amount + ' EGP' : ''} (Instructor profit: ${profit} EGP).`;
+        }
+        if (amount) {
+          return `Student '${student}' enrolled in course '${course}' for ${amount} EGP.`;
+        }
+        return `Student '${student}' enrolled in free course '${course}'.`;
+      } else {
+        if (platformShare && instShare) {
+          return `تم تسجيل الطالب '${student}' في كورس '${course}' بمبلغ ${amount} ج.م (نسبة المنصة: ${platformShare} ج.م، نسبة المعلم: ${instShare} ج.م).`;
+        }
+        if (isAdminEnroll) {
+          return `قام المشرف بتسجيل الطالب '${student}' في كورس '${course}'${amount ? ' بمبلغ ' + amount + ' ج.م' : ''}${profit ? ' (أرباح المعلم: ' + profit + ' ج.م)' : ''}.`;
+        }
+        if (profit) {
+          return `تم تسجيل الطالب '${student}' في كورس '${course}'${amount ? ' بمبلغ ' + amount + ' ج.م' : ''} (أرباح المعلم: ${profit} ج.م).`;
+        }
+        if (amount) {
+          return `تم تسجيل الطالب '${student}' في كورس '${course}' بمبلغ ${amount} ج.م.`;
+        }
+        return `تم تسجيل الطالب '${student}' في الكورس المجاني '${course}'.`;
+      }
+    }
+
+    if (targetLang === 'en' && this.containsArabic(message)) {
+      return message
+        .replace(/طالب جديد انضم!?\s*/g, 'New student joined! ')
+        .replace(/لقد قام المشرف بتسجيل الطالب/g, 'Admin enrolled student')
+        .replace(/تم تسجيل الطالب/g, 'Student was enrolled')
+        .replace(/لقد قام الطالب/g, 'Student')
+        .replace(/قام الطالب/g, 'Student')
+        .replace(/بالاشتراك في كورس/g, 'enrolled in course')
+        .replace(/في كورس/g, 'in course')
+        .replace(/في الكورس المجاني/g, 'in free course')
+        .replace(/بمبلغ/g, 'for')
+        .replace(/\(أرباحك:/g, '(Profit:')
+        .replace(/أرباحك:/g, 'Profit:')
+        .replace(/ج\.م/g, 'EGP');
+    }
+
+    if (targetLang === 'ar' && !this.containsArabic(message)) {
+      return message
+        .replace(/New student enrolled!?\s*/gi, 'انضم طالب جديد! ')
+        .replace(/Student was enrolled in course/gi, 'تم تسجيل الطالب في كورس')
+        .replace(/enrolled in course/gi, 'اشترك في كورس')
+        .replace(/Your profit:/gi, 'أرباح المعلم:')
+        .replace(/EGP/gi, 'ج.م');
+    }
+
+    return message;
+  }
+
   getNotificationType(message: string): string {
     if (!message) return 'SYSTEM';
     if (message.includes('||')) {
-      return message.split('||')[0].trim();
+      const type = message.split('||')[0].trim();
+      if (type.includes('ENROLLMENT_PAID') || type.includes('PAID')) return 'ENROLLMENT_PAID';
+      if (type.includes('ENROLLMENT') || type.includes('ENROLLED')) return 'ENROLLMENT';
+      if (type.includes('ASSIGNMENT')) return 'ASSIGNMENT';
+      if (type.includes('USER') || type.includes('STUDENT') || type.includes('INSTRUCTOR')) return 'NEW_USER';
+      return type;
     }
-    if (message.includes('ENROLLMENT_PAID') || message.includes('paid')) return 'ENROLLMENT_PAID';
-    if (message.includes('enrolled')) return 'ENROLLMENT';
-    if (message.includes('Instructor') || message.includes('Student') || message.includes('registered')) return 'NEW_USER';
+    if (message.includes('paid') || message.includes('مدفوع') || message.includes('أرباحك') || message.includes('profit') || message.includes('ج.م') || message.includes('EGP')) return 'ENROLLMENT_PAID';
+    if (message.includes('enrolled') || message.includes('انضم') || message.includes('اشترك')) return 'ENROLLMENT';
+    if (message.includes('assignment') || message.includes('واجب') || message.includes('تسليم')) return 'ASSIGNMENT';
+    if (message.includes('Instructor') || message.includes('Student') || message.includes('طالب') || message.includes('معلم')) return 'NEW_USER';
     return 'SYSTEM';
   }
 
@@ -4196,6 +4307,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       const title = parts[2] || parts[1] || '';
       return this.lang === 'ar' ? `موعد جديد: ${title}` : `New Schedule: ${title}`;
     }
+    if (type === 'LIVE_SESSION') {
+      return this.lang === 'ar' ? 'جلسة بث مباشر جديدة' : 'New Live Session';
+    }
     if (type === 'QUIZ_FULLMARK') {
       return this.lang === 'ar' ? '🎉 الدرجة النهائية في الكويز!' : '🎉 Full Mark in Quiz!';
     }
@@ -4215,55 +4329,48 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       const title = parts[1] || '';
       return this.lang === 'ar' ? `تم تصحيح الواجب: ${title}` : `Assignment Graded: ${title}`;
     }
-    if (type === 'ENROLLMENT_PAID' || type === 'ENROLLMENT') {
-      const isPaid = type === 'ENROLLMENT_PAID';
-      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
-      if (text && text.includes(':')) {
-        return text.split(':')[0].trim();
-      }
-      if (isPaid) {
-        return this.lang === 'ar' ? 'اشتراك كورس (مدفوع)' : 'Paid Course Enrollment';
-      }
+    if (type === 'ENROLLMENT_PAID') {
+      return this.lang === 'ar' ? 'اشتراك كورس (مدفوع)' : 'Paid Course Enrollment';
+    }
+    if (type === 'ENROLLMENT') {
       return this.lang === 'ar' ? 'اشتراك كورس جديد' : 'New Course Enrollment';
     }
     if (type === 'NEW_USER' || type === 'NEW_INSTRUCTOR' || type === 'NEW_STUDENT') {
-      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
-      if (text && text.includes(':')) {
-        return text.split(':')[0].trim();
-      }
       return this.lang === 'ar' ? 'انضمام مستخدم جديد' : 'New User Registration';
     }
     if (type === 'SYSTEM') {
-      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
-      if (text && text.includes(':')) {
-        return text.split(':')[0].trim();
-      }
       return this.lang === 'ar' ? 'إشعار من النظام' : 'System Notification';
     }
 
     if (message.includes('بدأ المعلم') || message.includes('started a live session')) {
       return this.lang === 'ar' ? 'جلسة بث مباشر جديدة' : 'New Live Session';
     }
-    if (message.includes('طالب جديد انضم') || message.includes('New student enrolled')) {
+    if (message.includes('طالب جديد انضم') || message.includes('New student enrolled') || message.includes('تم تسجيل الطالب') || message.includes('اشتراك كورس')) {
+      const isPaid = message.includes('أرباحك') || message.includes('profit') || message.includes('بمبلغ') || message.includes('PAID');
+      if (isPaid) {
+        return this.lang === 'ar' ? 'اشتراك كورس (مدفوع)' : 'Paid Course Enrollment';
+      }
       return this.lang === 'ar' ? 'اشتراك طالب جديد' : 'New Student Enrollment';
     }
     if (message.includes('AI graded your task') || message.includes('تصحيح المهمة')) {
       return this.lang === 'ar' ? 'تقييم المهمة بالذكاء الاصطناعي' : 'AI Task Evaluation';
     }
 
-    if (parts.length >= 3) {
-      const content = this.lang === 'ar' ? parts[1] : parts[2];
-      if (content && content.includes(':')) return content.split(':')[0].trim();
-      return content || '';
-    }
-    if (parts.length === 2 && parts[1]) {
-      if (parts[1].includes(':')) return parts[1].split(':')[0].trim();
-      return parts[1];
+    if (parts.length >= 2) {
+      const content = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (content) {
+        const colonIdx = content.indexOf(':');
+        if (colonIdx > 0 && colonIdx < 30 && !content.substring(0, colonIdx).includes('(') && !content.substring(0, colonIdx).includes('أرباح')) {
+          return content.substring(0, colonIdx).trim();
+        }
+      }
     }
 
-    if (message.includes(':')) {
-      return message.split(':')[0].trim();
+    const colonIdx = message.indexOf(':');
+    if (colonIdx > 0 && colonIdx < 30 && !message.substring(0, colonIdx).includes('(') && !message.substring(0, colonIdx).includes('أرباح')) {
+      return message.substring(0, colonIdx).trim();
     }
+
     return this.lang === 'ar' ? 'إشعار جديد' : 'New Notification';
   }
 
@@ -4293,6 +4400,9 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       return this.lang === 'ar'
         ? `تم إضافة موعد جديد (${eventType}) بعنوان '${title}' لكورس '${courseTitle}'.`
         : `A new schedule event (${eventType}) titled '${title}' has been added for course '${courseTitle}'.`;
+    }
+    if (type === 'LIVE_SESSION') {
+      return this.lang === 'ar' ? (parts[1] || '') : (parts[2] || parts[1] || '');
     }
     if (type === 'QUIZ_FULLMARK') {
       const xp = parts[1] || '50';
@@ -4331,36 +4441,31 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
         ? `تم تقييم واجبك '${title}'. نتيجتك: ${score}/${totalScore}.`
         : `Your assignment '${title}' has been graded. You scored ${score}/${totalScore}.`;
     }
-    if (type === 'ENROLLMENT_PAID' || type === 'ENROLLMENT' || type === 'NEW_USER' || type === 'NEW_INSTRUCTOR' || type === 'NEW_STUDENT' || type === 'SYSTEM') {
-      const text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
-      if (text && text.includes(':')) {
-        return text.split(':').slice(1).join(':').trim();
+
+    if (parts.length >= 2) {
+      let text = this.lang === 'ar' ? parts[1] : (parts[2] || parts[1]);
+      if (this.lang === 'en' && !parts[2] && this.containsArabic(text)) {
+        return this.translateLegacyNotification(text, 'en');
       }
-      return text || '';
+      const colonIdx = text.indexOf(':');
+      if (colonIdx > 0 && colonIdx < 35 && !text.substring(0, colonIdx).includes('(') && !text.substring(0, colonIdx).includes('أرباح')) {
+        return text.substring(colonIdx + 1).trim();
+      }
+      return text;
     }
 
-    if (this.lang === 'en') {
-      if (message.includes('بدأ المعلم') && message.includes('بثاً مباشراً')) {
-        return message.replace('بدأ المعلم', 'Instructor').replace('بثاً مباشراً لكورس', 'started a live session for').replace('انضم الآن!', 'Join now!').replace('. انضم الآن!', '. Join now!');
-      }
-      if (message.includes('طالب جديد انضم')) {
-        return message.replace('طالب جديد انضم! لقد قام الطالب', 'New student enrolled! Student').replace('بالاشتراك في كورس', 'enrolled in course');
-      }
-      if (message.includes('Great job! AI graded your task')) {
-        return message;
-      }
-    } else {
-      if (message.includes('started a live session for')) {
-        return message.replace('Instructor', 'بدأ المعلم').replace('started a live session for', 'بثاً مباشراً لكورس').replace('Join now!', 'انضم الآن!').replace('. Join now!', '. انضم الآن!');
-      }
-      if (message.includes('New student enrolled')) {
-        return message.replace('New student enrolled! Student', 'طالب جديد انضم! لقد قام الطالب').replace('enrolled in course', 'بالاشتراك في كورس');
-      }
+    // Legacy un-delimited notifications
+    if (message.includes('بدأ المعلم') || message.includes('started a live session') ||
+        message.includes('طالب جديد انضم') || message.includes('New student enrolled') ||
+        message.includes('تم تسجيل الطالب') || message.includes('قام الطالب')) {
+      return this.translateLegacyNotification(message, this.lang);
     }
 
-    if (message.includes(':')) {
-      return message.split(':').slice(1).join(':').trim();
+    const colonIdx = message.indexOf(':');
+    if (colonIdx > 0 && colonIdx < 35 && !message.substring(0, colonIdx).includes('(') && !message.substring(0, colonIdx).includes('أرباح')) {
+      return message.substring(colonIdx + 1).trim();
     }
+
     return message;
   }
 
