@@ -436,6 +436,16 @@ interface FeaturedCourse {
                 {{ lang === 'ar' ? 'أعلى 4 كورسات تقييماً على المنصة (تحديث تلقائي ديناميكي)' : 'Top 4 rated courses dynamically updated based on reviews' }}
               </p>
             </div>
+
+            <div>
+              <a [routerLink]="['/login']" [queryParams]="{ tab: 'signup' }" 
+                 class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all group">
+                <span>{{ lang === 'ar' ? 'عرض جميع الكورسات' : 'View All Courses' }}</span>
+                <svg class="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
           <!-- Courses Grid: Exactly 4 courses, NO free/paid price indicator (Req E & S) -->

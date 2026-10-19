@@ -126,6 +126,16 @@ import { ThemeService } from './services/theme.service';
             </div>
 
             <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الصف الدراسي' : 'Grade Level' }}</label>
+              <select [(ngModel)]="editProfileData.gradeLevel" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+                <option value="">{{ lang === 'ar' ? '-- اختر الصف الدراسي --' : '-- Select Grade Level --' }}</option>
+                <option *ngFor="let g of gradeLevels" [value]="lang === 'ar' ? g.ar : g.en">
+                  {{ lang === 'ar' ? g.ar : g.en }}
+                </option>
+              </select>
+            </div>
+
+            <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ t[lang].bio }}</label>
               <textarea [(ngModel)]="editProfileData.bio" rows="3" [placeholder]="t[lang].bioPlaceholder" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none"></textarea>
             </div>
@@ -318,10 +328,6 @@ import { ThemeService } from './services/theme.service';
             <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
               {{ getTabTitle() }}
             </h2>
-            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>{{ t[lang].systemStatusOk }}</span>
-            </span>
           </div>
 
           <div class="flex items-center gap-3">
@@ -1279,8 +1285,25 @@ export class StudentDashboardComponent implements OnInit {
   showUnsavedModal = false;
   isSaving = false;
 
-  editProfileData: any = { fullName: '', email: '', phone: '', countryCode: '+20', bio: '', profileImage: '', newPassword: '' };
+  editProfileData: any = { fullName: '', email: '', phone: '', countryCode: '+20', bio: '', gradeLevel: '', profileImage: '', newPassword: '' };
   originalProfileData: string = '';
+
+  gradeLevels = [
+    { ar: 'الصف الأول الابتدائي', en: '1st Primary' },
+    { ar: 'الصف الثاني الابتدائي', en: '2nd Primary' },
+    { ar: 'الصف الثالث الابتدائي', en: '3rd Primary' },
+    { ar: 'الصف الرابع الابتدائي', en: '4th Primary' },
+    { ar: 'الصف الخامس الابتدائي', en: '5th Primary' },
+    { ar: 'الصف السادس الابتدائي', en: '6th Primary' },
+    { ar: 'الصف الأول الإعدادي', en: '1st Preparatory' },
+    { ar: 'الصف الثاني الإعدادي', en: '2nd Preparatory' },
+    { ar: 'الصف الثالث الإعدادي', en: '3rd Preparatory' },
+    { ar: 'الصف الأول الثانوي', en: '1st Secondary' },
+    { ar: 'الصف الثاني الثانوي', en: '2nd Secondary' },
+    { ar: 'الصف الثالث الثانوي', en: '3rd Secondary' },
+    { ar: 'المرحلة الجامعية', en: 'University Level' },
+    { ar: 'أخرى', en: 'Other' }
+  ];
 
   message = '';
   messageType: 'success' | 'error' = 'success';
@@ -2338,6 +2361,7 @@ export class StudentDashboardComponent implements OnInit {
       phone: this.userData?.phoneNumber?.split(' ')[1] || '',
       countryCode: this.userData?.phoneNumber?.split(' ')[0] || '+20',
       bio: this.userData?.bio || '',
+      gradeLevel: this.userData?.gradeLevel || '',
       profileImage: this.userData?.profileImage || '',
       newPassword: ''
     };
@@ -2471,7 +2495,9 @@ export class StudentDashboardComponent implements OnInit {
 
     const updateModel: any = {
       username: this.editProfileData.fullName,
-      phoneNumber: this.editProfileData.countryCode + ' ' + this.editProfileData.phone
+      phoneNumber: this.editProfileData.countryCode + ' ' + this.editProfileData.phone,
+      bio: this.editProfileData.bio || '',
+      gradeLevel: this.editProfileData.gradeLevel || null
     };
     if (this.editProfileData.newPassword && this.editProfileData.newPassword.trim() !== '') {
       updateModel.newPassword = this.editProfileData.newPassword.trim();
@@ -2480,6 +2506,7 @@ export class StudentDashboardComponent implements OnInit {
       next: () => {
         this.userData.username = this.editProfileData.fullName;
         this.userData.phoneNumber = updateModel.phoneNumber;
+        this.userData.gradeLevel = this.editProfileData.gradeLevel;
         this.editProfileData.newPassword = '';
         this.originalProfileData = JSON.stringify(this.editProfileData);
         this.isSaving = false;

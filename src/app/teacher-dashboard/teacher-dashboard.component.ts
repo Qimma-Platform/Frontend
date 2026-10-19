@@ -181,7 +181,7 @@ import Chart from 'chart.js/auto';
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                 </div>
                 <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium leading-tight">
-                  {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 20% من سعر الكورس.' : 'Notice: Platform deducts 20% of the price.' }}
+                  {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 10% من سعر الكورس.' : 'Notice: Platform deducts 10% of the price.' }}
                 </p>
               </div>
               <div>
@@ -382,7 +382,7 @@ import Chart from 'chart.js/auto';
                   <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                 </div>
                 <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 font-medium leading-tight">
-                  {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 20% من سعر الكورس.' : 'Notice: Platform deducts 20% of the price.' }}
+                  {{ lang === 'ar' ? 'تنبيه: تخصم المنصة نسبة 10% من سعر الكورس.' : 'Notice: Platform deducts 10% of the price.' }}
                 </p>
               </div>
               <div>
@@ -682,10 +682,6 @@ import Chart from 'chart.js/auto';
             <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
               {{ getTabTitle() }}
             </h2>
-            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>{{ t[lang].systemStatusOk }}</span>
-            </span>
           </div>
 
           <div class="flex items-center gap-3">
@@ -1352,7 +1348,13 @@ import Chart from 'chart.js/auto';
                       <span *ngIf="!c.isFree" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50">
                         <span>{{ lang === 'ar' ? 'مدفوع' : 'Paid' }}</span>
                         <span class="text-indigo-300 dark:text-indigo-500">•</span>
-                        <span class="dir-ltr font-extrabold">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        <ng-container *ngIf="c.discountPercentage > 0">
+                          <span class="dir-ltr font-extrabold text-indigo-600 dark:text-indigo-300">{{ (c.price - (c.price * c.discountPercentage / 100)) | number:'1.0-2' }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                          <span class="dir-ltr line-through text-slate-400 dark:text-slate-500 text-[11px] font-medium">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        </ng-container>
+                        <ng-container *ngIf="!c.discountPercentage || c.discountPercentage <= 0">
+                          <span class="dir-ltr font-extrabold">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        </ng-container>
                       </span>
                     </div>
                     <div class="flex items-center gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -2323,8 +2325,8 @@ import Chart from 'chart.js/auto';
                 </h3>
                 <div class="space-y-4">
                   <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم احتساب نسبة المنصة (20%) وصرف الأرباح؟' : 'How does the 20% platform deduction and payout work?' }}</h4>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ lang === 'ar' ? 'تخصم المنصة 20% لتغطية خوادم الاستضافة، البث المباشر، وتكاليف بوابات الدفع الإلكتروني. يتم تحويل صافي أرباحك دورياً عبر فودافون كاش، إنستاباي، أو التحويل البنكي.' : 'The platform deducts 20% to cover cloud hosting, video streaming, and secure payment gateway processing. Net profits are disbursed periodically via Vodafone Cash, InstaPay, or direct bank transfer.' }}</p>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف يتم احتساب نسبة المنصة (10%) وصرف الأرباح؟' : 'How does the 10% platform deduction and payout work?' }}</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ lang === 'ar' ? 'تخصم المنصة 10% فقط لتغطية خوادم الاستضافة، البث المباشر، وتكاليف بوابات الدفع الإلكتروني. يتم تحويل صافي أرباحك (90%) دورياً عبر فودافون كاش، إنستاباي، أو التحويل البنكي.' : 'The platform deducts only 10% to cover cloud hosting, video streaming, and secure payment gateway processing. Net profits (90%) are disbursed periodically via Vodafone Cash, InstaPay, or direct bank transfer.' }}</p>
                   </div>
                   <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
                     <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2">{{ lang === 'ar' ? 'كيف أقوم ببث جلسة مباشرة لطلابي عبر Google Meet أو Zoom؟' : 'How do I broadcast live sessions via Google Meet or Zoom?' }}</h4>

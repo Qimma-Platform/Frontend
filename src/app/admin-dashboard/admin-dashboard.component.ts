@@ -108,6 +108,20 @@ interface AdminNotification {
   createdAt: string;
 }
 
+interface AdminTeacherEarnings {
+  teacherId: number;
+  teacherName: string;
+  email: string;
+  phoneNumber?: string;
+  profileImage?: string;
+  coursesCount: number;
+  paidStudentsCount: number;
+  totalPaid: number;
+  teacherDues: number;
+  platformDues: number;
+  walletBalance: number;
+}
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -270,6 +284,18 @@ interface AdminNotification {
               <line x1="1" y1="10" x2="23" y2="10"></line>
             </svg>
             <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].paidStudents }}</span>
+          </button>
+
+          <!-- 7. Teacher Earnings Tab (New Requirement) -->
+          <button (click)="switchTab('teacher-earnings')" 
+                  [ngClass]="activeTab === 'teacher-earnings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-300 hover:bg-white/5 hover:text-white'"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-start"
+                  [class.justify-center]="isSidebarCollapsed && !isMobileSidebarOpen"
+                  [title]="t[lang].teacherEarnings">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span *ngIf="!isSidebarCollapsed || isMobileSidebarOpen" class="truncate">{{ t[lang].teacherEarnings }}</span>
           </button>
 
           <!-- 7. Audit Logs Tab -->
@@ -700,7 +726,12 @@ interface AdminNotification {
                     <div class="text-end shrink-0">
                       <p class="font-black text-xs text-indigo-600 dark:text-indigo-400">{{ c.enrolledStudentsCount }} {{ t[lang].studentsCountSuffix }}</p>
                       <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                        {{ c.isFree ? t[lang].freeBadge : (c.price + ' ' + (lang === 'ar' ? 'ج.م' : 'EGP')) }}
+                        <ng-container *ngIf="c.isFree">{{ t[lang].freeBadge }}</ng-container>
+                        <ng-container *ngIf="!c.isFree">
+                          <span *ngIf="c.discountPercentage > 0" class="text-indigo-600 dark:text-indigo-400 font-black">{{ (c.price - (c.price * c.discountPercentage / 100)) | number:'1.0-2' }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                          <span *ngIf="c.discountPercentage > 0" class="line-through text-slate-400 dark:text-slate-500 text-[10px] ml-1 mr-1">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                          <span *ngIf="!c.discountPercentage || c.discountPercentage <= 0">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        </ng-container>
                       </span>
                     </div>
                   </div>
@@ -1100,9 +1131,15 @@ interface AdminNotification {
                         <span *ngIf="c.isFree" class="px-2.5 py-1 bg-emerald-600 text-white text-xs font-black rounded-xl shadow-md">
                           {{ t[lang].freeBadge }}
                         </span>
-                        <span *ngIf="!c.isFree" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-black rounded-xl shadow-md">
-                          {{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}
-                        </span>
+                        <div *ngIf="!c.isFree" class="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-600 text-white text-xs font-black rounded-xl shadow-md">
+                          <ng-container *ngIf="c.discountPercentage > 0">
+                            <span>{{ (c.price - (c.price * c.discountPercentage / 100)) | number:'1.0-2' }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                            <span class="line-through text-indigo-200 text-[10px] font-medium">{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="!c.discountPercentage || c.discountPercentage <= 0">
+                            <span>{{ c.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                          </ng-container>
+                        </div>
                       </div>
                     </div>
 
@@ -1544,10 +1581,10 @@ interface AdminNotification {
                         {{ ps.amountPaid }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                       </td>
                       <td class="px-6 py-4 font-black text-blue-600 dark:text-blue-400">
-                        {{ (ps.amountPaid * 0.20) | number:'1.0-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        {{ (ps.amountPaid * 0.10) | number:'1.0-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                       </td>
                       <td class="px-6 py-4 font-black text-purple-600 dark:text-purple-400">
-                        {{ (ps.amountPaid * 0.80) | number:'1.0-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                        {{ (ps.amountPaid * 0.90) | number:'1.0-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
                       </td>
                       <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">{{ formatDateTime(ps.enrolledAt) }}</td>
                       <td class="px-6 py-4 text-center">
@@ -1565,7 +1602,143 @@ interface AdminNotification {
           </div>
 
           <!-- ======================================================== -->
-          <!-- TAB 7: AUDIT LOGS (Removed refresh icon 🔄 per Req 4) -->
+          <!-- TAB 7: TEACHER EARNINGS (New Requirement)                -->
+          <!-- ======================================================== -->
+          <div *ngIf="activeTab === 'teacher-earnings'" class="space-y-6 animate-fade-in">
+            
+            <!-- Summary Header Banner -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 lg:p-8 shadow-xs">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>{{ t[lang].teacherEarningsTitle }}</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ t[lang].teacherEarningsDesc }}</p>
+                </div>
+
+                <!-- 4 Summary Badges: Instructors Count, Total Paid, Teacher Dues (90%), Platform Dues (10%) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl text-center">
+                    <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ t[lang].totalTeachersCount }}</p>
+                    <p class="text-xl font-black text-slate-800 dark:text-white mt-0.5">{{ filteredTeacherEarnings.length }}</p>
+                  </div>
+                  <div class="p-3.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl text-center">
+                    <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">{{ t[lang].totalPaid }}</p>
+                    <p class="text-xl font-black text-emerald-800 dark:text-emerald-300 mt-0.5">{{ calculateTotalTeacherEarningsPaid() | number }} <span class="text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span></p>
+                  </div>
+                  <div class="p-3.5 bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 rounded-2xl text-center">
+                    <p class="text-[11px] font-bold text-purple-700 dark:text-purple-400">{{ t[lang].teacherDues }}</p>
+                    <p class="text-xl font-black text-purple-800 dark:text-purple-300 mt-0.5">{{ calculateTotalTeacherDues() | number }} <span class="text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span></p>
+                  </div>
+                  <div class="p-3.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-2xl text-center">
+                    <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">{{ t[lang].platformDues }}</p>
+                    <p class="text-xl font-black text-blue-800 dark:text-blue-300 mt-0.5">{{ calculateTotalPlatformDues() | number }} <span class="text-xs">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Controls bar with Search -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="relative flex-1 max-w-md">
+                <svg class="w-4 h-4 text-slate-400 absolute ltr:left-3.5 rtl:right-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" 
+                       [(ngModel)]="teacherEarningsSearch" 
+                       placeholder="{{ t[lang].searchTeacherEarningsPlaceholder }}" 
+                       class="w-full ltr:pl-10 rtl:pr-10 ltr:pr-4 rtl:pl-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-xs">
+              </div>
+              <button (click)="fetchTeacherEarnings()" 
+                      [disabled]="isLoadingTeacherEarnings"
+                      class="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-bold transition shadow-xs flex items-center gap-1.5 border border-indigo-200/50 dark:border-indigo-800/50 cursor-pointer self-start sm:self-auto">
+                <svg class="w-3.5 h-3.5" [class.animate-spin]="isLoadingTeacherEarnings" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>{{ lang === 'ar' ? 'تحديث' : 'Refresh' }}</span>
+              </button>
+            </div>
+
+            <!-- Teacher Earnings Table -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm" [dir]="lang === 'ar' ? 'rtl' : 'ltr'">
+                  <thead class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <tr>
+                      <th class="px-6 py-4">{{ t[lang].instructor }}</th>
+                      <th class="px-6 py-4 text-center">{{ t[lang].coursesCount }}</th>
+                      <th class="px-6 py-4 text-center">{{ t[lang].paidStudentsCount }}</th>
+                      <th class="px-6 py-4">{{ t[lang].totalPaid }}</th>
+                      <th class="px-6 py-4 text-purple-700 dark:text-purple-400">{{ t[lang].teacherDues }}</th>
+                      <th class="px-6 py-4 text-blue-700 dark:text-blue-400">{{ t[lang].platformDues }}</th>
+                      <th class="px-6 py-4 text-emerald-700 dark:text-emerald-400">{{ t[lang].walletBalance }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                    <tr *ngIf="isLoadingTeacherEarnings">
+                      <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-bold">
+                        <div class="flex items-center justify-center gap-2">
+                          <svg class="animate-spin w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>{{ lang === 'ar' ? 'جاري تحميل أرباح المعلمين...' : 'Loading teacher earnings...' }}</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr *ngIf="!isLoadingTeacherEarnings && filteredTeacherEarnings.length === 0" class="text-center">
+                      <td colspan="7" class="px-6 py-12 text-slate-400 dark:text-slate-500 font-bold">
+                        {{ t[lang].noTeacherEarningsFound }}
+                      </td>
+                    </tr>
+                    <tr *ngFor="let te of filteredTeacherEarnings" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                      <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                          <img [src]="te.profileImage ? 'https://qimma.runasp.net' + te.profileImage : ('https://api.dicebear.com/7.x/avataaars/svg?seed=' + te.teacherName)" 
+                               class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 object-cover border border-slate-200 dark:border-slate-700 shrink-0">
+                          <div>
+                            <p class="font-bold text-slate-900 dark:text-white">{{ te.teacherName }}</p>
+                            <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{{ te.email }}</span>
+                            <span *ngIf="te.phoneNumber" class="block text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ te.phoneNumber }}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          {{ te.coursesCount }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
+                          {{ te.paidStudentsCount }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 font-black text-slate-900 dark:text-white">
+                        {{ te.totalPaid | number:'1.2-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                      </td>
+                      <td class="px-6 py-4 font-black text-purple-600 dark:text-purple-400">
+                        {{ te.teacherDues | number:'1.2-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                      </td>
+                      <td class="px-6 py-4 font-black text-blue-600 dark:text-blue-400">
+                        {{ te.platformDues | number:'1.2-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                      </td>
+                      <td class="px-6 py-4 font-black text-emerald-600 dark:text-emerald-400">
+                        {{ te.walletBalance | number:'1.2-2' }} <span class="text-xs font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- TAB 8: AUDIT LOGS (Removed refresh icon 🔄 per Req 4) -->
           <!-- ======================================================== -->
           <div *ngIf="activeTab === 'logs'" class="space-y-6 animate-fade-in">
             
@@ -2227,6 +2400,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   isMobileSidebarOpen = false;
   activeTab = 'overview';
   isLoading = false;
+  isLoadingTeacherEarnings = false;
   isSubmitting = false;
 
   adminName = 'Super Admin';
@@ -2237,6 +2411,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   courses: AdminCourse[] = [];
   enrollees: AdminEnrollee[] = [];
   paidStudents: AdminPaidStudent[] = [];
+  teacherEarnings: AdminTeacherEarnings[] = [];
   auditLogs: AdminAuditLog[] = [];
 
   // Filter & Search states
@@ -2245,6 +2420,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   instructorCourseSearch = '';
   courseSearch = '';
   paidStudentsSearch = '';
+  teacherEarningsSearch = '';
   logSearch = '';
 
   // Timeframe filter for Overview
@@ -2439,9 +2615,21 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       paidStudentsDesc: 'Verified record of students who completed paid course enrollments.',
       totalPaidRecords: 'Paid Enrollments',
       totalPaidRevenue: 'Total Paid Revenue',
-      platformShare: 'Platform Share (20%)',
-      instructorShare: 'Instructors Share (80%)',
+      platformShare: 'Platform Share (10%)',
+      instructorShare: 'Instructors Share (90%)',
       coursePrice: 'Course Price',
+      teacherEarnings: 'Teacher Earnings',
+      teacherEarningsTitle: 'Teacher Earnings & Platform Dues',
+      teacherEarningsDesc: 'Transparent breakdown of instructor earnings, 90% teacher dues, 10% platform dues, and wallet balances.',
+      totalTeachersCount: 'Total Instructors',
+      teacherDues: 'Teacher Dues (90%)',
+      platformDues: 'Platform Dues (10%)',
+      totalPaid: 'Total Paid',
+      walletBalance: 'Wallet Balance',
+      coursesCount: 'Courses Count',
+      paidStudentsCount: 'Paid Students',
+      searchTeacherEarningsPlaceholder: 'Search teachers by name, email, or phone...',
+      noTeacherEarningsFound: 'No teacher earnings records found.',
       notifications: 'Notifications',
       markAllAsRead: 'Mark All as Read',
       clearAll: 'Clear All',
@@ -2619,9 +2807,21 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       paidStudentsDesc: 'سجل معتمد وموثق لجميع الطلاب الذين سددوا رسوم الكورسات على المنصة.',
       totalPaidRecords: 'الاشتراكات المدفوعة',
       totalPaidRevenue: 'إجمالي المحصل',
-      platformShare: 'نسبة المنصة (20%)',
-      instructorShare: 'نسبة المعلمين (80%)',
+      platformShare: 'نسبة المنصة (10%)',
+      instructorShare: 'نسبة المعلمين (90%)',
       coursePrice: 'سعر الكورس',
+      teacherEarnings: 'أرباح المعلمين',
+      teacherEarningsTitle: 'أرباح ومستحقات المعلمين ونسبة المنصة',
+      teacherEarningsDesc: 'متابعة شاملة لأرباح المعلمين (90% للمعلم / 10% للمنصة) وإجمالي المدفوع وأرصدة المحافظ.',
+      totalTeachersCount: 'إجمالي المعلمين',
+      teacherDues: 'مستحقات المعلم (90%)',
+      platformDues: 'مستحقات المنصة (10%)',
+      totalPaid: 'إجمالي المدفوع',
+      walletBalance: 'رصيد المحفظة',
+      coursesCount: 'عدد الكورسات',
+      paidStudentsCount: 'الطلاب المشتركون',
+      searchTeacherEarningsPlaceholder: 'بحث باسم المعلم أو البريد الإلكتروني أو الهاتف...',
+      noTeacherEarningsFound: 'لا توجد سجلات أرباح للمعلمين حالياً.',
       notifications: 'الإشعارات',
       markAllAsRead: 'تحديد الكل كمقروء',
       clearAll: 'مسح الكل',
@@ -3058,6 +3258,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     } else if (tab === 'enrollees') {
       if (this.courses.length === 0) this.fetchCourses();
       if (!this.selectedCourseIdForEnrollees) this.enrollees = [];
+    } else if (tab === 'teacher-earnings') {
+      this.fetchTeacherEarnings();
     } else if (tab === 'logs') {
       this.fetchAuditLogs();
     } else if (tab === 'settings') {
@@ -3073,6 +3275,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       case 'courses': return this.t[this.lang].courses;
       case 'enrollees': return this.t[this.lang].courseEnrollees;
       case 'paid-students': return this.t[this.lang].paidStudents;
+      case 'teacher-earnings': return this.t[this.lang].teacherEarnings;
       case 'logs': return this.t[this.lang].auditLogs;
       case 'settings': return this.t[this.lang].accountSettings;
       default: return this.t[this.lang].adminPanel;
@@ -3857,11 +4060,53 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   calculatePlatformShare(): number {
-    return Math.round(this.calculateTotalPaidRevenue() * 0.20);
+    return Math.round(this.calculateTotalPaidRevenue() * 0.10);
   }
 
   calculateInstructorShare(): number {
-    return Math.round(this.calculateTotalPaidRevenue() * 0.80);
+    return Math.round(this.calculateTotalPaidRevenue() * 0.90);
+  }
+
+  // ==========================================
+  // 6B. TEACHER EARNINGS (Requirement 1 & 2)
+  // ==========================================
+  fetchTeacherEarnings() {
+    this.isLoadingTeacherEarnings = true;
+    this.http.get<AdminTeacherEarnings[]>(`${this.apiUrl}/teacher-earnings`, { headers: this.getHeaders() }).subscribe({
+      next: (data) => {
+        this.teacherEarnings = data || [];
+        this.isLoadingTeacherEarnings = false;
+      },
+      error: (err) => {
+        this.isLoadingTeacherEarnings = false;
+        this.showToast(this.getErrorMessage(err, 'Failed to fetch teacher earnings', 'فشل في جلب بيانات أرباح المعلمين'), 'error');
+      }
+    });
+  }
+
+  get filteredTeacherEarnings(): AdminTeacherEarnings[] {
+    let list = this.teacherEarnings || [];
+    if (this.teacherEarningsSearch && this.teacherEarningsSearch.trim()) {
+      const q = this.teacherEarningsSearch.trim().toLowerCase();
+      list = list.filter(te =>
+        (te.teacherName && te.teacherName.toLowerCase().includes(q)) ||
+        (te.email && te.email.toLowerCase().includes(q)) ||
+        (te.phoneNumber && te.phoneNumber.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }
+
+  calculateTotalTeacherEarningsPaid(): number {
+    return this.filteredTeacherEarnings.reduce((acc, curr) => acc + (curr.totalPaid || 0), 0);
+  }
+
+  calculateTotalTeacherDues(): number {
+    return this.filteredTeacherEarnings.reduce((acc, curr) => acc + (curr.teacherDues || 0), 0);
+  }
+
+  calculateTotalPlatformDues(): number {
+    return this.filteredTeacherEarnings.reduce((acc, curr) => acc + (curr.platformDues || 0), 0);
   }
 
   // ==========================================

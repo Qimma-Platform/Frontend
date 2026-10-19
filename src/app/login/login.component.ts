@@ -324,6 +324,20 @@ import { ThemeService } from '../services/theme.service';
                          class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition text-sm text-slate-900 dark:text-white placeholder:text-slate-400">
                 </div>
 
+                <!-- Grade Level (Only for Students) -->
+                <div *ngIf="signupForm.get('role')?.value === 0" class="animate-fade-in">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    {{ content[currentLang].gradeLevelLabel }}
+                  </label>
+                  <select formControlName="gradeLevel"
+                          class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition text-sm text-slate-900 dark:text-white">
+                    <option value="">{{ content[currentLang].gradeLevelPlaceholder }}</option>
+                    <option *ngFor="let g of gradeLevels" [value]="currentLang === 'ar' ? g.ar : g.en">
+                      {{ currentLang === 'ar' ? g.ar : g.en }}
+                    </option>
+                  </select>
+                </div>
+
                 <!-- Email -->
                 <div>
                   <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -548,6 +562,23 @@ export class LoginComponent implements OnInit {
 
   private apiUrl = 'https://qimma.runasp.net/api/auth'; 
 
+  gradeLevels = [
+    { ar: 'الصف الأول الابتدائي', en: '1st Primary' },
+    { ar: 'الصف الثاني الابتدائي', en: '2nd Primary' },
+    { ar: 'الصف الثالث الابتدائي', en: '3rd Primary' },
+    { ar: 'الصف الرابع الابتدائي', en: '4th Primary' },
+    { ar: 'الصف الخامس الابتدائي', en: '5th Primary' },
+    { ar: 'الصف السادس الابتدائي', en: '6th Primary' },
+    { ar: 'الصف الأول الإعدادي', en: '1st Preparatory' },
+    { ar: 'الصف الثاني الإعدادي', en: '2nd Preparatory' },
+    { ar: 'الصف الثالث الإعدادي', en: '3rd Preparatory' },
+    { ar: 'الصف الأول الثانوي', en: '1st Secondary' },
+    { ar: 'الصف الثاني الثانوي', en: '2nd Secondary' },
+    { ar: 'الصف الثالث الثانوي', en: '3rd Secondary' },
+    { ar: 'المرحلة الجامعية', en: 'University Level' },
+    { ar: 'أخرى', en: 'Other' }
+  ];
+
   content: any = {
     ar: {
       langSwitch: 'English', 
@@ -572,6 +603,8 @@ export class LoginComponent implements OnInit {
       signupDesc: 'ابدأ رحلتك التعليمية المجانية اليوم', 
       nameLabel: 'الاسم بالكامل', 
       namePlaceholder: 'مثال: كريم محمد',
+      gradeLevelLabel: 'الصف الدراسي',
+      gradeLevelPlaceholder: '-- اختر الصف الدراسي --',
       accountTypeLabel: 'نوع الحساب', 
       studentOpt: 'طالب', 
       teacherOpt: 'معلم', 
@@ -607,6 +640,8 @@ export class LoginComponent implements OnInit {
       signupDesc: 'Start your smart learning journey today', 
       nameLabel: 'Full Name', 
       namePlaceholder: 'e.g. Kareem Mohamed',
+      gradeLevelLabel: 'Grade Level',
+      gradeLevelPlaceholder: '-- Select Grade Level --',
       accountTypeLabel: 'Account Type', 
       studentOpt: 'Student', 
       teacherOpt: 'Teacher', 
@@ -639,7 +674,8 @@ export class LoginComponent implements OnInit {
       username: ['', Validators.required], 
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
-      role: [0, Validators.required]
+      role: [0, Validators.required],
+      gradeLevel: ['']
     });
 
     this.forgotForm = this.fb.group({
@@ -695,7 +731,8 @@ export class LoginComponent implements OnInit {
       this.signupForm.patchValue({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        gradeLevel: ''
       }, { emitEvent: false });
       
       this.signupForm.markAsUntouched();
@@ -743,7 +780,10 @@ export class LoginComponent implements OnInit {
   onSignupSubmit() {
     if (this.signupForm.valid && this.isPasswordStrong) {
       this.isSigningUp = true;
-      const payload = { ...this.signupForm.value, role: Number(this.signupForm.value.role) };
+      const payload: any = { ...this.signupForm.value, role: Number(this.signupForm.value.role) };
+      if (payload.role !== 0) {
+        payload.gradeLevel = null;
+      }
       
       this.http.post(`${this.apiUrl}/register`, payload).subscribe({
         next: (res: any) => {
