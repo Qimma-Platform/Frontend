@@ -3408,9 +3408,11 @@ export class TeacherDashboardComponent implements OnInit {
         }
         this.renderCourseDistributionChart();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error loading dashboard stats:', err);
         this.isLoadingDashboard = false;
         this.isLoadingTopMetrics = false;
+        this.renderCourseDistributionChart();
       }
     });
   }
@@ -4538,6 +4540,9 @@ export class TeacherDashboardComponent implements OnInit {
             if (diff !== 0) return diff;
             return (b.studentsCount || 0) - (a.studentsCount || 0);
           });
+        }
+        if (this.activeTab === 'dashboard') {
+          this.renderCourseDistributionChart();
         }
         this.isLoading = false;
         this.isLoadingTopMetrics = false;
