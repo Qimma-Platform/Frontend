@@ -409,36 +409,55 @@ import { ThemeService } from './services/theme.service';
                        [ngClass]="{'bg-indigo-50/40 dark:bg-indigo-950/20': !notif.isRead, 'bg-white dark:bg-slate-900': notif.isRead}" 
                        class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition cursor-pointer flex items-start gap-3 group">
                     
-                    <div class="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-xs font-black shadow-xs"
+                    <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center text-xs font-black shadow-xs transition-transform group-hover:scale-105"
                          [ngClass]="{
-                           'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400': getNotificationType(notif.message) === 'ENROLLMENT_PAID',
-                           'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400': getNotificationType(notif.message) === 'ENROLLMENT',
-                           'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400': getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT',
-                           'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400': getNotificationType(notif.message) === 'ASSIGNMENT',
+                           'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400': getNotificationType(notif.message) === 'ENROLLMENT_PAID',
+                           'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400': getNotificationType(notif.message) === 'ENROLLMENT' || getNotificationType(notif.message) === 'LESSON',
+                           'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400': getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT',
+                           'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400': getNotificationType(notif.message) === 'ASSIGNMENT' || getNotificationType(notif.message) === 'QUIZ',
+                           'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400': getNotificationType(notif.message) === 'LIVE',
+                           'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400': getNotificationType(notif.message) === 'SCHEDULE',
                            'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300': getNotificationType(notif.message) === 'SYSTEM'
                          }">
-                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT_PAID'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                      <!-- Paid Enrollment Icon (Credit Card / Money) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT_PAID'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
                       </svg>
-                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <!-- Lesson / Course Content Icon (Book) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'ENROLLMENT' || getNotificationType(notif.message) === 'LESSON'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                       </svg>
-                      <svg *ngIf="getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <!-- User Icon (User Plus) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'NEW_USER' || getNotificationType(notif.message) === 'NEW_INSTRUCTOR' || getNotificationType(notif.message) === 'NEW_STUDENT'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="8.5" cy="7" r="4"></circle>
                         <line x1="20" y1="8" x2="20" y2="14"></line>
                         <line x1="23" y1="11" x2="17" y2="11"></line>
                       </svg>
-                      <svg *ngIf="getNotificationType(notif.message) === 'ASSIGNMENT'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1 2-2h2"></path>
+                      <!-- Quiz / Exam / Assignment Icon (Clipboard / Task) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'ASSIGNMENT' || getNotificationType(notif.message) === 'QUIZ'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <polyline points="9 14 11 16 15 11"></polyline>
                       </svg>
-                      <svg *ngIf="getNotificationType(notif.message) === 'SYSTEM'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      <!-- Live Broadcast Icon (Video) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'LIVE'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                      </svg>
+                      <!-- Schedule Icon (Calendar) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'SCHEDULE'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      <!-- System / Default Icon (Bell) -->
+                      <svg *ngIf="getNotificationType(notif.message) === 'SYSTEM'" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                       </svg>
                     </div>
 
@@ -2008,17 +2027,25 @@ export class StudentDashboardComponent implements OnInit {
   getNotificationType(message: string): string {
     if (!message) return 'SYSTEM';
     if (message.includes('||')) {
-      const type = message.split('||')[0].trim();
+      const type = message.split('||')[0].trim().toUpperCase();
       if (type.includes('ENROLLMENT_PAID') || type.includes('PAID')) return 'ENROLLMENT_PAID';
-      if (type.includes('ENROLLMENT') || type.includes('ENROLLED')) return 'ENROLLMENT';
+      if (type.includes('EXAM') || type.includes('QUIZ')) return 'QUIZ';
+      if (type.includes('LESSON')) return 'LESSON';
       if (type.includes('ASSIGNMENT')) return 'ASSIGNMENT';
+      if (type.includes('ENROLLMENT') || type.includes('ENROLLED')) return 'ENROLLMENT';
+      if (type.includes('LIVE')) return 'LIVE';
+      if (type.includes('SCHEDULE')) return 'SCHEDULE';
       if (type.includes('USER') || type.includes('STUDENT') || type.includes('INSTRUCTOR')) return 'NEW_USER';
       return type;
     }
-    if (message.includes('paid') || message.includes('مدفوع') || message.includes('ج.م') || message.includes('EGP')) return 'ENROLLMENT_PAID';
-    if (message.includes('enrolled') || message.includes('انضم') || message.includes('اشترك')) return 'ENROLLMENT';
-    if (message.includes('assignment') || message.includes('واجب') || message.includes('تسليم')) return 'ASSIGNMENT';
-    if (message.includes('Instructor') || message.includes('Student') || message.includes('طالب') || message.includes('معلم')) return 'NEW_USER';
+    const lower = message.toLowerCase();
+    if (lower.includes('paid') || lower.includes('مدفوع') || lower.includes('ج.م') || lower.includes('egp')) return 'ENROLLMENT_PAID';
+    if (lower.includes('quiz') || lower.includes('اختبار') || lower.includes('كويز') || lower.includes('امتحان')) return 'QUIZ';
+    if (lower.includes('lesson') || lower.includes('درس')) return 'LESSON';
+    if (lower.includes('assignment') || lower.includes('واجب') || lower.includes('تسليم')) return 'ASSIGNMENT';
+    if (lower.includes('enrolled') || lower.includes('انضم') || lower.includes('اشترك')) return 'ENROLLMENT';
+    if (lower.includes('live') || lower.includes('بث مباشر') || lower.includes('حصة مباشرة')) return 'LIVE';
+    if (lower.includes('instructor') || lower.includes('student') || lower.includes('طالب') || lower.includes('معلم')) return 'NEW_USER';
     return 'SYSTEM';
   }
 

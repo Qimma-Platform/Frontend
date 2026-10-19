@@ -245,7 +245,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
                   <button *ngIf="currentLesson?.id === lesson.id && hasQuiz" 
                           (click)="openQuiz($event)" 
-                          class="px-4 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0">
+                          [disabled]="!currentLesson?.isCompleted"
+                          [ngClass]="currentLesson?.isCompleted 
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white cursor-pointer shadow-sm' 
+                            : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60 shadow-none'"
+                          [title]="currentLesson?.isCompleted ? '' : (lang === 'ar' ? 'أكمل الدرس أولاً لتفعيل الاختبار' : 'Complete lesson first to unlock quiz')"
+                          class="px-4 py-1.5 font-bold rounded-lg text-xs transition shrink-0">
                      {{ t[lang].takeQuiz }}
                   </button>
 
@@ -259,23 +264,62 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
               <!-- Comprehensive Assessments in Playlist -->
               <div *ngIf="hasComprehensiveQuiz || comprehensiveAssignment" class="p-3 border-t border-slate-100 dark:border-slate-800 space-y-2 bg-slate-50/70 dark:bg-slate-900/70">
                 <div *ngIf="hasComprehensiveQuiz" class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-xl flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-2">
-                    <span class="text-base">📝</span>
-                    <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">{{ lang === 'ar' ? 'الاختبار الشامل للكورس' : 'Comprehensive Exam' }}</span>
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                      </svg>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300 block truncate">{{ lang === 'ar' ? 'الاختبار الشامل للكورس' : 'Comprehensive Exam' }}</span>
+                      <span *ngIf="comprehensiveQuizResult" class="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
+                        {{ lang === 'ar' ? 'الدرجة:' : 'Score:' }} {{ comprehensiveQuizResult.score }} / {{ comprehensiveQuizResult.totalQuestions }}
+                      </span>
+                    </div>
                   </div>
-                  <button (click)="openComprehensiveQuiz()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0">
-                    {{ lang === 'ar' ? 'بدء الاختبار' : 'Start Exam' }}
-                  </button>
+                  <ng-container *ngIf="!comprehensiveQuizResult">
+                    <button (click)="openComprehensiveQuiz()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0 cursor-pointer">
+                      {{ lang === 'ar' ? 'بدء الاختبار' : 'Start Exam' }}
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="comprehensiveQuizResult">
+                    <span class="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[11px] font-bold rounded-lg shrink-0 cursor-default">
+                      ✓ {{ lang === 'ar' ? 'تم أداء الاختبار' : 'Completed' }}
+                    </span>
+                  </ng-container>
                 </div>
 
                 <div *ngIf="comprehensiveAssignment" class="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/80 rounded-xl flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <span class="text-base shrink-0">📚</span>
-                    <span class="text-xs font-extrabold text-purple-800 dark:text-purple-300 truncate">{{ comprehensiveAssignment.title || (lang === 'ar' ? 'الواجب الشامل للكورس' : 'Comprehensive Assignment') }}</span>
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                      </svg>
+                    </div>
+                    <div class="min-w-0">
+                      <span class="text-xs font-extrabold text-purple-800 dark:text-purple-300 block truncate">{{ comprehensiveAssignment.title || (lang === 'ar' ? 'الواجب الشامل للكورس' : 'Comprehensive Assignment') }}</span>
+                      <span *ngIf="comprehensiveAssignmentSubmission && comprehensiveAssignmentSubmission.givenScore !== null" class="text-[11px] font-black text-emerald-600 dark:text-emerald-400">
+                        {{ lang === 'ar' ? 'الدرجة:' : 'Grade:' }} {{ comprehensiveAssignmentSubmission.givenScore }} / {{ comprehensiveAssignmentSubmission.totalScore }}
+                      </span>
+                      <span *ngIf="comprehensiveAssignmentSubmission && comprehensiveAssignmentSubmission.givenScore === null" class="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                        {{ lang === 'ar' ? 'قيد التصحيح والتقييم' : 'Pending Grading' }}
+                      </span>
+                    </div>
                   </div>
-                  <button (click)="openComprehensiveAssignment()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0">
-                    {{ lang === 'ar' ? 'حل الواجب' : 'Solve' }}
-                  </button>
+                  <ng-container *ngIf="!comprehensiveAssignmentSubmission">
+                    <button (click)="openComprehensiveAssignment()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0 cursor-pointer">
+                      {{ lang === 'ar' ? 'حل الواجب' : 'Solve' }}
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="comprehensiveAssignmentSubmission">
+                    <span class="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[11px] font-bold rounded-lg shrink-0 cursor-default">
+                      ✓ {{ lang === 'ar' ? 'تم التسليم' : 'Submitted' }}
+                    </span>
+                  </ng-container>
                 </div>
               </div>
             </ng-container>
@@ -314,6 +358,8 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   showRatingModal: boolean = false;
   selectedRating: number = 0;
   hoveredRating: number = 0;
+  comprehensiveQuizResult: any = null;
+  comprehensiveAssignmentSubmission: any = null;
 
   t = {
     en: {
@@ -416,11 +462,29 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
           next: (assignments: any[]) => {
             const comp = assignments ? assignments.find((a: any) => !a.lessonId || a.lessonId === 0) : null;
             this.comprehensiveAssignment = comp || null;
+            if (token && this.comprehensiveAssignment) {
+              this.http.get<any[]>('https://qimma.runasp.net/api/assignments/student', { headers }).subscribe({
+                next: (subs) => {
+                  this.comprehensiveAssignmentSubmission = (subs || []).find((s: any) => s.assignmentId === this.comprehensiveAssignment.id) || null;
+                }
+              });
+            }
           },
           error: () => {
             this.comprehensiveAssignment = null;
           }
         });
+
+        if (token) {
+          this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/my-results/${this.courseId}`, { headers }).subscribe({
+            next: (results) => {
+              this.comprehensiveQuizResult = (results || []).find((r: any) => r.isCourseExam || r.lessonId === null || r.lessonId === 0) || null;
+            },
+            error: () => {
+              this.comprehensiveQuizResult = null;
+            }
+          });
+        }
       },
       error: () => {
         this.isLoading = false;
@@ -750,16 +814,21 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   openQuiz(event: Event) {
     event.stopPropagation();
+    if (!this.currentLesson?.isCompleted) {
+      return;
+    }
     if (this.currentLesson) {
       this.router.navigate(['/quiz-solver', this.currentLesson.id], { queryParams: { courseId: this.courseId }, replaceUrl: true });
     }
   }
 
   openComprehensiveQuiz() {
+    if (this.comprehensiveQuizResult) return;
     this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId: this.courseId } });
   }
 
   openComprehensiveAssignment() {
+    if (this.comprehensiveAssignmentSubmission) return;
     if (this.comprehensiveAssignment) {
       this.router.navigate(['/assignment-solver', this.comprehensiveAssignment.id]);
     }

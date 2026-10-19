@@ -139,8 +139,14 @@ import Chart from 'chart.js/auto';
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
-                📝
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
               </div>
               <div>
                 <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">
@@ -156,17 +162,31 @@ import Chart from 'chart.js/auto';
 
           <!-- Alert for Error -->
           <div *ngIf="comprehensiveQuizError" class="mb-4 p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 rounded-2xl text-xs font-bold flex items-center gap-2">
-            <span>⚠️ {{ comprehensiveQuizError }}</span>
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{{ comprehensiveQuizError }}</span>
           </div>
 
           <div class="space-y-5">
-            <!-- Select Course -->
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المستهدف' : 'Target Course' }}</label>
-              <select [(ngModel)]="comprehensiveQuizCourseId" (change)="onComprehensiveQuizCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 text-sm font-medium outline-none">
-                <option [ngValue]="null" disabled>{{ lang === 'ar' ? 'اختر الكورس...' : 'Select a course...' }}</option>
-                <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
-              </select>
+            <!-- Select Course and Due Date -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المستهدف' : 'Target Course' }}</label>
+                <select [(ngModel)]="comprehensiveQuizCourseId" (change)="onComprehensiveQuizCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+                  <option [ngValue]="null" disabled>{{ lang === 'ar' ? 'اختر الكورس...' : 'Select a course...' }}</option>
+                  <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {{ lang === 'ar' ? 'الموعد النهائي للاختبار (اختياري)' : 'Quiz Deadline (Optional)' }}
+                </label>
+                <input type="datetime-local" 
+                       [(ngModel)]="comprehensiveQuizDueDate" 
+                       [min]="minDate" 
+                       (keydown)="$event.preventDefault()" 
+                       (click)="$any($event.target).showPicker?.()" 
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none cursor-pointer">
+              </div>
             </div>
 
             <div *ngIf="isComprehensiveQuizLoading" class="py-12 text-center text-slate-400 animate-pulse text-sm">
@@ -178,35 +198,40 @@ import Chart from 'chart.js/auto';
               <div class="flex items-center justify-between">
                 <h4 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                   <span>{{ lang === 'ar' ? 'أسئلة الاختبار الشامل' : 'Exam Questions' }}</span>
-                  <span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-bold">{{ comprehensiveQuizQuestions.length }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-bold">{{ comprehensiveQuizQuestions.length }}</span>
                 </h4>
-                <button type="button" (click)="addComprehensiveQuizQuestion()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                <button type="button" (click)="addComprehensiveQuizQuestion()" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                   <span>+</span> {{ lang === 'ar' ? 'إضافة سؤال' : 'Add Question' }}
                 </button>
               </div>
 
               <div *ngFor="let q of comprehensiveQuizQuestions; let qIdx = index; trackBy: trackByIndex" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-3">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-3">
                   <span class="text-xs font-extrabold text-slate-700 dark:text-slate-300"># {{ qIdx + 1 }} - {{ lang === 'ar' ? 'السؤال' : 'Question' }}</span>
-                  <button *ngIf="comprehensiveQuizQuestions.length > 1" type="button" (click)="removeComprehensiveQuizQuestion(qIdx)" class="text-xs text-rose-500 hover:text-rose-700 font-bold">
-                    {{ lang === 'ar' ? 'حذف السؤال' : 'Remove' }}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg text-indigo-700 dark:text-indigo-300 text-xs font-bold">
+                      {{ lang === 'ar' ? 'اختيار من متعدد' : 'Multiple Choice' }}
+                    </span>
+                    <button *ngIf="comprehensiveQuizQuestions.length > 1" type="button" (click)="removeComprehensiveQuizQuestion(qIdx)" class="text-xs text-rose-500 hover:text-rose-700 font-bold">
+                      {{ lang === 'ar' ? 'حذف' : 'Remove' }}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
-                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Options -->
                 <div class="space-y-2 pt-1">
                   <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'الخيارات (اختر الإجابة الصحيحة بالضغط على الدائرة):' : 'Options (Select the correct option with the radio button):' }}</label>
                   <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
-                    <input type="radio" [name]="'quiz_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-emerald-600 accent-emerald-600 focus:ring-emerald-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
-                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="radio" [name]="'quiz_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
+                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                     <button *ngIf="q.options.length > 2" type="button" (click)="removeComprehensiveQuizOption(q, oIdx)" class="text-slate-400 hover:text-rose-500 px-1 text-sm font-bold">✕</button>
                   </div>
                   <div *ngIf="q.options.length < 6" class="pt-1">
-                    <button type="button" (click)="addComprehensiveQuizOption(q)" class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
+                    <button type="button" (click)="addComprehensiveQuizOption(q)" class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold cursor-pointer">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
                   </div>
                 </div>
               </div>
@@ -214,14 +239,14 @@ import Chart from 'chart.js/auto';
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button *ngIf="isComprehensiveQuizEditMode" type="button" (click)="deleteComprehensiveQuiz()" [disabled]="isComprehensiveQuizSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition">
+              <button *ngIf="isComprehensiveQuizEditMode" type="button" (click)="deleteComprehensiveQuiz()" [disabled]="isComprehensiveQuizSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition cursor-pointer">
                 {{ lang === 'ar' ? 'حذف الاختبار الشامل' : 'Delete Exam' }}
               </button>
               <div class="flex items-center gap-3 ms-auto">
-                <button type="button" (click)="closeComprehensiveQuizModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition">
+                <button type="button" (click)="closeComprehensiveQuizModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">
                   {{ t[lang].cancel }}
                 </button>
-                <button type="button" (click)="saveComprehensiveQuiz()" [disabled]="!comprehensiveQuizCourseId || isComprehensiveQuizSaving" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50">
+                <button type="button" (click)="saveComprehensiveQuiz()" [disabled]="!comprehensiveQuizCourseId || isComprehensiveQuizSaving" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50 cursor-pointer">
                   {{ isComprehensiveQuizSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الاختبار الشامل' : 'Save Exam') }}
                 </button>
               </div>
@@ -237,8 +262,11 @@ import Chart from 'chart.js/auto';
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
-                📚
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
               </div>
               <div>
                 <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">
@@ -254,14 +282,15 @@ import Chart from 'chart.js/auto';
 
           <!-- Alert for Error -->
           <div *ngIf="comprehensiveAssignmentError" class="mb-4 p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 rounded-2xl text-xs font-bold flex items-center gap-2">
-            <span>⚠️ {{ comprehensiveAssignmentError }}</span>
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{{ comprehensiveAssignmentError }}</span>
           </div>
 
           <div class="space-y-5">
             <!-- Select Course -->
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المستهدف' : 'Target Course' }}</label>
-              <select [(ngModel)]="comprehensiveAssignmentCourseId" (change)="onComprehensiveAssignmentCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+              <select [(ngModel)]="comprehensiveAssignmentCourseId" (change)="onComprehensiveAssignmentCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
                 <option [ngValue]="null" disabled>{{ lang === 'ar' ? 'اختر الكورس...' : 'Select a course...' }}</option>
                 <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
               </select>
@@ -275,26 +304,31 @@ import Chart from 'chart.js/auto';
             <div *ngIf="!isComprehensiveAssignmentLoading && comprehensiveAssignmentCourseId" class="space-y-4">
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'عنوان الواجب الشامل' : 'Assignment Title' }}</label>
-                <input type="text" [(ngModel)]="comprehensiveAssignmentData.title" placeholder="{{ lang === 'ar' ? 'مثال: الواجب النهائي الشامل' : 'e.g. Final Comprehensive Assignment' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+                <input type="text" [(ngModel)]="comprehensiveAssignmentData.title" placeholder="{{ lang === 'ar' ? 'مثال: الواجب النهائي الشامل' : 'e.g. Final Comprehensive Assignment' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'تعليمات / تفاصيل الواجب (اختياري)' : 'Instructions / Description (Optional)' }}</label>
-                <textarea rows="2" [(ngModel)]="comprehensiveAssignmentData.description" placeholder="{{ lang === 'ar' ? 'اكتب تعليمات أو تفاصيل توجيهية للطلاب...' : 'Write guidelines or instructions for students...' }}" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-xs font-medium outline-none"></textarea>
+                <textarea rows="2" [(ngModel)]="comprehensiveAssignmentData.description" placeholder="{{ lang === 'ar' ? 'اكتب تعليمات أو تفاصيل توجيهية للطلاب...' : 'Write guidelines or instructions for students...' }}" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-xs font-medium outline-none"></textarea>
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'تاريخ ووقت انتهاء التسليم' : 'Due Date & Time' }}</label>
-                <input type="datetime-local" [(ngModel)]="comprehensiveAssignmentData.dueDate" [min]="minDate" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+                <input type="datetime-local" 
+                       [(ngModel)]="comprehensiveAssignmentData.dueDate" 
+                       [min]="minDate" 
+                       (keydown)="$event.preventDefault()" 
+                       (click)="$any($event.target).showPicker?.()" 
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none cursor-pointer">
               </div>
 
               <!-- Questions Header -->
               <div class="flex items-center justify-between pt-2">
                 <h4 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                   <span>{{ lang === 'ar' ? 'أسئلة الواجب' : 'Assignment Questions' }}</span>
-                  <span class="px-2 py-0.5 rounded-full text-xs bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-bold">{{ comprehensiveAssignmentData.questions.length }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-bold">{{ comprehensiveAssignmentData.questions.length }}</span>
                 </h4>
-                <button type="button" (click)="addComprehensiveAssignmentQuestion()" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                <button type="button" (click)="addComprehensiveAssignmentQuestion()" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                   <span>+</span> {{ lang === 'ar' ? 'إضافة سؤال' : 'Add Question' }}
                 </button>
               </div>
@@ -315,19 +349,19 @@ import Chart from 'chart.js/auto';
                 </div>
 
                 <div>
-                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-purple-500">
+                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- MCQ Options -->
                 <div *ngIf="q.type === 'mcq'" class="space-y-2 pt-1">
                   <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'الخيارات (اختر الإجابة الصحيحة بالضغط على الدائرة):' : 'Options (Select the correct option with the radio button):' }}</label>
                   <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
-                    <input type="radio" [name]="'assign_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-purple-600 accent-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
-                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-purple-500">
+                    <input type="radio" [name]="'assign_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
+                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500">
                     <button *ngIf="q.options.length > 2" type="button" (click)="q.options.splice(oIdx, 1)" class="text-slate-400 hover:text-rose-500 px-1 text-sm font-bold">✕</button>
                   </div>
                   <div *ngIf="q.options.length < 6" class="pt-1">
-                    <button type="button" (click)="q.options.push('')" class="text-[11px] text-purple-600 dark:text-purple-400 hover:underline font-bold">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
+                    <button type="button" (click)="q.options.push('')" class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold cursor-pointer">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
                   </div>
                 </div>
               </div>
@@ -335,14 +369,14 @@ import Chart from 'chart.js/auto';
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button *ngIf="isComprehensiveAssignmentEditMode" type="button" (click)="deleteComprehensiveAssignment()" [disabled]="isComprehensiveAssignmentSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition">
+              <button *ngIf="isComprehensiveAssignmentEditMode" type="button" (click)="deleteComprehensiveAssignment()" [disabled]="isComprehensiveAssignmentSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition cursor-pointer">
                 {{ lang === 'ar' ? 'حذف الواجب الشامل' : 'Delete Assignment' }}
               </button>
               <div class="flex items-center gap-3 ms-auto">
-                <button type="button" (click)="closeComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition">
+                <button type="button" (click)="closeComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">
                   {{ t[lang].cancel }}
                 </button>
-                <button type="button" (click)="saveComprehensiveAssignment()" [disabled]="!comprehensiveAssignmentCourseId || isComprehensiveAssignmentSaving" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50">
+                <button type="button" (click)="saveComprehensiveAssignment()" [disabled]="!comprehensiveAssignmentCourseId || isComprehensiveAssignmentSaving" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50 cursor-pointer">
                   {{ isComprehensiveAssignmentSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الواجب الشامل' : 'Save Assignment') }}
                 </button>
               </div>
@@ -1528,24 +1562,33 @@ import Chart from 'chart.js/auto';
                 </div>
                 <div class="flex items-center gap-2.5 flex-wrap">
                   <!-- + New Quiz Button (Comprehensive) -->
-                  <button (click)="openComprehensiveQuizModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <button (click)="openComprehensiveQuizModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10 9 9 9 8 9"></polyline>
                     </svg>
                     <span>+ {{ t[lang].newQuizBtn }}</span>
                   </button>
 
                   <!-- + New Assignment Button (Comprehensive) -->
-                  <button (click)="openComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  <button (click)="openComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                     </svg>
                     <span>+ {{ t[lang].newAssignmentBtn }}</span>
                   </button>
 
                   <!-- + New Course Button -->
-                  <button (click)="openCreateCourse()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
-                    <span>+ {{ t[lang].newCourseBtn }}</span>
+                  <button (click)="openCreateCourse()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>{{ t[lang].newCourseBtn }}</span>
                   </button>
                 </div>
               </div>
@@ -1651,7 +1694,7 @@ import Chart from 'chart.js/auto';
                             class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500">
                       <option [ngValue]="null" disabled>{{ t[lang].selectCoursePlaceholder }}</option>
                       <option *ngFor="let c of courses" [ngValue]="c.id">
-                        {{ c.title }} ({{ c.studentsCount || c.enrolledStudentsCount || 0 }} {{ t[lang].studentsCountSuffix }})
+                        {{ c.title }}
                       </option>
                     </select>
 
@@ -2091,8 +2134,125 @@ import Chart from 'chart.js/auto';
                   </div>
                 </div>
               </div>
+
+              <!-- Comprehensive Assessments for the selected student in this course (Image 2) -->
+              <div *ngIf="!isLoadingStudents" class="mt-8 space-y-4">
+                <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                      <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-extrabold text-base text-slate-900 dark:text-white">{{ lang === 'ar' ? 'التقييمات الشاملة للكورس' : 'Comprehensive Course Assessments' }}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'نتائج الاختبار الشامل والواجب الشامل لهذا الطالب' : 'Student comprehensive exam results and assignment grading' }}</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                  <!-- Comprehensive Exam Result Card -->
+                  <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">{{ lang === 'ar' ? 'الاختبار الشامل للكورس' : 'Comprehensive Course Exam' }}</h4>
+                          <span class="text-xs text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'محاولة واحدة فقط كحد أقصى' : 'Max 1 attempt allowed' }}</span>
+                        </div>
+                      </div>
+
+                      <div *ngIf="studentComprehensiveExamAttempt">
+                        <span class="px-3 py-1.5 rounded-xl text-xs font-black" [ngClass]="studentComprehensiveExamAttempt.score >= (studentComprehensiveExamAttempt.totalQuestions / 2) ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'">
+                          {{ lang === 'ar' ? 'الدرجة:' : 'Score:' }} {{ studentComprehensiveExamAttempt.score }} / {{ studentComprehensiveExamAttempt.totalQuestions }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div *ngIf="studentComprehensiveExamAttempt" class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                      <span>{{ lang === 'ar' ? 'تاريخ الأداء:' : 'Attempt Date:' }} {{ studentComprehensiveExamAttempt.date | date:'medium' }}</span>
+                      <span class="font-bold text-emerald-600 dark:text-emerald-400">✓ {{ lang === 'ar' ? 'تم أداء الاختبار' : 'Exam Completed' }}</span>
+                    </div>
+
+                    <div *ngIf="!studentComprehensiveExamAttempt" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      {{ lang === 'ar' ? 'لم يقم الطالب بأداء الاختبار الشامل للكورس حتى الآن.' : 'The student has not taken the comprehensive exam yet.' }}
+                    </div>
+                  </div>
+
+                  <!-- Comprehensive Assignment Card -->
+                  <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">{{ studentComprehensiveAssignment?.title || (lang === 'ar' ? 'الواجب الشامل للكورس' : 'Comprehensive Course Assignment') }}</h4>
+                          <span class="text-xs text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'تسليم الواجب الشامل' : 'Comprehensive submission' }}</span>
+                        </div>
+                      </div>
+
+                      <div *ngIf="studentComprehensiveAssignment">
+                        <span *ngIf="studentComprehensiveAssignment.givenScore === null" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                          <span>{{ lang === 'ar' ? 'يحتاج للتقييم' : 'Needs Grading' }}</span>
+                        </span>
+                        <span *ngIf="studentComprehensiveAssignment.givenScore !== null" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5">
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          <span>{{ lang === 'ar' ? 'تم التقييم: ' + studentComprehensiveAssignment.givenScore + ' / ' + studentComprehensiveAssignment.totalScore : 'Graded: ' + studentComprehensiveAssignment.givenScore + ' / ' + studentComprehensiveAssignment.totalScore }}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div *ngIf="!studentComprehensiveAssignment" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      {{ lang === 'ar' ? 'لم يقم الطالب بتسليم الواجب الشامل للكورس حتى الآن.' : 'The student has not submitted the comprehensive assignment yet.' }}
+                    </div>
+
+                    <div *ngIf="studentComprehensiveAssignment" class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                      <!-- Answers List -->
+                      <div *ngFor="let q of studentComprehensiveAssignment.answers; let i = index" class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold">
+                          <span class="text-slate-700 dark:text-slate-300"># {{ i + 1 }} - {{ q.question }}</span>
+                          <span *ngIf="q.type === 'mcq'" [ngClass]="q.isCorrect ? 'text-emerald-600' : 'text-rose-600'">
+                            {{ q.isCorrect ? '✓ ' + (lang === 'ar' ? 'صحيحة' : 'Correct') : '✕ ' + (lang === 'ar' ? 'خاطئة' : 'Incorrect') }}
+                          </span>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-slate-900 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800">
+                          <span class="text-slate-400 block text-[10px] mb-0.5">{{ lang === 'ar' ? 'إجابة الطالب:' : "Student's Answer:" }}</span>
+                          {{ q.answer || (lang === 'ar' ? '(لا توجد إجابة)' : '(No answer)') }}
+                        </div>
+                      </div>
+
+                      <!-- Teacher Grading Action -->
+                      <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex-wrap gap-3">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ lang === 'ar' ? 'درجة الواجب الشامل:' : 'Comprehensive Assignment Grade:' }}</span>
+                        <div class="flex items-center gap-2">
+                          <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <input type="number" min="0" [max]="studentComprehensiveAssignment.totalScore" [(ngModel)]="studentComprehensiveAssignment.givenScore" placeholder="-" class="w-16 px-2 py-1.5 text-center font-black text-indigo-600 dark:text-indigo-400 text-xs outline-none">
+                            <span class="px-2.5 py-1.5 text-slate-400 text-xs font-bold bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">/ {{ studentComprehensiveAssignment.totalScore }}</span>
+                          </div>
+                          <button (click)="saveAssignmentGrade(studentComprehensiveAssignment)" [disabled]="isSaving" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+                            <svg *ngIf="isSaving" class="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"></circle></svg>
+                            <span>{{ isSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الدرجة' : 'Save Grade') }}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               
-              <div *ngIf="!isLoadingStudents && filteredStudentResults.length === 0" class="py-12 text-center text-slate-500 dark:text-slate-400 font-medium">
+              <div *ngIf="!isLoadingStudents && filteredStudentResults.length === 0 && !studentComprehensiveExamAttempt && !studentComprehensiveAssignment" class="py-12 text-center text-slate-500 dark:text-slate-400 font-medium">
                 {{ t[lang].noSearchResults }}
               </div>
             </div>
@@ -4574,6 +4734,8 @@ export class TeacherDashboardComponent implements OnInit {
 
   loadStudentQuizResults(studentId: number, courseId: number) {
     this.isLoadingStudents = true;
+    this.studentComprehensiveExamAttempt = null;
+    this.studentComprehensiveAssignment = null;
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -4594,9 +4756,13 @@ export class TeacherDashboardComponent implements OnInit {
         this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/course/${courseId}/student/${studentId}/results`, { headers }).subscribe({
           next: (quizData) => {
             (quizData || []).forEach(item => {
-              const lessonGroup = Array.from(groups.values()).find(g => g.lessonId === item.lessonId || g.lessonTitle === item.lessonTitle);
-              if (lessonGroup) {
-                lessonGroup.attempts.push(item);
+              if (item.isCourseExam || item.lessonId === null || item.lessonId === 0) {
+                this.studentComprehensiveExamAttempt = item;
+              } else {
+                const lessonGroup = Array.from(groups.values()).find(g => g.lessonId === item.lessonId || g.lessonTitle === item.lessonTitle);
+                if (lessonGroup) {
+                  lessonGroup.attempts.push(item);
+                }
               }
             });
 
@@ -4609,20 +4775,7 @@ export class TeacherDashboardComponent implements OnInit {
                       const assignmentRef = (allAssignments || []).find(a => a.id === sub.assignmentId);
                       const targetLessonId = assignmentRef?.lessonId;
                       
-                      let lessonGroup = targetLessonId ? groups.get(targetLessonId) : null;
-                      
-                      if (!lessonGroup) {
-                        lessonGroup = {
-                          lessonId: targetLessonId || Date.now(),
-                          lessonTitle: sub.assignmentTitle,
-                          attempts: [],
-                          assignment: null,
-                          expanded: false
-                        };
-                        groups.set(lessonGroup.lessonId, lessonGroup);
-                      }
-
-                      lessonGroup.assignment = {
+                      const parsedAssignment = {
                         id: sub.id,
                         title: sub.assignmentTitle,
                         givenScore: sub.givenScore,
@@ -4652,6 +4805,23 @@ export class TeacherDashboardComponent implements OnInit {
                           };
                         })
                       };
+
+                      if (!targetLessonId || targetLessonId === 0) {
+                        this.studentComprehensiveAssignment = parsedAssignment;
+                      } else {
+                        let lessonGroup = groups.get(targetLessonId);
+                        if (!lessonGroup) {
+                          lessonGroup = {
+                            lessonId: targetLessonId,
+                            lessonTitle: sub.assignmentTitle,
+                            attempts: [],
+                            assignment: null,
+                            expanded: false
+                          };
+                          groups.set(lessonGroup.lessonId, lessonGroup);
+                        }
+                        lessonGroup.assignment = parsedAssignment;
+                      }
                     });
 
                     this.groupedStudentResults = Array.from(groups.values());
@@ -4664,8 +4834,8 @@ export class TeacherDashboardComponent implements OnInit {
                 });
               },
               error: () => {
-                  this.groupedStudentResults = Array.from(groups.values());
-                  this.isLoadingStudents = false;
+                this.groupedStudentResults = Array.from(groups.values());
+                this.isLoadingStudents = false;
               }
             });
           },
@@ -5100,14 +5270,18 @@ export class TeacherDashboardComponent implements OnInit {
   // ========================================================
   showComprehensiveQuizModal = false;
   comprehensiveQuizCourseId: number | null = null;
+  comprehensiveQuizDueDate: string = '';
   isComprehensiveQuizLoading = false;
   isComprehensiveQuizSaving = false;
   isComprehensiveQuizEditMode = false;
   comprehensiveQuizQuestions: any[] = [];
   comprehensiveQuizError = '';
+  studentComprehensiveExamAttempt: any = null;
+  studentComprehensiveAssignment: any = null;
 
   openComprehensiveQuizModal(defaultCourseId?: number) {
     this.comprehensiveQuizError = '';
+    this.comprehensiveQuizDueDate = '';
     this.comprehensiveQuizCourseId = defaultCourseId || (this.courses.length > 0 ? this.courses[0].id : null);
     this.showComprehensiveQuizModal = true;
     if (this.comprehensiveQuizCourseId) {
@@ -5132,6 +5306,7 @@ export class TeacherDashboardComponent implements OnInit {
 
   resetComprehensiveQuizForm() {
     this.isComprehensiveQuizEditMode = false;
+    this.comprehensiveQuizDueDate = '';
     this.comprehensiveQuizQuestions = [
       { text: '', imageUrl: '', options: ['', '', '', ''], correctIndex: 0 }
     ];
@@ -5140,6 +5315,7 @@ export class TeacherDashboardComponent implements OnInit {
   loadComprehensiveQuizForCourse(courseId: number) {
     this.isComprehensiveQuizLoading = true;
     this.comprehensiveQuizError = '';
+    this.comprehensiveQuizDueDate = '';
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -5148,6 +5324,7 @@ export class TeacherDashboardComponent implements OnInit {
         this.isComprehensiveQuizLoading = false;
         if (res && res.questions && res.questions.length > 0) {
           this.isComprehensiveQuizEditMode = true;
+          this.comprehensiveQuizDueDate = res.dueDate ? res.dueDate.substring(0, 16) : '';
           this.comprehensiveQuizQuestions = res.questions.map((q: any) => ({
             text: q.text || '',
             imageUrl: q.imageUrl || '',
@@ -5223,6 +5400,7 @@ export class TeacherDashboardComponent implements OnInit {
     const payload = {
       courseId: this.comprehensiveQuizCourseId,
       lessonId: null,
+      dueDate: this.comprehensiveQuizDueDate || null,
       questions: this.comprehensiveQuizQuestions.map(q => ({
         text: q.text.trim(),
         imageUrl: q.imageUrl || '',

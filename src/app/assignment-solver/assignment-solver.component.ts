@@ -40,7 +40,18 @@ import { LanguageService } from '../services/language.service';
         </div>
 
         <div *ngIf="!isLoading && assignment" class="space-y-6 animate-fade-in pb-20">
-          <div *ngIf="isExpired" class="bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-200 dark:border-rose-900/60 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
+          <div *ngIf="alreadySubmitted" class="bg-indigo-50 dark:bg-indigo-950/40 border-2 border-indigo-200 dark:border-indigo-900/60 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
+            <span class="text-3xl block">📋</span>
+            <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-200">{{ lang === 'ar' ? 'تم تسليم هذا الواجب مسبقاً' : 'Assignment Already Submitted' }}</h3>
+            <p *ngIf="submittedDetails?.givenScore !== null" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+              {{ lang === 'ar' ? 'تم تقييم الواجب! درجتك:' : 'Graded! Your score:' }} {{ submittedDetails.givenScore }} / {{ submittedDetails.totalScore }}
+            </p>
+            <p *ngIf="submittedDetails?.givenScore === null" class="text-sm font-medium text-amber-600 dark:text-amber-400">
+              {{ lang === 'ar' ? 'لقد قمت بتسليم إجاباتك بنجاح، والواجب قيد المراجعة والتقييم من قِبل المعلم.' : 'Your submission was received and is currently pending review by your teacher.' }}
+            </p>
+          </div>
+
+          <div *ngIf="isExpired && !alreadySubmitted" class="bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-200 dark:border-rose-900/60 p-6 rounded-3xl text-center space-y-2 animate-fade-in">
             <span class="text-3xl block">⛔</span>
             <h3 class="text-lg font-bold text-rose-800 dark:text-rose-300">{{ lang === 'ar' ? 'انتهت مهلة تسليم هذا الواجب' : 'This assignment deadline has passed' }}</h3>
             <p class="text-sm text-rose-600 dark:text-rose-400 font-medium">{{ lang === 'ar' ? 'لا يمكن استقبال إجابات جديدة بعد انتهاء الوقت المحدد.' : 'Submissions are no longer accepted after the deadline.' }}</p>
@@ -52,24 +63,29 @@ import { LanguageService } from '../services/language.service';
             </h3>
             
             <div *ngIf="q.type === 'mcq'" class="space-y-3">
-               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-800 transition" [ngClass]="{'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-500 ring-1 ring-indigo-300 dark:ring-indigo-500': answers[q.id] === optIdx.toString(), 'opacity-60 cursor-not-allowed': isExpired}">
-                 <input type="radio" [disabled]="isExpired" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500">
+               <label *ngFor="let option of (q.options ? q.options.split(',') : []); let optIdx = index" class="flex items-center p-4 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-800 transition" [ngClass]="{'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-500 ring-1 ring-indigo-300 dark:ring-indigo-500': answers[q.id] === optIdx.toString(), 'opacity-60 cursor-not-allowed': isExpired || alreadySubmitted}">
+                 <input type="radio" [disabled]="isExpired || alreadySubmitted" [name]="'q_' + q.id" [value]="optIdx.toString()" [(ngModel)]="answers[q.id]" class="w-4 h-4 text-indigo-600 accent-indigo-600 focus:ring-indigo-500">
                  <span class="ml-3 rtl:mr-3 rtl:ml-0 font-medium text-slate-700 dark:text-slate-300 text-sm">{{ option }}</span>
                </label>
             </div>
 
             <div *ngIf="q.type !== 'mcq'" class="mt-4">
-               <textarea [(ngModel)]="answers[q.id]" [disabled]="isExpired" rows="4" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
+               <textarea [(ngModel)]="answers[q.id]" [disabled]="isExpired || alreadySubmitted" rows="4" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed" [placeholder]="lang === 'ar' ? 'اكتب إجابتك هنا...' : 'Type your answer here...'"></textarea>
             </div>
           </div>
 
-          <div class="flex justify-end pt-4">
+          <div class="flex justify-end pt-4" *ngIf="!alreadySubmitted">
              <button (click)="submitAssignment()" [disabled]="isSubmitting || isExpired" class="flex items-center justify-center gap-2 px-10 py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50">
                <svg *ngIf="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                </svg>
                {{ isSubmitting ? t[lang].submitting : (isExpired ? (lang === 'ar' ? 'انتهت المهلة' : 'Deadline Passed') : t[lang].submitBtn) }}
+             </button>
+          </div>
+          <div class="flex justify-end pt-4" *ngIf="alreadySubmitted">
+             <button (click)="goBack()" class="flex items-center justify-center gap-2 px-8 py-3.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl text-sm transition">
+               {{ lang === 'ar' ? 'العودة' : 'Go Back' }}
              </button>
           </div>
         </div>
@@ -83,6 +99,8 @@ export class AssignmentSolverComponent implements OnInit {
   isLoading = true;
   isSubmitting = false;
   isExpired = false;
+  alreadySubmitted = false;
+  submittedDetails: any = null;
   answers: { [questionId: number]: string } = {};
   
   message = '';
@@ -123,6 +141,16 @@ export class AssignmentSolverComponent implements OnInit {
           }
         }
         this.isLoading = false;
+
+        this.http.get<any[]>('https://qimma.runasp.net/api/assignments/student', { headers }).subscribe({
+          next: (subs) => {
+            const found = (subs || []).find((s: any) => s.assignmentId === this.assignmentId);
+            if (found) {
+              this.alreadySubmitted = true;
+              this.submittedDetails = found;
+            }
+          }
+        });
       },
       error: () => {
         this.showMessage(this.t[this.lang].error, 'error');

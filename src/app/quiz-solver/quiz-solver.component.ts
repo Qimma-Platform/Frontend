@@ -32,18 +32,31 @@ import { LanguageService } from '../services/language.service';
           <div class="h-32 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 animate-pulse"></div>
         </div>
 
-        <div *ngIf="!isLoading && attemptsCount >= maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-lg border-2 border-rose-100 dark:border-rose-900/50 text-center max-w-md mx-auto mt-10 animate-fade-in">
+        <div *ngIf="!isLoading && isExpired && !isSubmitted" class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-lg border-2 border-rose-100 dark:border-rose-900/50 text-center max-w-md mx-auto mt-10 animate-fade-in">
           <div class="w-20 h-20 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-5">
-            🔒
+            ⏰
           </div>
-          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">{{ t[lang].lockedTitle }}</h2>
-          <p class="text-slate-600 dark:text-slate-300 font-semibold mb-8">{{ t[lang].lockedDesc }}</p>
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">{{ lang === 'ar' ? 'انتهت المهلة' : 'Deadline Passed' }}</h2>
+          <p class="text-slate-600 dark:text-slate-300 font-semibold mb-8">{{ lang === 'ar' ? 'انتهى الموعد النهائي المحدد لأداء هذا الاختبار ولا يمكن استقبال إجابات جديدة.' : 'The deadline for this quiz has expired and new submissions are closed.' }}</p>
           <button (click)="goBack()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
             {{ t[lang].backBtn }}
           </button>
         </div>
 
-        <div *ngIf="!isLoading && questions.length === 0 && attemptsCount < maxAttempts" class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
+        <div *ngIf="!isLoading && !isExpired && attemptsCount >= maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-lg border-2 border-rose-100 dark:border-rose-900/50 text-center max-w-md mx-auto mt-10 animate-fade-in">
+          <div class="w-20 h-20 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-5">
+            🔒
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">{{ t[lang].lockedTitle }}</h2>
+          <p class="text-slate-600 dark:text-slate-300 font-semibold mb-8">
+            {{ isCourseExam ? (lang === 'ar' ? 'لقد قمت بأداء هذا الاختبار الشامل مسبقاً (مسموح بمحاولة واحدة فقط).' : 'You have already completed this comprehensive exam (1 attempt allowed).') : t[lang].lockedDesc }}
+          </p>
+          <button (click)="goBack()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+            {{ t[lang].backBtn }}
+          </button>
+        </div>
+
+        <div *ngIf="!isLoading && !isExpired && questions.length === 0 && attemptsCount < maxAttempts" class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
           <span class="text-4xl mb-4 block">🚫</span>
           <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">{{ t[lang].noQuizTitle }}</h2>
           <button (click)="goBack()" class="mt-4 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition">
@@ -51,7 +64,7 @@ import { LanguageService } from '../services/language.service';
           </button>
         </div>
 
-        <div *ngIf="!isLoading && questions.length > 0 && attemptsCount < maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+        <div *ngIf="!isLoading && !isExpired && questions.length > 0 && attemptsCount < maxAttempts && !isSubmitted" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
           <div class="flex items-center justify-between bg-indigo-50 dark:bg-indigo-950/40 px-4 py-2.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50">
             <span class="text-sm font-bold text-indigo-800 dark:text-indigo-300">{{ t[lang].attemptsLeft }}:</span>
             <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-lg shadow-sm">{{ maxAttempts - attemptsCount }} / {{ maxAttempts }}</span>
@@ -126,6 +139,7 @@ export class QuizSolverComponent implements OnInit {
   userAnswers: { [key: number]: number } = {};
   isLoading = true;
   isSubmitted = false;
+  isExpired = false;
   score = 0;
   
   maxAttempts = 3;
@@ -142,7 +156,7 @@ export class QuizSolverComponent implements OnInit {
       loading: 'Loading questions...', noQuizTitle: 'No Quiz Available',
       backBtn: 'Go Back', submitBtn: 'Submit Answers', resultTitle: 'Your Quiz Result',
       reviewAnswers: 'Answers Review', finishBtn: 'Return to Course',
-      attemptsLeft: 'Attempts left', lockedTitle: 'Sorry!', 
+      attemptsLeft: 'Attempts left', lockedTitle: 'Notice', 
       lockedDesc: 'You have exhausted your allowed attempts (3 max).'
     },
     ar: {
@@ -152,7 +166,7 @@ export class QuizSolverComponent implements OnInit {
       loading: 'جاري تحميل الأسئلة...', noQuizTitle: 'لا يوجد اختبار',
       backBtn: 'العودة للكورس', submitBtn: 'إرسال الإجابات', resultTitle: 'نتيجة الاختبار',
       reviewAnswers: 'مراجعة الإجابات', finishBtn: 'العودة للكورس',
-      attemptsLeft: 'المحاولات المتبقية', lockedTitle: 'عفواً!', 
+      attemptsLeft: 'المحاولات المتبقية', lockedTitle: 'تنبيه', 
       lockedDesc: 'لقد استنفذت عدد المحاولات المسموح بها (3 محاولات).'
     }
   };
@@ -174,6 +188,7 @@ export class QuizSolverComponent implements OnInit {
           this.courseId = +qp['courseId'];
         }
         this.isCourseExam = !!this.courseId && (!this.lessonId || this.lessonId === 0);
+        this.maxAttempts = this.isCourseExam ? 1 : 3;
 
         const token = localStorage.getItem('token');
         if (token) {
@@ -201,6 +216,21 @@ export class QuizSolverComponent implements OnInit {
   loadAttemptCount() {
     const savedAttempts = localStorage.getItem(this.getStorageKey());
     this.attemptsCount = savedAttempts ? parseInt(savedAttempts, 10) : 0;
+
+    if (this.isCourseExam && this.courseId) {
+      const token = localStorage.getItem('token');
+      const headers = token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : undefined;
+      if (headers) {
+        this.http.get<any[]>(`https://qimma.runasp.net/api/quiz/my-results/${this.courseId}`, { headers }).subscribe({
+          next: (results) => {
+            const taken = (results || []).some((r: any) => r.isCourseExam || r.lessonId === null || r.lessonId === 0);
+            if (taken) {
+              this.attemptsCount = 1;
+            }
+          }
+        });
+      }
+    }
   }
 
   loadQuiz() {
@@ -215,6 +245,12 @@ export class QuizSolverComponent implements OnInit {
       next: (res) => {
         if (res.questions) {
           this.questions = res.questions;
+        }
+        if (res.dueDate) {
+          const due = new Date(res.dueDate).getTime();
+          if (due < Date.now()) {
+            this.isExpired = true;
+          }
         }
         this.isLoading = false;
       },

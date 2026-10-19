@@ -282,10 +282,13 @@ import { LanguageService } from '../services/language.service';
               <span>{{ t[lang].warningPay }}</span>
             </div>
 
-            <button (click)="payWithPaymob()" [disabled]="isEnrolling" 
-                    class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-50">
-              <span *ngIf="isEnrolling" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ isEnrolling ? (lang === 'ar' ? 'جاري التحويل لبوابة Paymob...' : 'Redirecting to Paymob...') : (lang === 'ar' ? 'المتابعة للدفع عبر Paymob (' + getEffectivePrice() + ' ج.م)' : 'Proceed to Paymob (' + getEffectivePrice() + ' EGP)') }}</span>
+            <button disabled 
+                    class="w-full py-3.5 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold rounded-2xl text-sm cursor-not-allowed flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>{{ lang === 'ar' ? 'قريباً' : 'Coming Soon' }}</span>
             </button>
           </div>
 
