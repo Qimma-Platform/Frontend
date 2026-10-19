@@ -24,6 +24,7 @@ export const routes: Routes = [
   { path: 'admin-portal/login', component: AdminLoginComponent },
   { path: 'admin-portal', redirectTo: 'admin-portal/login', pathMatch: 'full' },
   { path: 'dashboard', component: StudentDashboardComponent, canActivate: [authGuard] },
+  { path: 'student-dashboard', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'teacher-dashboard', component: TeacherDashboardComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [authGuard] },
   { path: 'courses', component: CourseCatalogComponent, canActivate: [authGuard] },

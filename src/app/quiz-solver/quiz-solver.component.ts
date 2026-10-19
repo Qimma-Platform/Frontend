@@ -269,7 +269,13 @@ export class QuizSolverComponent implements OnInit {
 
   goBack() {
     if (this.courseId) {
-      this.router.navigate([`/course/${this.courseId}`], { replaceUrl: true });
+      const role = localStorage.getItem('userRole');
+      const isTeacherOrAdmin = (role === 'Teacher' || role === '1' || role === 'Instructor' || role === 'Admin' || role === '2');
+      if (isTeacherOrAdmin) {
+        this.router.navigate([`/course/${this.courseId}`], { replaceUrl: true });
+      } else {
+        this.router.navigate([`/learn/${this.courseId}`], { replaceUrl: true });
+      }
     } else {
       this.router.navigate(['/dashboard'], { replaceUrl: true }); 
     }

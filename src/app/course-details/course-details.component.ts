@@ -138,7 +138,10 @@ import { PaymentService } from '../services/payment.service';
             </div>
 
             <div *ngIf="!isLoading" class="space-y-3 animate-fade-in">
-              <div *ngFor="let lesson of lessons; let i = index" class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70 dark:bg-slate-800/60 transition hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-md">
+              <div *ngFor="let lesson of lessons; let i = index" 
+                   (click)="openLesson(lesson)"
+                   class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70 dark:bg-slate-800/60 transition hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-md"
+                   [ngClass]="{'cursor-pointer': !isTeacher}">
                 <div class="flex items-center gap-4 min-w-0">
                   <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-black text-sm shrink-0">
                     {{ i + 1 }}
@@ -151,22 +154,26 @@ import { PaymentService } from '../services/payment.service';
 
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
                   <ng-container *ngIf="isTeacher">
-                    <button (click)="onEditLesson(lesson)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition">
+                    <button (click)="onEditLesson(lesson); $event.stopPropagation()" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition">
                       {{ t[lang].edit }}
                     </button>
-                    <button (click)="openDeleteModal(lesson.id)" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg transition">
+                    <button (click)="openDeleteModal(lesson.id); $event.stopPropagation()" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg transition">
                       {{ t[lang].delete }}
                     </button>
-                    <button (click)="openQuizCreator(lesson.id)" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold rounded-lg text-xs transition shadow-sm border border-indigo-100 dark:border-indigo-900/40">
+                    <button (click)="openQuizCreator(lesson.id); $event.stopPropagation()" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold rounded-lg text-xs transition shadow-sm border border-indigo-100 dark:border-indigo-900/40">
                       {{ t[lang].manageQuiz }}
                     </button>
-                    <button (click)="openAssignmentCreator(lesson.id)" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-bold rounded-lg text-xs transition shadow-sm border border-purple-100 dark:border-purple-900/40">
+                    <button (click)="openAssignmentCreator(lesson.id); $event.stopPropagation()" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-bold rounded-lg text-xs transition shadow-sm border border-purple-100 dark:border-purple-900/40">
                       {{ t[lang].manageAssignment }}
                     </button>
                   </ng-container>
 
                   <ng-container *ngIf="!isTeacher">
-                    <button (click)="startQuiz(lesson.id)" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-md">
+                    <button *ngIf="isEnrolled" (click)="$event.stopPropagation(); openLesson(lesson)" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                      <span>▶</span>
+                      <span>{{ lang === 'ar' ? 'مشاهدة الدرس' : 'Watch Lesson' }}</span>
+                    </button>
+                    <button (click)="$event.stopPropagation(); startQuiz(lesson.id)" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-md">
                        {{ t[lang].startQuizBtn }}
                     </button>
                   </ng-container>
@@ -229,30 +236,52 @@ import { PaymentService } from '../services/payment.service';
           </div>
 
           <div *ngIf="!isTeacher" class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 sticky top-6 text-center">
-            <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-              </svg>
-            </div>
-            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wider">{{ t[lang].coursePrice }}</h3>
-            <p class="text-4xl font-black text-slate-900 dark:text-white mb-6 flex justify-center items-center gap-1">
-              <ng-container *ngIf="course?.isFree">
-                {{ lang === 'ar' ? 'مجاني' : 'Free' }}
-              </ng-container>
-              <ng-container *ngIf="!course?.isFree">
-                {{ getEffectivePrice() }} <span class="text-base text-slate-500 dark:text-slate-400 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
-                <span *ngIf="course?.discountPercentage > 0" class="text-sm line-through text-slate-400 font-medium ml-2 mr-2">
-                  {{ course?.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}
-                </span>
-              </ng-container>
-            </p>
-            <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-bold rounded-xl transition shadow-md shadow-indigo-600/20 disabled:opacity-70 flex justify-center items-center gap-2 cursor-pointer">
-              <svg *ngIf="isProcessingPayment" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isProcessingPayment ? t[lang].processingPayment : (course?.isFree ? (lang === 'ar' ? 'ابدأ التعلم الآن' : 'Start Learning Now') : t[lang].buyNow) }}
-            </button>
+            
+            <!-- Already Enrolled View -->
+            <ng-container *ngIf="isEnrolled">
+              <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center mx-auto mb-4 text-emerald-600 dark:text-emerald-400 text-3xl">
+                ✓
+              </div>
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white mb-1">
+                {{ lang === 'ar' ? 'أنت مشترك بالفعل في هذا الكورس' : 'You are enrolled in this course' }}
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                {{ lang === 'ar' ? 'يمكنك متابعة المشاهدة وحل الواجبات والاختبارات في أي وقت' : 'You have full access to all lessons, quizzes, and assignments' }}
+              </p>
+              <button (click)="goToPlayer()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold rounded-xl transition shadow-md shadow-emerald-600/20 flex justify-center items-center gap-2 cursor-pointer">
+                <span>{{ lang === 'ar' ? 'متابعة التعلم (مشاهدة الدروس)' : 'Continue Learning' }}</span>
+                <span class="rtl:rotate-180">→</span>
+              </button>
+            </ng-container>
+
+            <!-- Not Yet Enrolled View -->
+            <ng-container *ngIf="!isEnrolled">
+              <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+              <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wider">{{ t[lang].coursePrice }}</h3>
+              <p class="text-4xl font-black text-slate-900 dark:text-white mb-6 flex justify-center items-center gap-1">
+                <ng-container *ngIf="course?.isFree">
+                  {{ lang === 'ar' ? 'مجاني' : 'Free' }}
+                </ng-container>
+                <ng-container *ngIf="!course?.isFree">
+                  {{ getEffectivePrice() }} <span class="text-base text-slate-500 dark:text-slate-400 font-bold">{{ lang === 'ar' ? 'ج.م' : 'EGP' }}</span>
+                  <span *ngIf="course?.discountPercentage > 0" class="text-sm line-through text-slate-400 font-medium ml-2 mr-2">
+                    {{ course?.price }} {{ lang === 'ar' ? 'ج.م' : 'EGP' }}
+                  </span>
+                </ng-container>
+              </p>
+              <button (click)="enrollInCourse()" [disabled]="isProcessingPayment" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-bold rounded-xl transition shadow-md shadow-indigo-600/20 disabled:opacity-70 flex justify-center items-center gap-2 cursor-pointer">
+                <svg *ngIf="isProcessingPayment" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isProcessingPayment ? t[lang].processingPayment : (course?.isFree ? (lang === 'ar' ? 'ابدأ التعلم الآن (مجاناً)' : 'Start Learning Now (Free)') : t[lang].buyNow) }}
+              </button>
+            </ng-container>
+
           </div>
         </div>
       </main>
@@ -582,6 +611,7 @@ export class CourseDetailsComponent implements OnInit {
   lessonToDeleteId: number | null = null;
   editingLessonId: number | null = null;
   isTeacher = false;
+  isEnrolled = false;
   isProcessingPayment = false;
   isSavingAssignment = false;
 
@@ -666,12 +696,13 @@ export class CourseDetailsComponent implements OnInit {
 
   ngOnInit() {
     const role = localStorage.getItem('userRole');
-    this.isTeacher = (role === 'Teacher' || role === '1');
+    this.isTeacher = (role === 'Teacher' || role === '1' || role === 'Instructor' || role === 'Admin' || role === '2');
 
     this.langService.currentLang$.subscribe(l => this.lang = l);
     this.route.params.subscribe(params => {
       this.courseId = +params['id'];
       this.loadCourseData();
+      this.checkEnrollmentStatus();
     });
 
     const token = localStorage.getItem('token');
@@ -749,11 +780,56 @@ export class CourseDetailsComponent implements OnInit {
     });
   }
 
+  checkEnrollmentStatus() {
+    if (this.isTeacher) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const cached = JSON.parse(localStorage.getItem('enrolled_course_ids') || '[]');
+      if (cached && cached.includes(this.courseId)) {
+        this.isEnrolled = true;
+      }
+    } catch {}
+
+    this.courseService.getMyCourses().subscribe({
+      next: (myCourses: any[]) => {
+        if (myCourses && myCourses.some((c: any) => c.id === this.courseId)) {
+          this.isEnrolled = true;
+          try {
+            const cached = JSON.parse(localStorage.getItem('enrolled_course_ids') || '[]');
+            if (!cached.includes(this.courseId)) {
+              cached.push(this.courseId);
+              localStorage.setItem('enrolled_course_ids', JSON.stringify(cached));
+            }
+          } catch {}
+        }
+      },
+      error: () => {}
+    });
+  }
+
   startComprehensiveQuiz() {
+    if (!this.isTeacher && !this.isEnrolled) {
+      if (this.course?.isFree) {
+        this.enrollFreeCourse();
+      } else {
+        this.enrollInCourse();
+      }
+      return;
+    }
     this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId: this.courseId } });
   }
 
   solveComprehensiveAssignment() {
+    if (!this.isTeacher && !this.isEnrolled) {
+      if (this.course?.isFree) {
+        this.enrollFreeCourse();
+      } else {
+        this.enrollInCourse();
+      }
+      return;
+    }
     if (this.comprehensiveAssignment) {
       this.router.navigate(['/assignment-solver', this.comprehensiveAssignment.id]);
     }
@@ -1013,12 +1089,83 @@ export class CourseDetailsComponent implements OnInit {
     return this.course.price || 0;
   }
 
+  goToPlayer(lessonId?: number) {
+    if (lessonId) {
+      this.router.navigate(['/learn', this.courseId], { queryParams: { lessonId } });
+    } else {
+      this.router.navigate(['/learn', this.courseId]);
+    }
+  }
+
+  openLesson(lesson: any) {
+    if (this.isTeacher) return;
+    if (this.isEnrolled) {
+      this.goToPlayer(lesson.id);
+    } else if (this.course?.isFree || this.getEffectivePrice() <= 0) {
+      this.enrollFreeCourse(lesson.id);
+    } else {
+      this.enrollInCourse();
+    }
+  }
+
   enrollInCourse() {
-    if (this.course?.isFree) {
-      this.payWithPaymob();
+    if (this.isEnrolled) {
+      this.goToPlayer();
+      return;
+    }
+
+    if (this.course?.isFree || this.getEffectivePrice() <= 0) {
+      this.enrollFreeCourse();
     } else {
       this.showPaymentModal = true;
     }
+  }
+
+  enrollFreeCourse(targetLessonId?: number) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.isProcessingPayment = true;
+    this.showMessage(this.lang === 'ar' ? 'جاري تفعيل اشتراكك في الكورس المجاني...' : 'Enrolling in free course...', 'warning');
+
+    this.courseService.enrollInCourse(this.courseId).subscribe({
+      next: () => {
+        this.isProcessingPayment = false;
+        this.isEnrolled = true;
+        try {
+          const cached = JSON.parse(localStorage.getItem('enrolled_course_ids') || '[]');
+          if (!cached.includes(this.courseId)) {
+            cached.push(this.courseId);
+            localStorage.setItem('enrolled_course_ids', JSON.stringify(cached));
+          }
+        } catch {}
+        this.showMessage(this.lang === 'ar' ? 'تم الاشتراك في الكورس بنجاح! جاري تحويلك للمحتوى...' : 'Enrolled successfully! Redirecting...', 'success');
+        setTimeout(() => {
+          if (targetLessonId) {
+            this.router.navigate(['/learn', this.courseId], { queryParams: { lessonId: targetLessonId }, replaceUrl: true });
+          } else {
+            this.router.navigate(['/learn', this.courseId], { replaceUrl: true });
+          }
+        }, 1200);
+      },
+      error: (err) => {
+        this.isProcessingPayment = false;
+        const errStr = JSON.stringify(err || {}).toLowerCase();
+        if (err.status === 400 && (errStr.includes('already') || errStr.includes('مسبق'))) {
+          this.isEnrolled = true;
+          if (targetLessonId) {
+            this.router.navigate(['/learn', this.courseId], { queryParams: { lessonId: targetLessonId }, replaceUrl: true });
+          } else {
+            this.router.navigate(['/learn', this.courseId], { replaceUrl: true });
+          }
+        } else {
+          this.showMessage(this.lang === 'ar' ? 'حدث خطأ أثناء الاشتراك بالكورس.' : 'Failed to enroll in course.', 'error');
+        }
+      }
+    });
   }
 
   closePaymentModal() {
@@ -1046,6 +1193,10 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   payWithPaymob() {
+    if (this.course?.isFree || this.getEffectivePrice() <= 0) {
+      this.enrollFreeCourse();
+      return;
+    }
     this.isProcessingPayment = true;
     this.showMessage(this.lang === 'ar' ? 'جاري تحويلك لبوابة الدفع...' : 'Redirecting to payment gateway...', 'warning');
     this.paymentService.checkoutCourse(this.courseId).subscribe({
@@ -1142,7 +1293,15 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   startQuiz(lessonId: number) {
-    this.router.navigate([`/quiz-solver/${lessonId}`], { replaceUrl: true });
+    if (!this.isTeacher && !this.isEnrolled) {
+      if (this.course?.isFree || this.getEffectivePrice() <= 0) {
+        this.enrollFreeCourse(lessonId);
+      } else {
+        this.enrollInCourse();
+      }
+      return;
+    }
+    this.router.navigate([`/quiz-solver/${lessonId}`], { queryParams: { courseId: this.courseId }, replaceUrl: true });
   }
 
   toggleLang() {
@@ -1150,6 +1309,13 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate([this.isTeacher ? '/teacher-dashboard' : '/student-dashboard']);
+    const role = localStorage.getItem('userRole');
+    if (role === 'Teacher' || role === '1' || role === 'Instructor') {
+      this.router.navigate(['/teacher-dashboard']);
+    } else if (role === 'Admin' || role === '2') {
+      this.router.navigate(['/admin-dashboard']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 }

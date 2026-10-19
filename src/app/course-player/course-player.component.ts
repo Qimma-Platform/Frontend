@@ -751,7 +751,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   openQuiz(event: Event) {
     event.stopPropagation();
     if (this.currentLesson) {
-      this.router.navigate(['/quiz-solver', this.currentLesson.id], { replaceUrl: true });
+      this.router.navigate(['/quiz-solver', this.currentLesson.id], { queryParams: { courseId: this.courseId }, replaceUrl: true });
     }
   }
 
