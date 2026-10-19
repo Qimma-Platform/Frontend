@@ -18,7 +18,7 @@ import { LanguageService } from '../services/language.service';
             <span class="rtl:rotate-180 text-xl">←</span>
           </button>
           <div>
-            <h1 class="text-lg font-bold">{{ t[lang].title }}</h1>
+            <h1 class="text-lg font-bold">{{ isCourseExam ? t[lang].courseExamTitle : t[lang].title }}</h1>
             <p class="text-xs text-indigo-300 dark:text-indigo-400">{{ t[lang].subtitle }}</p>
           </div>
         </div>
@@ -120,6 +120,8 @@ import { LanguageService } from '../services/language.service';
 })
 export class QuizSolverComponent implements OnInit {
   lessonId!: number;
+  courseId: number | null = null;
+  isCourseExam = false;
   questions: any[] = [];
   userAnswers: { [key: number]: number } = {};
   isLoading = true;
@@ -128,13 +130,15 @@ export class QuizSolverComponent implements OnInit {
   
   maxAttempts = 3;
   attemptsCount = 0;
-  studentId = 'unknown_student'; // سيتم استبداله برقم الطالب الحقيقي
+  studentId = 'unknown_student';
   
   lang: 'en' | 'ar' = 'en';
 
   t = {
     en: {
-      title: 'Lesson Quiz', subtitle: 'Choose the correct answer for each question',
+      title: 'Lesson Quiz',
+      courseExamTitle: 'Course Comprehensive Exam',
+      subtitle: 'Choose the correct answer for each question',
       loading: 'Loading questions...', noQuizTitle: 'No Quiz Available',
       backBtn: 'Go Back', submitBtn: 'Submit Answers', resultTitle: 'Your Quiz Result',
       reviewAnswers: 'Answers Review', finishBtn: 'Return to Course',
@@ -142,9 +146,11 @@ export class QuizSolverComponent implements OnInit {
       lockedDesc: 'You have exhausted your allowed attempts (3 max).'
     },
     ar: {
-      title: 'اختبار الدرس', subtitle: 'اختر الإجابة الصحيحة لكل سؤال',
+      title: 'اختبار الدرس',
+      courseExamTitle: 'الاختبار الشامل للكورس',
+      subtitle: 'اختر الإجابة الصحيحة لكل سؤال',
       loading: 'جاري تحميل الأسئلة...', noQuizTitle: 'لا يوجد اختبار',
-      backBtn: 'العودة للدرس', submitBtn: 'إرسال الإجابات', resultTitle: 'نتيجة الاختبار',
+      backBtn: 'العودة للكورس', submitBtn: 'إرسال الإجابات', resultTitle: 'نتيجة الاختبار',
       reviewAnswers: 'مراجعة الإجابات', finishBtn: 'العودة للكورس',
       attemptsLeft: 'المحاولات المتبقية', lockedTitle: 'عفواً!', 
       lockedDesc: 'لقد استنفذت عدد المحاولات المسموح بها (3 محاولات).'
@@ -161,27 +167,34 @@ export class QuizSolverComponent implements OnInit {
   ngOnInit() {
     this.langService.currentLang$.subscribe(l => this.lang = l);
     this.route.params.subscribe(params => {
-      this.lessonId = +params['lessonId'];
+      this.lessonId = params['lessonId'] ? +params['lessonId'] : 0;
       
-      // هنا بنحاول نجيب ID الطالب من التوكن، لو مش موجود بنعمل ID وهمي مؤقت بس مش هيعمل مشكلة التداخل تاني
-      const token = localStorage.getItem('token');
-      if (token) {
-         try {
-            // حل بديل سريع لفك التوكن بدون مكاتب خارجية لمعرفة ID الطالب
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            this.studentId = payload.nameid || payload.sub || 'student_' + Math.random().toString(36).substring(7);
-         } catch(e) {
-            this.studentId = 'student_fallback';
-         }
-      }
-      
-      this.loadAttemptCount();
-      this.loadQuiz();
+      this.route.queryParams.subscribe(qp => {
+        if (qp['courseId']) {
+          this.courseId = +qp['courseId'];
+        }
+        this.isCourseExam = !!this.courseId && (!this.lessonId || this.lessonId === 0);
+
+        const token = localStorage.getItem('token');
+        if (token) {
+           try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              this.studentId = payload.nameid || payload.sub || 'student_' + Math.random().toString(36).substring(7);
+           } catch(e) {
+              this.studentId = 'student_fallback';
+           }
+        }
+        
+        this.loadAttemptCount();
+        this.loadQuiz();
+      });
     });
   }
 
   getStorageKey() {
-    // المفتاح دلوقتي بقى مميز جداً: بيشمل رقم الدرس + رقم الطالب! كدا مستحيل يتداخلوا.
+    if (this.isCourseExam && this.courseId) {
+      return `quiz_attempts_course_${this.courseId}_student_${this.studentId}`;
+    }
     return `quiz_attempts_lesson_${this.lessonId}_student_${this.studentId}`;
   }
 
@@ -194,7 +207,11 @@ export class QuizSolverComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.http.get<any>(`https://qimma.runasp.net/api/quiz/lesson/${this.lessonId}`, { headers }).subscribe({
+    const url = this.isCourseExam && this.courseId
+      ? `https://qimma.runasp.net/api/quiz/course-exam/${this.courseId}`
+      : `https://qimma.runasp.net/api/quiz/lesson/${this.lessonId}`;
+
+    this.http.get<any>(url, { headers }).subscribe({
       next: (res) => {
         if (res.questions) {
           this.questions = res.questions;
@@ -225,15 +242,20 @@ export class QuizSolverComponent implements OnInit {
     this.isSubmitted = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // إرسال النتيجة للباك إند لتحديث النقاط (لو عامل Endpoint الـ Score)
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
-    const scoreData = {
-      lessonId: this.lessonId,
+    const scoreData: any = {
       score: this.score,
       totalQuestions: this.questions.length
     };
+
+    if (this.isCourseExam && this.courseId) {
+      scoreData.courseId = this.courseId;
+      scoreData.lessonId = null;
+    } else {
+      scoreData.lessonId = this.lessonId;
+    }
 
     this.http.post('https://qimma.runasp.net/api/quiz/submit-score', scoreData, { headers }).subscribe({
       next: (res: any) => {
@@ -246,6 +268,10 @@ export class QuizSolverComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/dashboard'], { replaceUrl: true }); 
+    if (this.courseId) {
+      this.router.navigate([`/course/${this.courseId}`], { replaceUrl: true });
+    } else {
+      this.router.navigate(['/dashboard'], { replaceUrl: true }); 
+    }
   }
 }

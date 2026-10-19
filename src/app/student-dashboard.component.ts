@@ -988,6 +988,9 @@ import { ThemeService } from './services/theme.service';
               <div *ngFor="let task of filteredPendingAssignments; trackBy: trackById" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition group">
                 <div class="flex-1">
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 uppercase">{{ lang === 'ar' ? 'مطلوب' : 'Pending' }}</span>
+                  <span *ngIf="!task.lessonId" class="ms-2 text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                    {{ lang === 'ar' ? 'واجب شامل للكورس' : 'Comprehensive Assignment' }}
+                  </span>
                   <h4 class="font-bold text-lg text-slate-900 dark:text-white mt-2">{{ task.title }}</h4>
                   <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ task.courseTitle }}</p>
                   <p class="text-xs text-rose-500 font-bold mt-2 flex items-center gap-1.5">
@@ -1013,6 +1016,9 @@ import { ThemeService } from './services/theme.service';
               <div *ngFor="let task of filteredMissedAssignments; trackBy: trackById" class="bg-rose-50/40 dark:bg-rose-950/20 p-5 rounded-2xl border border-rose-200/80 dark:border-rose-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex-1">
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 uppercase">{{ lang === 'ar' ? 'فات الموعد' : 'Missed' }}</span>
+                  <span *ngIf="!task.lessonId" class="ms-2 text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                    {{ lang === 'ar' ? 'واجب شامل للكورس' : 'Comprehensive Assignment' }}
+                  </span>
                   <h4 class="font-bold text-lg text-slate-700 dark:text-slate-200 mt-2">{{ task.title }}</h4>
                   <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ task.courseTitle }}</p>
                   <p class="text-xs text-rose-600 font-bold mt-2 flex items-center gap-1.5">
@@ -1041,6 +1047,9 @@ import { ThemeService } from './services/theme.service';
               <div *ngFor="let task of filteredCompletedAssignments; trackBy: trackById" class="bg-slate-50 dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-90 hover:opacity-100 transition">
                 <div class="flex-1">
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 uppercase">{{ lang === 'ar' ? 'مكتمل' : 'Completed' }}</span>
+                  <span *ngIf="!task.lessonId" class="ms-2 text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                    {{ lang === 'ar' ? 'واجب شامل للكورس' : 'Comprehensive Assignment' }}
+                  </span>
                   <h4 class="font-bold text-slate-900 dark:text-white mt-2">{{ task.title }}</h4>
                   <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ task.courseTitle }}</p>
                 </div>
@@ -1866,6 +1875,23 @@ export class StudentDashboardComponent implements OnInit {
       return;
     }
 
+    // COMPREHENSIVE COURSE EXAM NOTIFICATION -> Direct to Comprehensive Quiz Solver!
+    if (type === 'NEW_COURSE_EXAM' || text.includes('اختبار شامل جديد') || text.includes('new course exam')) {
+      const courseId = parts[2];
+      if (courseId && !isNaN(Number(courseId))) {
+        this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId } });
+        return;
+      }
+      const courseTitle = parts[1];
+      const matchedCourse = this.myCourses.find(c => courseTitle && c.title?.toLowerCase() === courseTitle.toLowerCase());
+      if (matchedCourse) {
+        this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId: matchedCourse.id } });
+        return;
+      }
+      this.switchTab('dashboard');
+      return;
+    }
+
     // 2. QUIZ NOTIFICATION -> Direct to Quiz Solver!
     if (type === 'NEW_QUIZ' || text.includes('تم نشر اختبار جديد') || text.includes('new quiz') || text.includes('كويز') || text.includes('quiz')) {
       if (type === 'NEW_QUIZ' && parts.length >= 4 && parts[3] && !isNaN(Number(parts[3]))) {
@@ -2001,6 +2027,10 @@ export class StudentDashboardComponent implements OnInit {
     const parts = message.split('||').map(p => p.trim());
     const type = parts[0];
 
+    if (type === 'NEW_COURSE_EXAM') {
+      const courseTitle = parts[1] || '';
+      return this.lang === 'ar' ? `اختبار شامل جديد: ${courseTitle}` : `New Course Exam: ${courseTitle}`;
+    }
     if (type === 'NEW_QUIZ') {
       const lessonTitle = parts[1] || '';
       return this.lang === 'ar' ? `اختبار جديد: ${lessonTitle}` : `New Quiz: ${lessonTitle}`;
@@ -2089,6 +2119,12 @@ export class StudentDashboardComponent implements OnInit {
     const parts = message.split('||').map(p => p.trim());
     const type = parts[0];
 
+    if (type === 'NEW_COURSE_EXAM') {
+      const courseTitle = parts[1] || '';
+      return this.lang === 'ar'
+        ? `تم نشر اختبار شامل جديد لكورس '${courseTitle}'. اختبر معلوماتك الآن!`
+        : `A new comprehensive course exam has been published for '${courseTitle}'. Test your knowledge now!`;
+    }
     if (type === 'NEW_QUIZ') {
       const lessonTitle = parts[1] || '';
       const courseTitle = parts[2] || '';

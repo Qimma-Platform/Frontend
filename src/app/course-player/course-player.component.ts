@@ -255,6 +255,29 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
               <div *ngIf="lessons.length === 0" class="p-8 text-center text-slate-500 dark:text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 m-4 rounded-xl">
                 {{ t[lang].noLessons }}
               </div>
+
+              <!-- Comprehensive Assessments in Playlist -->
+              <div *ngIf="hasComprehensiveQuiz || comprehensiveAssignment" class="p-3 border-t border-slate-100 dark:border-slate-800 space-y-2 bg-slate-50/70 dark:bg-slate-900/70">
+                <div *ngIf="hasComprehensiveQuiz" class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-xl flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">📝</span>
+                    <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">{{ lang === 'ar' ? 'الاختبار الشامل للكورس' : 'Comprehensive Exam' }}</span>
+                  </div>
+                  <button (click)="openComprehensiveQuiz()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0">
+                    {{ lang === 'ar' ? 'بدء الاختبار' : 'Start Exam' }}
+                  </button>
+                </div>
+
+                <div *ngIf="comprehensiveAssignment" class="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/80 rounded-xl flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-base shrink-0">📚</span>
+                    <span class="text-xs font-extrabold text-purple-800 dark:text-purple-300 truncate">{{ comprehensiveAssignment.title || (lang === 'ar' ? 'الواجب الشامل للكورس' : 'Comprehensive Assignment') }}</span>
+                  </div>
+                  <button (click)="openComprehensiveAssignment()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs transition shadow-sm shrink-0">
+                    {{ lang === 'ar' ? 'حل الواجب' : 'Solve' }}
+                  </button>
+                </div>
+              </div>
             </ng-container>
           </div>
         </div>
@@ -271,6 +294,8 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   lessons: any[] = [];
   currentLesson: any = null;
   hasQuiz: boolean = false;
+  hasComprehensiveQuiz: boolean = false;
+  comprehensiveAssignment: any = null;
   isLoading: boolean = true;
   lang: 'en' | 'ar' = 'en';
 
@@ -371,6 +396,29 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
             this.selectLesson(targetLesson);
           } else if (this.lessons.length > 0) {
             this.selectLesson(this.lessons[0]);
+          }
+        });
+
+        // Check for comprehensive course exam
+        this.http.get<any>(`https://qimma.runasp.net/api/quiz/course-exam/${this.courseId}`).subscribe({
+          next: (quiz: any) => {
+            this.hasComprehensiveQuiz = quiz && quiz.questions && quiz.questions.length > 0;
+          },
+          error: () => {
+            this.hasComprehensiveQuiz = false;
+          }
+        });
+
+        // Check for comprehensive course assignment
+        const token = localStorage.getItem('token');
+        const headers = token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : undefined;
+        this.http.get<any[]>(`https://qimma.runasp.net/api/assignments/course/${this.courseId}`, { headers }).subscribe({
+          next: (assignments: any[]) => {
+            const comp = assignments ? assignments.find((a: any) => !a.lessonId || a.lessonId === 0) : null;
+            this.comprehensiveAssignment = comp || null;
+          },
+          error: () => {
+            this.comprehensiveAssignment = null;
           }
         });
       },
@@ -704,6 +752,16 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     if (this.currentLesson) {
       this.router.navigate(['/quiz-solver', this.currentLesson.id], { replaceUrl: true });
+    }
+  }
+
+  openComprehensiveQuiz() {
+    this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId: this.courseId } });
+  }
+
+  openComprehensiveAssignment() {
+    if (this.comprehensiveAssignment) {
+      this.router.navigate(['/assignment-solver', this.comprehensiveAssignment.id]);
     }
   }
 

@@ -132,6 +132,225 @@ import Chart from 'chart.js/auto';
         </div>
       </div>
 
+      <!-- ======================================================== -->
+      <!-- MODAL: COMPREHENSIVE COURSE QUIZ (New / Edit) -->
+      <!-- ======================================================== -->
+      <div *ngIf="showComprehensiveQuizModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
+                📝
+              </div>
+              <div>
+                <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">
+                  {{ isComprehensiveQuizEditMode ? (lang === 'ar' ? 'تعديل الاختبار الشامل للكورس' : 'Edit Comprehensive Course Quiz') : (lang === 'ar' ? 'إنشاء اختبار شامل للكورس' : 'Create Comprehensive Course Quiz') }}
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                  {{ lang === 'ar' ? 'اختبار شامل للكورس بالكامل، يظهر للطالب عند فتح الكورس وفي لوحة الطالب.' : 'Course-level exam visible to students on the course page and dashboard.' }}
+                </p>
+              </div>
+            </div>
+            <button (click)="closeComprehensiveQuizModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
+          </div>
+
+          <!-- Alert for Error -->
+          <div *ngIf="comprehensiveQuizError" class="mb-4 p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 rounded-2xl text-xs font-bold flex items-center gap-2">
+            <span>⚠️ {{ comprehensiveQuizError }}</span>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Select Course -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المستهدف' : 'Target Course' }}</label>
+              <select [(ngModel)]="comprehensiveQuizCourseId" (change)="onComprehensiveQuizCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 text-sm font-medium outline-none">
+                <option [ngValue]="null" disabled>{{ lang === 'ar' ? 'اختر الكورس...' : 'Select a course...' }}</option>
+                <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
+              </select>
+            </div>
+
+            <div *ngIf="isComprehensiveQuizLoading" class="py-12 text-center text-slate-400 animate-pulse text-sm">
+              {{ lang === 'ar' ? 'جاري تحميل بيانات الاختبار الشامل...' : 'Loading comprehensive exam data...' }}
+            </div>
+
+            <!-- Questions Form -->
+            <div *ngIf="!isComprehensiveQuizLoading && comprehensiveQuizCourseId" class="space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{{ lang === 'ar' ? 'أسئلة الاختبار الشامل' : 'Exam Questions' }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-bold">{{ comprehensiveQuizQuestions.length }}</span>
+                </h4>
+                <button type="button" (click)="addComprehensiveQuizQuestion()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                  <span>+</span> {{ lang === 'ar' ? 'إضافة سؤال' : 'Add Question' }}
+                </button>
+              </div>
+
+              <div *ngFor="let q of comprehensiveQuizQuestions; let qIdx = index; trackBy: trackByIndex" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-extrabold text-slate-700 dark:text-slate-300"># {{ qIdx + 1 }} - {{ lang === 'ar' ? 'السؤال' : 'Question' }}</span>
+                  <button *ngIf="comprehensiveQuizQuestions.length > 1" type="button" (click)="removeComprehensiveQuizQuestion(qIdx)" class="text-xs text-rose-500 hover:text-rose-700 font-bold">
+                    {{ lang === 'ar' ? 'حذف السؤال' : 'Remove' }}
+                  </button>
+                </div>
+
+                <div>
+                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <!-- Options -->
+                <div class="space-y-2 pt-1">
+                  <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'الخيارات (اختر الإجابة الصحيحة بالضغط على الدائرة):' : 'Options (Select the correct option with the radio button):' }}</label>
+                  <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
+                    <input type="radio" [name]="'quiz_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-emerald-600 accent-emerald-600 focus:ring-emerald-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
+                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button *ngIf="q.options.length > 2" type="button" (click)="removeComprehensiveQuizOption(q, oIdx)" class="text-slate-400 hover:text-rose-500 px-1 text-sm font-bold">✕</button>
+                  </div>
+                  <div *ngIf="q.options.length < 6" class="pt-1">
+                    <button type="button" (click)="addComprehensiveQuizOption(q)" class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button *ngIf="isComprehensiveQuizEditMode" type="button" (click)="deleteComprehensiveQuiz()" [disabled]="isComprehensiveQuizSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition">
+                {{ lang === 'ar' ? 'حذف الاختبار الشامل' : 'Delete Exam' }}
+              </button>
+              <div class="flex items-center gap-3 ms-auto">
+                <button type="button" (click)="closeComprehensiveQuizModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition">
+                  {{ t[lang].cancel }}
+                </button>
+                <button type="button" (click)="saveComprehensiveQuiz()" [disabled]="!comprehensiveQuizCourseId || isComprehensiveQuizSaving" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50">
+                  {{ isComprehensiveQuizSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الاختبار الشامل' : 'Save Exam') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- MODAL: COMPREHENSIVE COURSE ASSIGNMENT (New / Edit) -->
+      <!-- ======================================================== -->
+      <div *ngIf="showComprehensiveAssignmentModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg">
+                📚
+              </div>
+              <div>
+                <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">
+                  {{ isComprehensiveAssignmentEditMode ? (lang === 'ar' ? 'تعديل الواجب الشامل للكورس' : 'Edit Comprehensive Assignment') : (lang === 'ar' ? 'إنشاء واجب شامل للكورس' : 'Create Comprehensive Assignment') }}
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                  {{ lang === 'ar' ? 'واجب شامل للكورس بالكامل يظهر للطلاب لحله ومراجعته وتصحيحه.' : 'Course-level assignment for students to submit and receive grades.' }}
+                </p>
+              </div>
+            </div>
+            <button (click)="closeComprehensiveAssignmentModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold transition">✕</button>
+          </div>
+
+          <!-- Alert for Error -->
+          <div *ngIf="comprehensiveAssignmentError" class="mb-4 p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 rounded-2xl text-xs font-bold flex items-center gap-2">
+            <span>⚠️ {{ comprehensiveAssignmentError }}</span>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Select Course -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'الكورس المستهدف' : 'Target Course' }}</label>
+              <select [(ngModel)]="comprehensiveAssignmentCourseId" (change)="onComprehensiveAssignmentCourseChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+                <option [ngValue]="null" disabled>{{ lang === 'ar' ? 'اختر الكورس...' : 'Select a course...' }}</option>
+                <option *ngFor="let c of courses" [ngValue]="c.id">{{ c.title }}</option>
+              </select>
+            </div>
+
+            <div *ngIf="isComprehensiveAssignmentLoading" class="py-12 text-center text-slate-400 animate-pulse text-sm">
+              {{ lang === 'ar' ? 'جاري تحميل بيانات الواجب الشامل...' : 'Loading comprehensive assignment data...' }}
+            </div>
+
+            <!-- Form Content -->
+            <div *ngIf="!isComprehensiveAssignmentLoading && comprehensiveAssignmentCourseId" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'عنوان الواجب الشامل' : 'Assignment Title' }}</label>
+                <input type="text" [(ngModel)]="comprehensiveAssignmentData.title" placeholder="{{ lang === 'ar' ? 'مثال: الواجب النهائي الشامل' : 'e.g. Final Comprehensive Assignment' }}" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'تعليمات / تفاصيل الواجب (اختياري)' : 'Instructions / Description (Optional)' }}</label>
+                <textarea rows="2" [(ngModel)]="comprehensiveAssignmentData.description" placeholder="{{ lang === 'ar' ? 'اكتب تعليمات أو تفاصيل توجيهية للطلاب...' : 'Write guidelines or instructions for students...' }}" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-xs font-medium outline-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">{{ lang === 'ar' ? 'تاريخ ووقت انتهاء التسليم' : 'Due Date & Time' }}</label>
+                <input type="datetime-local" [(ngModel)]="comprehensiveAssignmentData.dueDate" [min]="minDate" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 text-sm font-medium outline-none">
+              </div>
+
+              <!-- Questions Header -->
+              <div class="flex items-center justify-between pt-2">
+                <h4 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{{ lang === 'ar' ? 'أسئلة الواجب' : 'Assignment Questions' }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-bold">{{ comprehensiveAssignmentData.questions.length }}</span>
+                </h4>
+                <button type="button" (click)="addComprehensiveAssignmentQuestion()" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                  <span>+</span> {{ lang === 'ar' ? 'إضافة سؤال' : 'Add Question' }}
+                </button>
+              </div>
+
+              <!-- Questions List -->
+              <div *ngFor="let q of comprehensiveAssignmentData.questions; let qIdx = index; trackBy: trackByIndex" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-xs font-extrabold text-slate-700 dark:text-slate-300"># {{ qIdx + 1 }} - {{ lang === 'ar' ? 'السؤال' : 'Question' }}</span>
+                  <div class="flex items-center gap-2">
+                    <select [(ngModel)]="q.type" (change)="onComprehensiveAssignmentTypeChange(q)" class="px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 text-xs font-bold outline-none">
+                      <option value="mcq">{{ lang === 'ar' ? 'اختيار من متعدد' : 'Multiple Choice' }}</option>
+                      <option value="written">{{ lang === 'ar' ? 'مقالي / نصي' : 'Written / Essay' }}</option>
+                    </select>
+                    <button *ngIf="comprehensiveAssignmentData.questions.length > 1" type="button" (click)="removeComprehensiveAssignmentQuestion(qIdx)" class="text-xs text-rose-500 hover:text-rose-700 font-bold">
+                      {{ lang === 'ar' ? 'حذف' : 'Remove' }}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <input type="text" [(ngModel)]="q.text" placeholder="{{ lang === 'ar' ? 'اكتب نص السؤال هنا...' : 'Enter question text...' }}" class="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <!-- MCQ Options -->
+                <div *ngIf="q.type === 'mcq'" class="space-y-2 pt-1">
+                  <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">{{ lang === 'ar' ? 'الخيارات (اختر الإجابة الصحيحة بالضغط على الدائرة):' : 'Options (Select the correct option with the radio button):' }}</label>
+                  <div *ngFor="let opt of q.options; let oIdx = index; trackBy: trackByIndex" class="flex items-center gap-2">
+                    <input type="radio" [name]="'assign_opt_' + qIdx" [checked]="q.correctIndex === oIdx" (change)="q.correctIndex = oIdx" class="w-4 h-4 text-purple-600 accent-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer" title="{{ lang === 'ar' ? 'تحديد كإجابة صحيحة' : 'Set as correct' }}">
+                    <input type="text" [(ngModel)]="q.options[oIdx]" placeholder="{{ lang === 'ar' ? ('الخيار ' + (oIdx + 1)) : ('Option ' + (oIdx + 1)) }}" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-medium outline-none focus:ring-2 focus:ring-purple-500">
+                    <button *ngIf="q.options.length > 2" type="button" (click)="q.options.splice(oIdx, 1)" class="text-slate-400 hover:text-rose-500 px-1 text-sm font-bold">✕</button>
+                  </div>
+                  <div *ngIf="q.options.length < 6" class="pt-1">
+                    <button type="button" (click)="q.options.push('')" class="text-[11px] text-purple-600 dark:text-purple-400 hover:underline font-bold">+ {{ lang === 'ar' ? 'إضافة خيار آخر' : 'Add another option' }}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button *ngIf="isComprehensiveAssignmentEditMode" type="button" (click)="deleteComprehensiveAssignment()" [disabled]="isComprehensiveAssignmentSaving" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-bold rounded-xl text-xs transition">
+                {{ lang === 'ar' ? 'حذف الواجب الشامل' : 'Delete Assignment' }}
+              </button>
+              <div class="flex items-center gap-3 ms-auto">
+                <button type="button" (click)="closeComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition">
+                  {{ t[lang].cancel }}
+                </button>
+                <button type="button" (click)="saveComprehensiveAssignment()" [disabled]="!comprehensiveAssignmentCourseId || isComprehensiveAssignmentSaving" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50">
+                  {{ isComprehensiveAssignmentSaving ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الواجب الشامل' : 'Save Assignment') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- EDIT COURSE MODAL (Matching Add New Schedule Event style) -->
       <div *ngIf="showEditCourseModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in max-h-[90vh] overflow-y-auto">
@@ -1302,14 +1521,33 @@ import Chart from 'chart.js/auto';
 
           <ng-container *ngIf="activeTab === 'courses'">
             <div>
-              <div class="flex items-center justify-between mb-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                   <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ t[lang].myPublished }}</h2>
                   <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">{{ t[lang].manageCourses }}</p>
                 </div>
-                <button (click)="openCreateCourse()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm">
-                  + {{ t[lang].newCourseBtn }}
-                </button>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <!-- + New Quiz Button (Comprehensive) -->
+                  <button (click)="openComprehensiveQuizModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>+ {{ t[lang].newQuizBtn }}</span>
+                  </button>
+
+                  <!-- + New Assignment Button (Comprehensive) -->
+                  <button (click)="openComprehensiveAssignmentModal()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <span>+ {{ t[lang].newAssignmentBtn }}</span>
+                  </button>
+
+                  <!-- + New Course Button -->
+                  <button (click)="openCreateCourse()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-sm text-sm flex items-center gap-1.5 cursor-pointer">
+                    <span>+ {{ t[lang].newCourseBtn }}</span>
+                  </button>
+                </div>
               </div>
 
               <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -2576,7 +2814,9 @@ export class TeacherDashboardComponent implements OnInit {
       enrollStudentModalTitle: 'Enroll Student into Course',
       selectStudentToEnroll: 'Select Student',
       selectStudentPlaceholder: 'Choose a student from the platform...',
-      enrollBtn: 'Enroll Student'
+      enrollBtn: 'Enroll Student',
+      newQuizBtn: 'New Quiz',
+      newAssignmentBtn: 'New Assignment'
     },
     ar: {
       brand: 'قِمَّـة', menu: 'القائمة الرئيسية', dashboard: 'الرئيسية', myCourses: 'إدارة الكورسات',
@@ -2647,7 +2887,9 @@ export class TeacherDashboardComponent implements OnInit {
       enrollStudentModalTitle: 'تسجيل طالب في الكورس',
       selectStudentToEnroll: 'اختر الطالب',
       selectStudentPlaceholder: 'اختر طالباً من المنصة...',
-      enrollBtn: 'تسجيل الطالب'
+      enrollBtn: 'تسجيل الطالب',
+      newQuizBtn: 'اختبار شامل',
+      newAssignmentBtn: 'واجب شامل'
     }
   };
 
@@ -4846,6 +5088,370 @@ export class TeacherDashboardComponent implements OnInit {
         }
       }
     });
+  }
+
+  // ========================================================
+  // COMPREHENSIVE QUIZ STATE & METHODS
+  // ========================================================
+  showComprehensiveQuizModal = false;
+  comprehensiveQuizCourseId: number | null = null;
+  isComprehensiveQuizLoading = false;
+  isComprehensiveQuizSaving = false;
+  isComprehensiveQuizEditMode = false;
+  comprehensiveQuizQuestions: any[] = [];
+  comprehensiveQuizError = '';
+
+  openComprehensiveQuizModal(defaultCourseId?: number) {
+    this.comprehensiveQuizError = '';
+    this.comprehensiveQuizCourseId = defaultCourseId || (this.courses.length > 0 ? this.courses[0].id : null);
+    this.showComprehensiveQuizModal = true;
+    if (this.comprehensiveQuizCourseId) {
+      this.loadComprehensiveQuizForCourse(this.comprehensiveQuizCourseId);
+    } else {
+      this.resetComprehensiveQuizForm();
+    }
+  }
+
+  closeComprehensiveQuizModal() {
+    this.showComprehensiveQuizModal = false;
+    this.comprehensiveQuizError = '';
+  }
+
+  onComprehensiveQuizCourseChange() {
+    if (this.comprehensiveQuizCourseId) {
+      this.loadComprehensiveQuizForCourse(this.comprehensiveQuizCourseId);
+    } else {
+      this.resetComprehensiveQuizForm();
+    }
+  }
+
+  resetComprehensiveQuizForm() {
+    this.isComprehensiveQuizEditMode = false;
+    this.comprehensiveQuizQuestions = [
+      { text: '', imageUrl: '', options: ['', '', '', ''], correctIndex: 0 }
+    ];
+  }
+
+  loadComprehensiveQuizForCourse(courseId: number) {
+    this.isComprehensiveQuizLoading = true;
+    this.comprehensiveQuizError = '';
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.get<any>(`https://qimma.runasp.net/api/quiz/course-exam/${courseId}`, { headers }).subscribe({
+      next: (res) => {
+        this.isComprehensiveQuizLoading = false;
+        if (res && res.questions && res.questions.length > 0) {
+          this.isComprehensiveQuizEditMode = true;
+          this.comprehensiveQuizQuestions = res.questions.map((q: any) => ({
+            text: q.text || '',
+            imageUrl: q.imageUrl || '',
+            options: q.options && q.options.length >= 2 ? [...q.options] : ['', '', '', ''],
+            correctIndex: q.correctIndex >= 0 ? q.correctIndex : 0
+          }));
+        } else {
+          this.resetComprehensiveQuizForm();
+        }
+      },
+      error: () => {
+        this.isComprehensiveQuizLoading = false;
+        this.resetComprehensiveQuizForm();
+      }
+    });
+  }
+
+  addComprehensiveQuizQuestion() {
+    this.comprehensiveQuizQuestions.push({
+      text: '',
+      imageUrl: '',
+      options: ['', '', '', ''],
+      correctIndex: 0
+    });
+  }
+
+  removeComprehensiveQuizQuestion(index: number) {
+    if (this.comprehensiveQuizQuestions.length > 1) {
+      this.comprehensiveQuizQuestions.splice(index, 1);
+    }
+  }
+
+  addComprehensiveQuizOption(q: any) {
+    if (q.options.length < 6) {
+      q.options.push('');
+    }
+  }
+
+  removeComprehensiveQuizOption(q: any, oIdx: number) {
+    if (q.options.length > 2) {
+      q.options.splice(oIdx, 1);
+      if (q.correctIndex >= q.options.length) {
+        q.correctIndex = q.options.length - 1;
+      }
+    }
+  }
+
+  saveComprehensiveQuiz() {
+    this.comprehensiveQuizError = '';
+    if (!this.comprehensiveQuizCourseId) {
+      this.comprehensiveQuizError = this.lang === 'ar' ? 'يرجى اختيار الكورس أولاً.' : 'Please select a course first.';
+      return;
+    }
+
+    for (let i = 0; i < this.comprehensiveQuizQuestions.length; i++) {
+      const q = this.comprehensiveQuizQuestions[i];
+      if (!q.text || !q.text.trim()) {
+        this.comprehensiveQuizError = this.lang === 'ar' ? `يرجى إدخال نص السؤال #${i + 1}.` : `Please enter text for question #${i + 1}.`;
+        return;
+      }
+      for (let j = 0; j < q.options.length; j++) {
+        if (!q.options[j] || !q.options[j].trim()) {
+          this.comprehensiveQuizError = this.lang === 'ar' ? `يرجى ملء جميع خيارات السؤال #${i + 1}.` : `Please fill out all options for question #${i + 1}.`;
+          return;
+        }
+      }
+    }
+
+    this.isComprehensiveQuizSaving = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    const payload = {
+      courseId: this.comprehensiveQuizCourseId,
+      lessonId: null,
+      questions: this.comprehensiveQuizQuestions.map(q => ({
+        text: q.text.trim(),
+        imageUrl: q.imageUrl || '',
+        options: q.options.map((opt: string) => opt.trim()),
+        correctIndex: q.correctIndex
+      }))
+    };
+
+    this.http.post('https://qimma.runasp.net/api/quiz/create', payload, { headers }).subscribe({
+      next: () => {
+        this.isComprehensiveQuizSaving = false;
+        this.showComprehensiveQuizModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم حفظ الاختبار الشامل بنجاح وإرسال إشعار للطلاب! 🚀' : 'Comprehensive course exam saved successfully and students notified! 🚀', 'success');
+        this.loadDashboardStats();
+      },
+      error: (err) => {
+        this.isComprehensiveQuizSaving = false;
+        this.comprehensiveQuizError = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء حفظ الاختبار الشامل.' : 'Error saving comprehensive exam.');
+      }
+    });
+  }
+
+  deleteComprehensiveQuiz() {
+    if (!this.comprehensiveQuizCourseId) return;
+    this.isComprehensiveQuizSaving = true;
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http.delete(`https://qimma.runasp.net/api/quiz/course-exam/${this.comprehensiveQuizCourseId}`, { headers }).subscribe({
+      next: () => {
+        this.isComprehensiveQuizSaving = false;
+        this.showComprehensiveQuizModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم حذف الاختبار الشامل بنجاح.' : 'Comprehensive exam deleted successfully.', 'success');
+        this.loadDashboardStats();
+      },
+      error: (err) => {
+        this.isComprehensiveQuizSaving = false;
+        this.comprehensiveQuizError = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء حذف الاختبار.' : 'Error deleting exam.');
+      }
+    });
+  }
+
+  // ========================================================
+  // COMPREHENSIVE ASSIGNMENT STATE & METHODS
+  // ========================================================
+  showComprehensiveAssignmentModal = false;
+  comprehensiveAssignmentCourseId: number | null = null;
+  isComprehensiveAssignmentLoading = false;
+  isComprehensiveAssignmentSaving = false;
+  isComprehensiveAssignmentEditMode = false;
+  comprehensiveAssignmentId: number | null = null;
+  comprehensiveAssignmentData: any = {
+    title: '',
+    description: '',
+    dueDate: '',
+    questions: []
+  };
+  comprehensiveAssignmentError = '';
+
+  openComprehensiveAssignmentModal(defaultCourseId?: number) {
+    this.comprehensiveAssignmentError = '';
+    this.comprehensiveAssignmentCourseId = defaultCourseId || (this.courses.length > 0 ? this.courses[0].id : null);
+    this.showComprehensiveAssignmentModal = true;
+    if (this.comprehensiveAssignmentCourseId) {
+      this.loadComprehensiveAssignmentForCourse(this.comprehensiveAssignmentCourseId);
+    } else {
+      this.resetComprehensiveAssignmentForm();
+    }
+  }
+
+  closeComprehensiveAssignmentModal() {
+    this.showComprehensiveAssignmentModal = false;
+    this.comprehensiveAssignmentError = '';
+  }
+
+  onComprehensiveAssignmentCourseChange() {
+    if (this.comprehensiveAssignmentCourseId) {
+      this.loadComprehensiveAssignmentForCourse(this.comprehensiveAssignmentCourseId);
+    } else {
+      this.resetComprehensiveAssignmentForm();
+    }
+  }
+
+  resetComprehensiveAssignmentForm() {
+    this.isComprehensiveAssignmentEditMode = false;
+    this.comprehensiveAssignmentId = null;
+    const selectedCourse = this.courses.find(c => c.id === this.comprehensiveAssignmentCourseId);
+    const defaultTitle = selectedCourse ? (this.lang === 'ar' ? `واجب شامل - ${selectedCourse.title}` : `Comprehensive Assignment - ${selectedCourse.title}`) : '';
+    this.comprehensiveAssignmentData = {
+      title: defaultTitle,
+      description: '',
+      dueDate: this.getLocalDateTimeString(),
+      questions: [
+        { text: '', type: 'mcq', options: ['', '', '', ''], correctIndex: 0 }
+      ]
+    };
+  }
+
+  loadComprehensiveAssignmentForCourse(courseId: number) {
+    this.isComprehensiveAssignmentLoading = true;
+    this.comprehensiveAssignmentError = '';
+
+    this.assignmentService.getAssignmentsByCourse(courseId).subscribe({
+      next: (assignments) => {
+        this.isComprehensiveAssignmentLoading = false;
+        const comp = assignments ? assignments.find((a: any) => !a.lessonId || a.lessonId === 0) : null;
+        if (comp) {
+          this.isComprehensiveAssignmentEditMode = true;
+          this.comprehensiveAssignmentId = comp.id;
+          this.comprehensiveAssignmentData = {
+            title: comp.title || '',
+            description: comp.description || '',
+            dueDate: comp.dueDate ? comp.dueDate.slice(0, 16) : this.getLocalDateTimeString(),
+            questions: comp.questions && comp.questions.length > 0 ? comp.questions.map((q: any) => ({
+              text: q.questionText || '',
+              type: q.type === 'essay' ? 'written' : 'mcq',
+              options: q.options ? q.options.split(',').map((o: string) => o.trim()) : ['', '', '', ''],
+              correctIndex: q.options ? Math.max(0, q.options.split(',').map((o: string) => o.trim()).indexOf((q.correctAnswer || '').trim())) : 0
+            })) : [{ text: '', type: 'mcq', options: ['', '', '', ''], correctIndex: 0 }]
+          };
+        } else {
+          this.resetComprehensiveAssignmentForm();
+        }
+      },
+      error: () => {
+        this.isComprehensiveAssignmentLoading = false;
+        this.resetComprehensiveAssignmentForm();
+      }
+    });
+  }
+
+  addComprehensiveAssignmentQuestion() {
+    this.comprehensiveAssignmentData.questions.push({
+      text: '',
+      type: 'mcq',
+      options: ['', '', '', ''],
+      correctIndex: 0
+    });
+  }
+
+  removeComprehensiveAssignmentQuestion(index: number) {
+    if (this.comprehensiveAssignmentData.questions.length > 1) {
+      this.comprehensiveAssignmentData.questions.splice(index, 1);
+    }
+  }
+
+  onComprehensiveAssignmentTypeChange(q: any) {
+    if (q.type === 'mcq' && (!q.options || q.options.length === 0)) {
+      q.options = ['', '', '', ''];
+      q.correctIndex = 0;
+    }
+  }
+
+  saveComprehensiveAssignment() {
+    this.comprehensiveAssignmentError = '';
+    if (!this.comprehensiveAssignmentCourseId) {
+      this.comprehensiveAssignmentError = this.lang === 'ar' ? 'يرجى اختيار الكورس أولاً.' : 'Please select a course first.';
+      return;
+    }
+    if (!this.comprehensiveAssignmentData.title || !this.comprehensiveAssignmentData.title.trim()) {
+      this.comprehensiveAssignmentError = this.lang === 'ar' ? 'يرجى كتابة عنوان الواجب الشامل.' : 'Please enter the comprehensive assignment title.';
+      return;
+    }
+
+    for (let i = 0; i < this.comprehensiveAssignmentData.questions.length; i++) {
+      const q = this.comprehensiveAssignmentData.questions[i];
+      if (!q.text || !q.text.trim()) {
+        this.comprehensiveAssignmentError = this.lang === 'ar' ? `يرجى إدخال نص السؤال #${i + 1}.` : `Please enter text for question #${i + 1}.`;
+        return;
+      }
+      if (q.type === 'mcq') {
+        for (let j = 0; j < q.options.length; j++) {
+          if (!q.options[j] || !q.options[j].trim()) {
+            this.comprehensiveAssignmentError = this.lang === 'ar' ? `يرجى ملء جميع خيارات السؤال #${i + 1}.` : `Please fill out all options for question #${i + 1}.`;
+            return;
+          }
+        }
+      }
+    }
+
+    this.isComprehensiveAssignmentSaving = true;
+    const rawDue = this.comprehensiveAssignmentData.dueDate || this.getLocalDateTimeString();
+    const formattedDue = rawDue.includes('T') ? (rawDue.length === 16 ? rawDue + ':00' : rawDue) : rawDue;
+
+    const payload = {
+      title: this.comprehensiveAssignmentData.title.trim(),
+      description: this.comprehensiveAssignmentData.description || 'Comprehensive Course Assignment',
+      dueDate: formattedDue,
+      totalScore: this.comprehensiveAssignmentData.questions.length * 10,
+      courseId: this.comprehensiveAssignmentCourseId,
+      lessonId: null,
+      questions: this.comprehensiveAssignmentData.questions.map((q: any) => ({
+        questionText: q.text.trim(),
+        type: q.type === 'written' ? 'essay' : 'mcq',
+        options: q.type === 'mcq' ? q.options.map((opt: string) => opt.trim()).join(',') : null,
+        correctAnswer: q.type === 'mcq' ? (q.options[q.correctIndex] || '').trim() : null,
+        score: 10
+      }))
+    };
+
+    this.assignmentService.createAssignment(payload).subscribe({
+      next: () => {
+        this.isComprehensiveAssignmentSaving = false;
+        this.showComprehensiveAssignmentModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم حفظ الواجب الشامل للكورس بنجاح! 🚀' : 'Comprehensive course assignment saved successfully! 🚀', 'success');
+        this.loadDashboardStats();
+      },
+      error: (err: any) => {
+        this.isComprehensiveAssignmentSaving = false;
+        this.comprehensiveAssignmentError = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء حفظ الواجب الشامل.' : 'Error saving comprehensive assignment.');
+      }
+    });
+  }
+
+  deleteComprehensiveAssignment() {
+    if (!this.comprehensiveAssignmentId) return;
+    this.isComprehensiveAssignmentSaving = true;
+
+    this.assignmentService.deleteAssignment(this.comprehensiveAssignmentId).subscribe({
+      next: () => {
+        this.isComprehensiveAssignmentSaving = false;
+        this.showComprehensiveAssignmentModal = false;
+        this.showMessage(this.lang === 'ar' ? 'تم حذف الواجب الشامل بنجاح.' : 'Comprehensive assignment deleted successfully.', 'success');
+        this.loadDashboardStats();
+      },
+      error: (err: any) => {
+        this.isComprehensiveAssignmentSaving = false;
+        this.comprehensiveAssignmentError = err?.error?.message || (this.lang === 'ar' ? 'حدث خطأ أثناء حذف الواجب الشامل.' : 'Error deleting comprehensive assignment.');
+      }
+    });
+  }
+
+  trackByIndex(index: number, obj: any): any {
+    return index;
   }
 
   logout() {

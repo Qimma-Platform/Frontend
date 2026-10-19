@@ -63,6 +63,62 @@ import { PaymentService } from '../services/payment.service';
       <main class="max-w-7xl mx-auto px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="lg:col-span-2 space-y-4">
+
+          <!-- COMPREHENSIVE COURSE EXAMS & ASSIGNMENTS CARD -->
+          <div *ngIf="comprehensiveQuiz || comprehensiveAssignment" class="bg-gradient-to-br from-indigo-50/80 via-purple-50/50 to-emerald-50/60 dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-emerald-950/30 rounded-3xl p-6 border-2 border-indigo-200/70 dark:border-indigo-800/60 shadow-sm space-y-4 animate-fade-in">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🎓</span>
+              <div>
+                <h3 class="font-extrabold text-base text-slate-900 dark:text-white">{{ lang === 'ar' ? 'التقييمات الشاملة للكورس' : 'Comprehensive Course Assessments' }}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ lang === 'ar' ? 'اختبارات وواجبات شاملة لكافة محتوى الكورس' : 'Comprehensive assessments covering the entire course' }}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <!-- Comprehensive Quiz Card -->
+              <div *ngIf="comprehensiveQuiz" class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-emerald-200 dark:border-emerald-800/80 shadow-sm flex flex-col justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg shrink-0">
+                    📝
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">{{ lang === 'ar' ? 'الاختبار الشامل للكورس' : 'Comprehensive Course Exam' }}</h4>
+                    <span class="inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300">
+                      {{ comprehensiveQuiz.questions?.length || 0 }} {{ lang === 'ar' ? 'سؤال' : 'Questions' }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <button (click)="startComprehensiveQuiz()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>{{ lang === 'ar' ? 'بدء الاختبار الشامل' : 'Start Exam' }}</span>
+                    <span class="rtl:rotate-180">→</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Comprehensive Assignment Card -->
+              <div *ngIf="comprehensiveAssignment" class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-purple-200 dark:border-purple-800/80 shadow-sm flex flex-col justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-lg shrink-0">
+                    📚
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm truncate">{{ comprehensiveAssignment.title || (lang === 'ar' ? 'الواجب الشامل للكورس' : 'Comprehensive Assignment') }}</h4>
+                    <span *ngIf="comprehensiveAssignment.dueDate" class="inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300">
+                      ⏰ {{ lang === 'ar' ? 'التسليم:' : 'Due:' }} {{ comprehensiveAssignment.dueDate | date:'shortDate' }}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <button (click)="solveComprehensiveAssignment()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>{{ lang === 'ar' ? 'حل الواجب الشامل' : 'Solve Assignment' }}</span>
+                    <span class="rtl:rotate-180">→</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
             <h2 class="text-xl font-extrabold text-slate-900 dark:text-white mb-6 flex items-center justify-between">
             <span>{{ t[lang].courseLessons }}</span>
@@ -538,6 +594,8 @@ export class CourseDetailsComponent implements OnInit {
   assignmentError = '';
 
   localAssignmentsCache: { [lessonId: number]: any } = {};
+  comprehensiveQuiz: any = null;
+  comprehensiveAssignment: any = null;
 
   assignmentData = {
     title: '',
@@ -664,6 +722,41 @@ export class CourseDetailsComponent implements OnInit {
         this.isLoading = false;
       });
     });
+
+    this.http.get<any>(`https://qimma.runasp.net/api/quiz/course-exam/${this.courseId}`).subscribe({
+      next: (res) => {
+        if (res && res.questions && res.questions.length > 0) {
+          this.comprehensiveQuiz = res;
+        } else {
+          this.comprehensiveQuiz = null;
+        }
+      },
+      error: () => {
+        this.comprehensiveQuiz = null;
+      }
+    });
+
+    const token = localStorage.getItem('token');
+    const headers = token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : undefined;
+    this.http.get<any[]>(`https://qimma.runasp.net/api/assignments/course/${this.courseId}`, { headers }).subscribe({
+      next: (assignments) => {
+        const comp = assignments ? assignments.find((a: any) => !a.lessonId || a.lessonId === 0) : null;
+        this.comprehensiveAssignment = comp || null;
+      },
+      error: () => {
+        this.comprehensiveAssignment = null;
+      }
+    });
+  }
+
+  startComprehensiveQuiz() {
+    this.router.navigate(['/quiz-solver', 0], { queryParams: { courseId: this.courseId } });
+  }
+
+  solveComprehensiveAssignment() {
+    if (this.comprehensiveAssignment) {
+      this.router.navigate(['/assignment-solver', this.comprehensiveAssignment.id]);
+    }
   }
 
   showMessage(msg: string, type: 'success' | 'error' | 'warning' = 'success') {
